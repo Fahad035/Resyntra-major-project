@@ -1,0 +1,59 @@
+/* =========================================================
+   RESYNTRA THEME TOKENS
+========================================================= */
+
+:root {
+  color-scheme: light;
+
+  /* Backgrounds */
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --surface-secondary: #f1f5f9;
+
+  /* Text */
+  --foreground: #0f172a;
+  --muted-foreground: #475569;
+
+  /* Borders */
+  --border: #e2e8f0;
+
+  /* Brand */
+  --primary: #06b6d4;
+  --primary-hover: #0891b2;
+
+  /* Status */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* Shadow */
+  --shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --background: #020617;
+  --surface: #0f172a;
+  --surface-secondary: #162033;
+
+  /* Text */
+  --foreground: #f8fafc;
+  --muted-foreground: #94a3b8;
+
+  /* Borders */
+  --border: #1e293b;
+
+  /* Brand */
+  --primary: #22d3ee;
+  --primary-hover: #67e8f9;
+
+  /* Status */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* Shadow */
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}

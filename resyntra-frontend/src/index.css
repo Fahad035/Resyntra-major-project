@@ -1,1 +1,41 @@
 @import "tailwindcss";
+@import "./styles/theme.css";
+
+
+@layer utilities {
+  .bg-background {
+    background-color: var(--background);
+  }
+
+  .bg-surface {
+    background-color: var(--surface);
+  }
+
+  .bg-surface-secondary {
+    background-color: var(--surface-secondary);
+  }
+
+  .text-foreground {
+    color: var(--foreground);
+  }
+
+  .text-muted {
+    color: var(--muted-foreground);
+  }
+
+  .border-border {
+    border-color: var(--border);
+  }
+
+  .bg-primary {
+    background-color: var(--primary);
+  }
+
+  .text-primary {
+    color: var(--primary);
+  }
+
+  .shadow-theme {
+    box-shadow: var(--shadow);
+  }
+}
