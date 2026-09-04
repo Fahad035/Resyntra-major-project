@@ -7,6 +7,7 @@ import DesktopNav from "./DesktopNav";
 import CTAButtons from "./CTAButtons";
 import MobileMenuButton from "./MobileMenuButton";
 import MegaMenu from "./MegaMenu";
+import ThemeToggle from "@/components/common/ThemeToggle";
 
 import useScrollPosition from "@/hooks/useScrollPosition";
 import {
@@ -86,6 +87,7 @@ const NavbarContent = () => {
           <DesktopNav />
 
           <div className="flex items-center gap-3 px-6">
+            <ThemeToggle />
             <CTAButtons />
             <MobileMenuButton />
           </div>
