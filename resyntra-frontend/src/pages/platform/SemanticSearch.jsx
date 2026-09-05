@@ -1,5 +1,23 @@
+import PageLayout from "@/layouts/PageLayout";
+
+import {
+  SearchHero,
+  SearchExperience,
+  SemanticComparison,
+  ResearchDomains,
+  SearchInsights,
+} from "@/components/search";
+
 const SemanticSearch = () => {
-  return <div>Semantic Search</div>;
+  return (
+    <PageLayout>
+      <SearchHero />
+      <SearchExperience />
+      <SemanticComparison />
+      <ResearchDomains />
+      <SearchInsights />
+    </PageLayout>
+  );
 };
 
 export default SemanticSearch;
