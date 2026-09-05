@@ -20,9 +20,9 @@ export const NAVBAR_ITEMS = [
     label: "Platform",
     type: "mega",
     explore: {
-    title: "Explore Platform",
-    path: "/platform",
-  },
+      title: "Explore Platform",
+      href: "/workspace",
+    },
     sections: [
       {
         title: "Research Tools",
@@ -30,19 +30,19 @@ export const NAVBAR_ITEMS = [
           {
             title: "Workspace",
             description: "Upload and organize papers",
-            path: "/platform/workspace",
+            path: "/workspace",
             icon: BrainCircuit,
           },
           {
             title: "AI Summarizer",
             description: "Generate concise summaries",
-            path: "/platform/summarizer",
+            path: "/ai-summarizer",
             icon: FileText,
           },
           {
             title: "Chat with Papers",
             description: "Ask questions from PDFs",
-            path: "/platform/chat",
+            path: "/chat-with-papers",
             icon: MessageSquare,
           },
         ],
@@ -53,19 +53,19 @@ export const NAVBAR_ITEMS = [
           {
             title: "Semantic Search",
             description: "Search by meaning",
-            path: "/platform/discovery",
+            path: "/semantic-search",
             icon: Search,
           },
           {
             title: "Knowledge Graph",
             description: "Visualize connections",
-            path: "/platform/knowledge-graph",
+            path: "/knowledge-graph",
             icon: Network,
           },
           {
             title: "Analytics",
             description: "Research insights",
-            path: "/platform/analytics",
+            path: "/analytics",
             icon: BarChart3,
           },
         ],
@@ -77,9 +77,9 @@ export const NAVBAR_ITEMS = [
     label: "Solutions",
     type: "mega",
     explore: {
-    title: "Explore Solutions",
-    path: "/solutions",
-  },
+      title: "Explore Solutions",
+      href: "/solutions/students",
+    },
     sections: [
       {
         title: "Who It's For",
@@ -87,25 +87,25 @@ export const NAVBAR_ITEMS = [
           {
             title: "Students",
             description: "Study smarter",
-            path: "/solution/students",
+            path: "/solutions/students",
             icon: GraduationCap,
           },
           {
             title: "Researchers",
             description: "Accelerate literature review",
-            path: "/solution/researchers",
+            path: "/solutions/researchers",
             icon: Microscope,
           },
           {
             title: "Universities",
             description: "Institutional research",
-            path: "/solution/universities",
+            path: "/solutions/universities",
             icon: Building2,
           },
           {
             title: "Professors",
             description: "Academic collaboration",
-            path: "/solution/professors",
+            path: "/solutions/professors",
             icon: BookOpen,
           },
         ],
@@ -114,69 +114,69 @@ export const NAVBAR_ITEMS = [
   },
 
   {
-  label: "Resources",
-  type: "mega",
-  explore: {
-    title: "Explore Resources",
-    path: "/resources",
+    label: "Resources",
+    type: "mega",
+    explore: {
+      title: "Explore Resources",
+      href: "/resources/documentation",
+    },
+    sections: [
+      {
+        title: "Learn",
+        items: [
+          {
+            title: "Documentation",
+            description: "Learn every feature",
+            path: "/resources/documentation",
+            icon: BookOpen,
+          },
+          {
+            title: "Tutorials",
+            description: "Step-by-step guides",
+            path: "/resources/tutorials",
+            icon: GraduationCap,
+          },
+          {
+            title: "Blog",
+            description: "Research & AI articles",
+            path: "/resources/blog",
+            icon: Newspaper,
+          },
+        ],
+      },
+      {
+        title: "Developer",
+        items: [
+          {
+            title: "API Reference",
+            description: "REST APIs",
+            path: "/resources/api-reference",
+            icon: Code2,
+          },
+          {
+            title: "Roadmap",
+            description: "Upcoming features",
+            path: "/resources/roadmap",
+            icon: MapIcon,
+          },
+          {
+            title: "Support",
+            description: "Get help",
+            path: "/resources/support",
+            icon: LifeBuoy,
+          },
+        ],
+      },
+    ],
   },
-  sections: [
-    {
-      title: "Learn",
-      items: [
-        {
-          title: "Documentation",
-          description: "Learn every feature",
-          path: "/resources/docs",
-          icon: BookOpen,
-        },
-        {
-          title: "Tutorials",
-          description: "Step-by-step guides",
-          path: "/resources/tutorials",
-          icon: GraduationCap,
-        },
-        {
-          title: "Blog",
-          description: "Research & AI articles",
-          path: "/resources/blogs",
-          icon: Newspaper,
-        },
-      ],
-    },
-    {
-      title: "Developer",
-      items: [
-        {
-          title: "API Reference",
-          description: "REST APIs",
-          path: "/resources/reference",
-          icon: Code2,
-        },
-        {
-          title: "Roadmap",
-          description: "Upcoming features",
-          path: "/resources/roadmap",
-          icon: MapIcon,
-        },
-        {
-          title: "Support",
-          description: "Get help",
-          path: "/resources/support",
-          icon: LifeBuoy,
-        },
-      ],
-    },
-  ],
-},
 
   {
     label: "Pricing",
-    href: "#pricing",
+    href: "/pricing",
   },
 
   {
     label: "About",
-    href: "#about",
+    href: "/about",
   },
 ];

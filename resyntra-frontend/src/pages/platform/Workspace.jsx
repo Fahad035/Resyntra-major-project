@@ -3,6 +3,10 @@ import PageLayout from "@/layouts/PageLayout";
 import {
   WorkspaceHero,
   WorkspacePreview,
+  FeatureSection,
+  WorkflowTimeline,
+  CollaborationSection,
+  WorkspaceCTA,
 } from "@/components/workspace";
 
 const Workspace = () => {
@@ -11,6 +15,14 @@ const Workspace = () => {
       <WorkspaceHero />
 
       <WorkspacePreview />
+
+      <FeatureSection />
+
+      <WorkflowTimeline />
+
+      <CollaborationSection />
+
+      <WorkspaceCTA />
     </PageLayout>
   );
 };

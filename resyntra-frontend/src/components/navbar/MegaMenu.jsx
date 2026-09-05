@@ -128,7 +128,7 @@ const MegaMenu = () => {
                         </div>
 
                         <Link
-                            to={activeMenu.explore.path}
+                            to={activeMenu.href}
                             onClick={() => setActiveMenu(null)}
                             className="flex items-center gap-2 text-sm font-medium text-cyan-400 transition hover:gap-3"
                         >
