@@ -1,5 +1,23 @@
+import PageLayout from "@/layouts/PageLayout";
+
+import {
+  KnowledgeHero,
+  InteractiveGraph,
+  NodeInspector,
+  GraphTimeline,
+  GraphCapabilities,
+} from "@/components/graph";
+
 const KnowledgeGraph = () => {
-  return <div>Knowledge Graph</div>;
+  return (
+    <PageLayout>
+      <KnowledgeHero />
+      <InteractiveGraph />
+      <NodeInspector />
+      <GraphTimeline />
+      <GraphCapabilities />
+    </PageLayout>
+  );
 };
 
 export default KnowledgeGraph;
