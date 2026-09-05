@@ -1,10 +1,17 @@
+import PageLayout from "@/layouts/PageLayout";
+
+import {
+  WorkspaceHero,
+  WorkspacePreview,
+} from "@/components/workspace";
+
 const Workspace = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-foreground">
-        Workspace
-      </h1>
-    </div>
+    <PageLayout>
+      <WorkspaceHero />
+
+      <WorkspacePreview />
+    </PageLayout>
   );
 };
 
