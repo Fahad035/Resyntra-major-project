@@ -37,8 +37,8 @@ const MegaMenu = () => {
             overflow-hidden
             rounded-2xl
             border
-            border-white/10
-            bg-slate-900/95
+            border-border
+            bg-(--surface)/95
             shadow-2xl
             backdrop-blur-2xl
             "
@@ -60,7 +60,7 @@ const MegaMenu = () => {
                     >
                         {activeMenu.sections.map((section) => (
                             <div key={section.title}>
-                                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
                                     {section.title}
                                 </p>
 
@@ -84,7 +84,7 @@ const MegaMenu = () => {
                           text-left
                           transition-all
                           duration-200
-                          hover:bg-white/5
+                          hover:bg-(--foreground)/5
                         "
                                             >
                                                 <div
@@ -100,11 +100,11 @@ const MegaMenu = () => {
                                                 </div>
 
                                                 <div>
-                                                    <h4 className="font-medium text-white">
+                                                    <h4 className="font-medium text-foreground">
                                                         {item.title}
                                                     </h4>
 
-                                                    <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                                                    <p className="mt-1 text-sm leading-relaxed text-muted">
                                                         {item.description}
                                                     </p>
                                                 </div>
@@ -116,13 +116,13 @@ const MegaMenu = () => {
                         ))}
                     </motion.div>
 
-                    <div className="flex items-center justify-between border-t border-white/10 bg-white/2 px-7 py-4">
+                    <div className="flex items-center justify-between border-t border-border bg-(--foreground)/2 px-7 py-4">
                         <div>
-                            <p className="text-sm font-medium text-white">
+                            <p className="text-sm font-medium text-foreground">
                                 View all Platform features {activeMenu.label}
                             </p>
 
-                            <p className="text-sm text-slate-400">
+                            <p className="text-sm text-muted">
                                 Discover every feature available inside Resyntra.
                             </p>
                         </div>

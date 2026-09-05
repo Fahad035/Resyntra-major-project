@@ -33,7 +33,7 @@ const DesktopNav = () => {
         transition-colors
         ${location.pathname.startsWith(item.path)
                 ? "text-cyan-400"
-                : "text-slate-300 hover:text-cyan-400"
+                : "text-muted hover:text-cyan-400"
               }
     `}
           >
@@ -44,7 +44,7 @@ const DesktopNav = () => {
           {item.type === "mega" && (
             <button
               onClick={() => toggleMenu(item)}
-              className="rounded-md p-1.5 transition-all duration-200 hover:bg-white/5 hover:text-cyan-400"
+              className="rounded-md p-1.5 transition-all duration-200 hover:bg-(--foreground)/5 hover:text-cyan-400"
             >
               <motion.div
                 animate={{
@@ -53,7 +53,7 @@ const DesktopNav = () => {
                 }}
                 transition={{ duration: 0.2 }}
               >
-                <ChevronDown className="h-4 w-4 text-slate-400" />
+                <ChevronDown className="h-4 w-4 text-muted" />
               </motion.div>
             </button>
           )}

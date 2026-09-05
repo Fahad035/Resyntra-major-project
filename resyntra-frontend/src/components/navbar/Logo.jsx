@@ -12,11 +12,11 @@ const Logo = () => {
       <ResyntraLogo className="h-11 w-11" />
 
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-white">
+        <h1 className="text-xl font-bold tracking-tight text-foreground">
           Resyntra
         </h1>
 
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-muted">
           AI Research Intelligence
         </p>
       </div>

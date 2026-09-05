@@ -6,7 +6,7 @@ const AIAssistant = () => {
       <div className="mb-5 flex items-center gap-3">
         <Bot className="h-6 w-6 text-cyan-400" />
 
-        <h3 className="font-semibold text-white">
+        <h3 className="font-semibold text-foreground">
           AI Assistant
         </h3>
       </div>
@@ -20,15 +20,15 @@ const AIAssistant = () => {
           </span>
         </div>
 
-        <p className="text-sm leading-7 text-slate-300">
+        <p className="text-sm leading-7 text-muted">
           What limitations of Transformers were later addressed by
           GPT models?
         </p>
       </div>
 
-      <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
+      <div className="mt-6 rounded-xl border border-border bg-(--foreground)/5 p-4">
         <input
-          className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+          className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted"
           placeholder="Ask AI about this paper..."
         />
       </div>

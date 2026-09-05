@@ -5,11 +5,11 @@ const SuggestionChips = () => {
   return (
     <section className="mt-10 w-full max-w-6xl">
       <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white">
+        <h3 className="text-lg font-semibold text-foreground">
           Trending Research Areas
         </h3>
 
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           Explore popular academic domains
         </p>
       </div>

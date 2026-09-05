@@ -54,7 +54,7 @@ const SectionTitle = ({
       <p
         className={twMerge(
           clsx(
-            "text-slate-400 text-lg leading-8 max-w-3xl",
+            "text-muted text-lg leading-8 max-w-3xl",
             descriptionClassName
           )
         )}

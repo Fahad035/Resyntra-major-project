@@ -47,17 +47,17 @@ const collections = [
 
 const Sidebar = () => {
   return (
-    <aside className="flex h-full flex-col bg-slate-950/40">
+    <aside className="flex h-full flex-col bg-(--surface)/40">
 
       {/* Logo */}
 
-      <div className="border-b border-white/10 px-6 py-5">
+      <div className="border-b border-border px-6 py-5">
 
-        <h3 className="text-lg font-semibold text-white">
+        <h3 className="text-lg font-semibold text-foreground">
           Research Papers
         </h3>
 
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm text-muted">
           AI-powered workspace
         </p>
 
@@ -67,11 +67,11 @@ const Sidebar = () => {
 
       <div className="px-6 py-5">
 
-        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-(--foreground)/5 px-4 py-3">
 
-          <Search className="h-4 w-4 text-slate-500" />
+          <Search className="h-4 w-4 text-muted" />
 
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-muted">
             Search papers...
           </span>
 
@@ -83,7 +83,7 @@ const Sidebar = () => {
 
       <div className="px-4">
 
-        <p className="mb-3 px-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="mb-3 px-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
           Collections
         </p>
 
@@ -96,11 +96,11 @@ const Sidebar = () => {
               <motion.button
                 key={item.label}
                 whileHover={{ x: 5 }}
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-white/5"
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-(--foreground)/5"
               >
                 <Icon className={`h-5 w-5 ${item.color}`} />
 
-                <span className="text-sm text-slate-300">
+                <span className="text-sm text-muted">
                   {item.label}
                 </span>
               </motion.button>
@@ -114,7 +114,7 @@ const Sidebar = () => {
 
       <div className="mt-8 flex-1 px-4">
 
-        <p className="mb-3 flex items-center gap-2 px-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="mb-3 flex items-center gap-2 px-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
 
           <Clock3 className="h-3 w-3" />
 
@@ -131,13 +131,13 @@ const Sidebar = () => {
               className={`cursor-pointer rounded-2xl border p-4 transition ${
                 paper.active
                   ? "border-cyan-500/40 bg-cyan-500/10"
-                  : "border-white/10 bg-white/3 hover:bg-white/5"
+                  : "border-border bg-(--foreground)/3 hover:bg-(--foreground)/5"
               }`}
             >
 
               <div className="flex items-start gap-3">
 
-                <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-xl bg-white/5">
+                <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-xl bg-(--foreground)/5">
 
                   <FileText className="h-5 w-5 text-cyan-400" />
 
@@ -145,11 +145,11 @@ const Sidebar = () => {
 
                 <div className="min-w-0">
 
-                  <h4 className="truncate text-sm font-medium text-white">
+                  <h4 className="truncate text-sm font-medium text-foreground">
                     {paper.title}
                   </h4>
 
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs text-muted">
                     {paper.tag}
                   </p>
 
@@ -166,7 +166,7 @@ const Sidebar = () => {
 
       {/* Footer */}
 
-      <div className="border-t border-white/10 px-6 py-5">
+      <div className="border-t border-border px-6 py-5">
 
         <div className="rounded-2xl bg-linear-to-r from-cyan-500/10 to-blue-500/10 p-4">
 
@@ -178,7 +178,7 @@ const Sidebar = () => {
 
             <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
 
-            <span className="text-sm font-medium text-white">
+            <span className="text-sm font-medium text-foreground">
               Ready to Analyze
             </span>
 

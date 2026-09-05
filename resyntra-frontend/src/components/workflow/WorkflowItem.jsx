@@ -29,11 +29,11 @@ const WorkflowItem = ({ icon: Icon, title, description, last }) => {
         transition={{ duration: 0.5 }}
         className="pb-16"
       >
-        <h3 className="text-2xl font-semibold text-white">
+        <h3 className="text-2xl font-semibold text-foreground">
           {title}
         </h3>
 
-        <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-400">
+        <p className="mt-4 max-w-2xl text-lg leading-8 text-muted">
           {description}
         </p>
       </motion.div>

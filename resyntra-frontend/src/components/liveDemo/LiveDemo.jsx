@@ -33,7 +33,7 @@ const LiveDemo = () => {
 
           </span>
 
-          <h2 className="mt-8 text-4xl font-bold text-white md:text-6xl">
+          <h2 className="mt-8 text-4xl font-bold text-foreground md:text-6xl">
 
             Research.
             Analyze.
@@ -41,7 +41,7 @@ const LiveDemo = () => {
 
           </h2>
 
-          <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-slate-400">
+          <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-muted">
 
             Upload a research paper and watch AI summarize,
             discover research gaps, generate citations,

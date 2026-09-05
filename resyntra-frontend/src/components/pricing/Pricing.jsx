@@ -19,12 +19,12 @@ const Pricing = () => {
             Pricing
           </span>
 
-          <h2 className="mt-6 text-4xl font-bold text-white md:text-6xl">
+          <h2 className="mt-6 text-4xl font-bold text-foreground md:text-6xl">
             Simple pricing that grows
             with your research.
           </h2>
 
-          <p className="mt-8 text-lg leading-8 text-slate-400">
+          <p className="mt-8 text-lg leading-8 text-muted">
             Start for free, upgrade when you need advanced AI capabilities,
             or choose Enterprise for collaborative research teams.
           </p>

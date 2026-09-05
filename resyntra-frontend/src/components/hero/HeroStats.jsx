@@ -24,13 +24,13 @@ const HeroStats = () => {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-2xl border border-white/10 bg-white/3 p-6 text-center"
+            className="rounded-2xl border border-border bg-(--foreground)/3 p-6 text-center"
           >
             <h3 className="text-3xl font-bold text-cyan-400">
               {stat.value}
             </h3>
 
-            <p className="mt-3 text-sm text-slate-400">
+            <p className="mt-3 text-sm text-muted">
               {stat.label}
             </p>
           </div>

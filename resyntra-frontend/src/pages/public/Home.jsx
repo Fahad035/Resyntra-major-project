@@ -9,7 +9,7 @@ import CTA from "@/components/cta";
 
 const Home = () => {
   return (
-    <main className="bg-slate-950 text-white">
+    <main className="bg-surface text-foreground">
       <Hero />
 
       <LiveDemo />

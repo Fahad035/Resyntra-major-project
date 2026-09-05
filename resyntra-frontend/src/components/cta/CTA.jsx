@@ -22,13 +22,13 @@ const CTA = () => {
             Get Started
           </span>
 
-          <h2 className="mt-8 text-5xl font-bold leading-tight text-white md:text-7xl">
+          <h2 className="mt-8 text-5xl font-bold leading-tight text-foreground md:text-7xl">
             The future of research
             <br />
             starts here.
           </h2>
 
-          <p className="mx-auto mt-10 max-w-2xl text-lg leading-8 text-slate-400">
+          <p className="mx-auto mt-10 max-w-2xl text-lg leading-8 text-muted">
             Spend less time searching and organizing papers.
             Spend more time discovering ideas that matter.
           </p>
@@ -46,7 +46,7 @@ const CTA = () => {
 
             <Link
               to="/login"
-              className="rounded-xl border border-white/10 bg-white/5 px-8 py-4 font-medium text-white transition hover:bg-white/10"
+              className="rounded-xl border border-border bg-(--foreground)/5 px-8 py-4 font-medium text-foreground transition hover:bg-(--foreground)/10"
             >
               Sign In
             </Link>

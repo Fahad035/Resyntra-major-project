@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const FooterColumn = ({ title, links }) => {
   return (
     <div>
-      <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.2em] text-white">
+      <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.2em] text-foreground">
         {title}
       </h3>
 
@@ -12,7 +12,7 @@ const FooterColumn = ({ title, links }) => {
           <li key={link.label}>
             <Link
               to={link.href}
-              className="text-slate-400 transition hover:text-cyan-400"
+              className="text-muted transition hover:text-cyan-400"
             >
               {link.label}
             </Link>

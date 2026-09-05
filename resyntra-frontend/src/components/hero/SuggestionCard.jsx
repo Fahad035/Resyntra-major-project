@@ -9,15 +9,15 @@ const SuggestionCard = ({ topic }) => {
         group
         rounded-2xl
         border
-        border-white/10
-        bg-white/2
+        border-border
+        bg-(--foreground)/2
         p-5
         text-left
         transition-all
         duration-300
         hover:-translate-y-1
         hover:border-cyan-400/40
-        hover:bg-white/4
+        hover:bg-(--foreground)/4
       "
     >
       <div className="flex items-start justify-between">
@@ -29,7 +29,7 @@ const SuggestionCard = ({ topic }) => {
           className="
             h-4
             w-4
-            text-slate-500
+            text-muted
             opacity-0
             transition-all
             duration-300
@@ -39,11 +39,11 @@ const SuggestionCard = ({ topic }) => {
         />
       </div>
 
-      <h4 className="mt-5 font-semibold text-white">
+      <h4 className="mt-5 font-semibold text-foreground">
         {topic.title}
       </h4>
 
-      <p className="mt-2 text-sm text-slate-400">
+      <p className="mt-2 text-sm text-muted">
         {topic.papers}
       </p>
     </button>

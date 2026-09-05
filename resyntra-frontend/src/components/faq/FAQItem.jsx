@@ -6,20 +6,20 @@ const FAQItem = ({ question, answer }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-white/10 py-6">
+    <div className="border-b border-border py-6">
 
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between text-left"
       >
-        <h3 className="text-xl font-medium text-white">
+        <h3 className="text-xl font-medium text-foreground">
           {question}
         </h3>
 
         {open ? (
           <Minus className="h-5 w-5 text-cyan-400" />
         ) : (
-          <Plus className="h-5 w-5 text-slate-400" />
+          <Plus className="h-5 w-5 text-muted" />
         )}
       </button>
 
@@ -33,7 +33,7 @@ const FAQItem = ({ question, answer }) => {
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <p className="pt-5 max-w-3xl text-lg leading-8 text-slate-400">
+            <p className="pt-5 max-w-3xl text-lg leading-8 text-muted">
               {answer}
             </p>
           </motion.div>

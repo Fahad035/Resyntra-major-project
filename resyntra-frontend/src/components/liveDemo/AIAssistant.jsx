@@ -34,11 +34,11 @@ const suggestions = [
 
 const AIAssistant = () => {
   return (
-    <aside className="flex h-full flex-col bg-slate-950/40">
+    <aside className="flex h-full flex-col bg-(--surface)/40">
 
       {/* Header */}
 
-      <div className="border-b border-white/10 px-6 py-5">
+      <div className="border-b border-border px-6 py-5">
 
         <div className="flex items-center justify-between">
 
@@ -52,11 +52,11 @@ const AIAssistant = () => {
 
             <div>
 
-              <h3 className="font-semibold text-white">
+              <h3 className="font-semibold text-foreground">
                 Resyntra AI
               </h3>
 
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted">
                 Research Assistant
               </p>
 
@@ -80,9 +80,9 @@ const AIAssistant = () => {
 
       {/* Thinking */}
 
-      <div className="border-b border-white/10 px-6 py-5">
+      <div className="border-b border-border px-6 py-5">
 
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
           AI Processing
         </p>
 
@@ -105,11 +105,11 @@ const AIAssistant = () => {
 
             <div>
 
-              <p className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-foreground">
                 Analyzing Paper...
               </p>
 
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-muted">
                 Extracting key concepts
               </p>
 
@@ -117,7 +117,7 @@ const AIAssistant = () => {
 
           </div>
 
-          <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/10">
+          <div className="mt-5 h-2 overflow-hidden rounded-full bg-(--foreground)/10">
 
             <motion.div
               animate={{
@@ -140,7 +140,7 @@ const AIAssistant = () => {
 
       <div className="flex-1 overflow-y-auto px-6 py-6">
 
-        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
           AI Insights
         </p>
 
@@ -155,12 +155,12 @@ const AIAssistant = () => {
                 whileHover={{
                   y: -3,
                 }}
-                className="rounded-2xl border border-white/10 bg-white/3 p-5 transition hover:border-cyan-500/20"
+                className="rounded-2xl border border-border bg-(--foreground)/3 p-5 transition hover:border-cyan-500/20"
               >
 
                 <div className="flex items-start gap-3">
 
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--foreground)/5">
 
                     <Icon className={`h-5 w-5 ${item.color}`} />
 
@@ -168,11 +168,11 @@ const AIAssistant = () => {
 
                   <div className="flex-1">
 
-                    <h4 className="font-medium text-white">
+                    <h4 className="font-medium text-foreground">
                       {item.title}
                     </h4>
 
-                    <p className="mt-2 text-sm leading-6 text-slate-400">
+                    <p className="mt-2 text-sm leading-6 text-muted">
                       {item.description}
                     </p>
 
@@ -190,7 +190,7 @@ const AIAssistant = () => {
 
       {/* Footer */}
 
-      <div className="border-t border-white/10 px-6 py-5">
+      <div className="border-t border-border px-6 py-5">
 
         <div className="rounded-2xl bg-linear-to-r from-cyan-500/10 to-indigo-500/10 p-4">
 
@@ -202,7 +202,7 @@ const AIAssistant = () => {
                 Confidence
               </p>
 
-              <h3 className="mt-2 text-3xl font-bold text-white">
+              <h3 className="mt-2 text-3xl font-bold text-foreground">
                 98%
               </h3>
 

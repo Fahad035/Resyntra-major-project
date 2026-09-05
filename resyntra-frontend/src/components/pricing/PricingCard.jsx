@@ -15,8 +15,8 @@ const PricingCard = ({
       className={clsx(
         "flex flex-col rounded-3xl border p-8 transition-all duration-300",
         highlighted
-          ? "border-cyan-400 bg-slate-900 shadow-[0_0_60px_rgba(34,211,238,0.12)]"
-          : "border-white/10 bg-white/2"
+          ? "border-cyan-400 bg-surface shadow-[0_0_60px_rgba(34,211,238,0.12)]"
+          : "border-border bg-(--foreground)/2"
       )}
     >
       {highlighted && (
@@ -25,21 +25,21 @@ const PricingCard = ({
         </span>
       )}
 
-      <h3 className="text-2xl font-semibold text-white">
+      <h3 className="text-2xl font-semibold text-foreground">
         {name}
       </h3>
 
-      <p className="mt-4 text-slate-400">
+      <p className="mt-4 text-muted">
         {description}
       </p>
 
       <div className="mt-8 flex items-end gap-1">
-        <span className="text-5xl font-bold text-white">
+        <span className="text-5xl font-bold text-foreground">
           {price}
         </span>
 
         {period && (
-          <span className="pb-2 text-slate-500">
+          <span className="pb-2 text-muted">
             {period}
           </span>
         )}
@@ -53,7 +53,7 @@ const PricingCard = ({
           >
             <Check className="mt-0.5 h-5 w-5 text-cyan-400" />
 
-            <span className="text-slate-300">
+            <span className="text-muted">
               {feature}
             </span>
           </li>
@@ -65,7 +65,7 @@ const PricingCard = ({
           "mt-10 rounded-xl py-3 font-semibold transition",
           highlighted
             ? "bg-cyan-400 text-slate-950 hover:bg-cyan-300"
-            : "border border-white/10 bg-white/5 text-white hover:bg-white/10"
+            : "border border-border bg-(--foreground)/5 text-foreground hover:bg-(--foreground)/10"
         )}
       >
         {button}

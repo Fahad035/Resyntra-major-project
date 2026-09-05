@@ -13,13 +13,13 @@ const DemoWorkspace = () => {
 
         {/* Sidebar */}
 
-        <div className="col-span-3 border-r border-white/10">
+        <div className="col-span-3 border-r border-border">
           <Sidebar />
         </div>
 
         {/* Document */}
 
-        <div className="col-span-6 border-r border-white/10">
+        <div className="col-span-6 border-r border-border">
           <DocumentViewer />
         </div>
 

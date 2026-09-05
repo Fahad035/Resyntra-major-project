@@ -76,7 +76,7 @@ const NavbarContent = () => {
           className={clsx(
             "relative flex items-center justify-between rounded-2xl border transition-all duration-300",
             isScrolled
-              ? "h-16 border border-white/10 bg-slate-900/70 shadow-xl backdrop-blur-xl"
+              ? "h-16 border border-border bg-(--surface)/70 shadow-xl backdrop-blur-xl"
               : "h-20 border-transparent bg-transparent"
           )}
         >

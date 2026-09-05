@@ -38,8 +38,8 @@ const PopoverContent = ({
             -translate-x-1/2
             rounded-2xl
             border
-            border-white/10
-            bg-slate-900/90
+            border-border
+            bg-(--surface)/90
             backdrop-blur-xl
             shadow-xl
             ${className}

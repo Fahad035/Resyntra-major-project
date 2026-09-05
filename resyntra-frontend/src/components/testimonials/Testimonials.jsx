@@ -19,13 +19,13 @@ const Testimonials = () => {
             Testimonials
           </span>
 
-          <h2 className="mt-6 text-5xl font-bold text-white">
+          <h2 className="mt-6 text-5xl font-bold text-foreground">
             Built for researchers,
             <br />
             trusted by researchers.
           </h2>
 
-          <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-slate-400">
+          <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-muted">
             From graduate students to experienced researchers,
             Resyntra helps people spend less time searching
             and more time discovering.

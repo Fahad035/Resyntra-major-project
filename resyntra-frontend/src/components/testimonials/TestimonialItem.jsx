@@ -8,20 +8,20 @@ const TestimonialItem = ({ name, role, quote }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="border-t border-white/10 pt-8"
+      className="border-t border-border pt-8"
     >
       <Quote className="mb-6 h-8 w-8 text-cyan-400/70" />
 
-      <p className="text-lg leading-8 text-slate-300">
+      <p className="text-lg leading-8 text-muted">
         "{quote}"
       </p>
 
       <div className="mt-8">
-        <h4 className="font-semibold text-white">
+        <h4 className="font-semibold text-foreground">
           {name}
         </h4>
 
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-muted">
           {role}
         </p>
       </div>

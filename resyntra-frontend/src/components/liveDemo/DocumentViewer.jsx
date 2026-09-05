@@ -26,11 +26,11 @@ const paragraphs = [
 
 const DocumentViewer = () => {
   return (
-    <div className="flex h-full flex-col bg-slate-950/30">
+    <div className="flex h-full flex-col bg-(--surface)/30">
 
       {/* Header */}
 
-      <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+      <div className="flex items-center justify-between border-b border-border px-6 py-5">
 
         <div className="flex items-center gap-3">
 
@@ -42,11 +42,11 @@ const DocumentViewer = () => {
 
           <div>
 
-            <h3 className="font-semibold text-white">
+            <h3 className="font-semibold text-foreground">
               Attention Is All You Need.pdf
             </h3>
 
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-muted">
               15 Pages • Uploaded Today
             </p>
 
@@ -70,7 +70,7 @@ const DocumentViewer = () => {
 
       <div className="flex-1 overflow-y-auto px-8 py-8">
 
-        <div className="mx-auto max-w-2xl rounded-3xl border border-white/10 bg-white p-10 shadow-2xl">
+        <div className="mx-auto max-w-2xl rounded-3xl border border-border bg-white p-10 shadow-2xl">
 
           {/* Paper Header */}
 
@@ -80,7 +80,7 @@ const DocumentViewer = () => {
               Attention Is All You Need
             </h1>
 
-            <p className="mt-3 text-slate-500">
+            <p className="mt-3 text-muted">
               Vaswani et al.
             </p>
 
@@ -171,7 +171,7 @@ const DocumentViewer = () => {
 
             <div className="flex items-center justify-between">
 
-              <span className="text-sm text-slate-500">
+              <span className="text-sm text-muted">
                 Page 1 of 15
               </span>
 

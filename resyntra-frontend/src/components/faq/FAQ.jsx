@@ -19,11 +19,11 @@ const FAQ = () => {
             FAQ
           </span>
 
-          <h2 className="mt-6 text-4xl font-bold text-white md:text-6xl">
+          <h2 className="mt-6 text-4xl font-bold text-foreground md:text-6xl">
             Frequently asked questions
           </h2>
 
-          <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-slate-400">
+          <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-muted">
             Everything you need to know before getting started with Resyntra.
           </p>
 

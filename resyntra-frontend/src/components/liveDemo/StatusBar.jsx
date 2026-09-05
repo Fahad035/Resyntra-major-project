@@ -36,7 +36,7 @@ const stats = [
 
 const StatusBar = () => {
   return (
-    <div className="border-t border-white/10 bg-slate-900/80 backdrop-blur-xl">
+    <div className="border-t border-border bg-(--surface)/80 backdrop-blur-xl">
 
       <div className="grid grid-cols-4">
 
@@ -52,11 +52,11 @@ const StatusBar = () => {
               transition={{
                 delay: index * 0.15,
               }}
-              className="flex items-center justify-between border-r border-white/10 px-6 py-5 last:border-r-0"
+              className="flex items-center justify-between border-r border-border px-6 py-5 last:border-r-0"
             >
               <div className="flex items-center gap-4">
 
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--foreground)/5">
 
                   <Icon className={`h-6 w-6 ${item.color}`} />
 
@@ -64,11 +64,11 @@ const StatusBar = () => {
 
                 <div>
 
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted">
                     {item.label}
                   </p>
 
-                  <h4 className="mt-1 font-semibold text-white">
+                  <h4 className="mt-1 font-semibold text-foreground">
                     {item.value}
                   </h4>
 
@@ -84,13 +84,13 @@ const StatusBar = () => {
 
       {/* Bottom Status */}
 
-      <div className="flex items-center justify-between border-t border-white/10 px-6 py-4">
+      <div className="flex items-center justify-between border-t border-border px-6 py-4">
 
         <div className="flex items-center gap-3">
 
           <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-green-400" />
 
-          <span className="text-sm text-slate-300">
+          <span className="text-sm text-muted">
             Workspace synchronized successfully
           </span>
 

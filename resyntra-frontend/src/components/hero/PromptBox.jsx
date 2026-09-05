@@ -27,8 +27,8 @@ const PromptBox = () => {
       className="
         rounded-3xl
         border
-        border-white/10
-        bg-white/3
+        border-border
+        bg-(--foreground)/3
         backdrop-blur-xl
         transition-all
         duration-300
@@ -37,17 +37,17 @@ const PromptBox = () => {
       "
     >
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-white/10 px-6 py-5">
+      <div className="flex items-center gap-3 border-b border-border px-6 py-5">
         <div className="rounded-xl bg-cyan-500/10 p-2">
           <Search className="h-5 w-5 text-cyan-400" />
         </div>
 
         <div>
-          <h3 className="font-semibold text-white">
+          <h3 className="font-semibold text-foreground">
             Ask Resyntra
           </h3>
 
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted">
             Your AI Research Assistant
           </p>
         </div>
@@ -76,7 +76,7 @@ const PromptBox = () => {
             className="
               text-2xl
               leading-relaxed
-              text-slate-300
+              text-muted
             "
           >
             {placeholders[placeholderIndex]}

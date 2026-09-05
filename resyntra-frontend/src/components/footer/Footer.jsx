@@ -7,7 +7,7 @@ import FooterColumn from "./FooterColumn";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-white/10">
+    <footer className="border-t border-border">
 
       <div className="mx-auto max-w-7xl px-6 py-24">
 
@@ -19,7 +19,7 @@ const Footer = () => {
 
             <Logo />
 
-            <p className="mt-8 max-w-md text-lg leading-8 text-slate-400">
+            <p className="mt-8 max-w-md text-lg leading-8 text-muted">
               AI-powered research workspace that helps researchers
               analyze papers, organize knowledge, and discover
               meaningful insights faster.
@@ -35,7 +35,7 @@ const Footer = () => {
                     key={item.label}
                     href={item.href}
                     aria-label={item.label}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition-all duration-300 hover:border-cyan-400 hover:text-cyan-400"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-(--foreground)/5 text-muted transition-all duration-300 hover:border-cyan-400 hover:text-cyan-400"
                   >
                     <Icon className="h-5 w-5" />
                   </a>
@@ -63,7 +63,7 @@ const Footer = () => {
 
         {/* Bottom */}
 
-        <div className="mt-20 flex flex-col items-center justify-between gap-6 border-t border-white/10 pt-8 text-sm text-slate-500 md:flex-row">
+        <div className="mt-20 flex flex-col items-center justify-between gap-6 border-t border-border pt-8 text-sm text-muted md:flex-row">
 
           <p>
             © {new Date().getFullYear()} Resyntra. All rights reserved.

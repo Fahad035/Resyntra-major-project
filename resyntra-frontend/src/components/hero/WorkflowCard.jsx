@@ -22,19 +22,19 @@ const WorkflowCard = ({ item, index }) => {
         gap-4
         rounded-2xl
         border
-        border-white/10
-        bg-white/3
+        border-border
+        bg-(--foreground)/3
         p-5
       "
     >
       <CheckCircle2 className="mt-1 h-6 w-6 text-cyan-400" />
 
       <div>
-        <h4 className="font-semibold text-white">
+        <h4 className="font-semibold text-foreground">
           {item.title}
         </h4>
 
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm text-muted">
           {item.description}
         </p>
       </div>
