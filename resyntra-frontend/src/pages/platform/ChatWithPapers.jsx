@@ -2,9 +2,10 @@ import PageLayout from "@/layouts/PageLayout";
 
 import {
   ChatHero,
-  ChatDemo,
-  ChatFeatures,
-  CitationSection,
+  ResearchWorkspace,
+  ResearchCapabilities,
+  CitationExplorer,
+  ResearchComparison,
   ChatCTA,
 } from "@/components/chat";
 
@@ -13,11 +14,13 @@ const ChatWithPapers = () => {
     <PageLayout>
       <ChatHero />
 
-      <ChatDemo />
+      <ResearchWorkspace />
 
-      <ChatFeatures />
+      <ResearchCapabilities />
 
-      <CitationSection />
+      <CitationExplorer />
+
+      <ResearchComparison />
 
       <ChatCTA />
     </PageLayout>

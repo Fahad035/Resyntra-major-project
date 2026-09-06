@@ -1,0 +1,10 @@
+export { default as ProfessorHero } from "./ProfessorHero";
+export { default as TeachingDashboard } from "./TeachingDashboard";
+export { default as CourseAssistant } from "./CourseAssistant";
+export { default as ResearchSupervision } from "./ResearchSupervision";
+export { default as StudentMentorship } from "./StudentMentorship";
+export { default as PublicationInsights } from "./PublicationInsights";
+export { default as AcademicImpact } from "./AcademicImpact";
+export { default as DepartmentAnalytics } from "./DepartmentAnalytics";
+export { default as ProfessorTestimonials } from "./ProfessorTestimonials";
+export { default as ProfessorCTA } from "./ProfessorCTA";

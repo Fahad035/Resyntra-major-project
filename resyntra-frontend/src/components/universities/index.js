@@ -1,0 +1,10 @@
+export { default as UniversityHero } from "./UniversityHero";
+export { default as UniversityDashboard } from "./UniversityDashboard";
+export { default as CampusResearchHub } from "./CampusResearchHub";
+export { default as FacultyInsights } from "./FacultyInsights";
+export { default as StudentResearchPrograms } from "./StudentResearchPrograms";
+export { default as AIResearchInfrastructure } from "./AIResearchInfrastructure";
+export { default as InstitutionalAnalytics } from "./InstitutionalAnalytics";
+export { default as GlobalPartnerships } from "./GlobalPartnerships";
+export { default as SecurityCompliance } from "./SecurityCompliance";
+export { default as UniversityCTA } from "./UniversityCTA";

@@ -5,19 +5,19 @@ import Professors from "@/pages/solutions/Professors";
 
 const solutionRoutes = [
   {
-    path: "students",
+    path: "/solutions/students",
     element: <Students />,
   },
   {
-    path: "researchers",
+    path: "/solutions/researchers",
     element: <Researchers />,
   },
   {
-    path: "universities",
+    path: "/solutions/universities",
     element: <Universities />,
   },
   {
-    path: "professors",
+    path: "/solutions/professors",
     element: <Professors />,
   },
 ];

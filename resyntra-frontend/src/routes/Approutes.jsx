@@ -4,7 +4,7 @@ import PublicLayout from "@/layouts/PublicLayout";
 
 import publicRoutes from "./publicRoutes";
 import platformRoutes from "./platformRoutes";
-// import solutionRoutes from "./solutionRoutes";
+import solutionRoutes from "./solutionRoutes";
 // import resourceRoutes from "./resourceRoutes";
 // import companyRoutes from "./companyRoutes";
 import authRoutes from "./authRoutes";
@@ -16,7 +16,7 @@ const router = createBrowserRouter([
     children: [
       ...publicRoutes,
       ...platformRoutes,
-      // ...solutionRoutes,
+      ...solutionRoutes,
       // ...resourceRoutes,
       // ...companyRoutes,
       ...authRoutes,
