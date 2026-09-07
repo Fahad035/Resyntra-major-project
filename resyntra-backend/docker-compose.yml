@@ -1,0 +1,90 @@
+version: "3.9"
+
+services:
+
+  api:
+    build: .
+    container_name: resyntra-api
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    volumes:
+      - .:/app
+
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+
+  postgres:
+    image: postgres:17
+
+    container_name: resyntra-postgres
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: resyntra
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+
+    container_name: resyntra-redis
+
+    ports:
+      - "6379:6379"
+
+  qdrant:
+    image: qdrant/qdrant
+
+    container_name: resyntra-qdrant
+
+    ports:
+      - "6333:6333"
+
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  pgadmin:
+    image: dpage/pgadmin4
+
+    container_name: resyntra-pgadmin
+
+    restart: always
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@resyntra.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+    ports:
+      - "5050:80"
+
+    depends_on:
+      - postgres
+
+  mailpit:
+    image: axllent/mailpit
+
+    container_name: resyntra-mailpit
+
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+
+  postgres_data:
+
+  qdrant_data:
