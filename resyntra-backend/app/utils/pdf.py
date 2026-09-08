@@ -1,12 +1,13 @@
 import fitz
 
 
-def extract_pdf_metadata(file_path: str) -> dict:
+def extract_pdf(file_path: str):
     doc = fitz.open(file_path)
 
     metadata = doc.metadata
 
     text = ""
+
     for page in doc:
         text += page.get_text()
 

@@ -47,7 +47,7 @@ services:
       - "6379:6379"
 
   qdrant:
-    image: qdrant/qdrant
+    image: qdrant/qdrant:v1.13.2
 
     container_name: resyntra-qdrant
 

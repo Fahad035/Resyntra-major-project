@@ -12,6 +12,11 @@ class Settings(BaseSettings):
     REDIS_URL: str
     QDRANT_URL: str
 
+    QDRANT_HOST: str = "localhost"
+    QDRANT_PORT: int = 6333
+
+    EMBEDDING_MODEL: str = "text-embedding-004"
+
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
 

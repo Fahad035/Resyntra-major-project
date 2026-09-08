@@ -6,7 +6,7 @@ import aiofiles
 from app.models.paper import Paper
 from app.models.user import User
 from app.modules.papers.repository import PaperRepository
-from app.utils.pdf import extract_pdf_metadata
+from app.utils.pdf import extract_pdf
 from app.tasks.paper_tasks import process_paper
 #  Define maximum constraints (50 Megabytes)
 MAX_SIZE = 50 * 1024 * 1024 
@@ -54,7 +54,7 @@ class PaperService:
                 
                 await out_file.write(chunk)
 
-        metadata = extract_pdf_metadata(str(file_path))
+        metadata = extract_pdf(str(file_path))
         # 3.  Rewind file cursor in case downstream processors need it
         await file.seek(0)
 
@@ -72,7 +72,7 @@ class PaperService:
 
         saved_paper = await self.repo.create(paper)
 
-        process_paper.delay(str(saved_paper.id))
+        process_paper.delay(str(saved_paper.id),saved_paper.file_path,)
 
         return saved_paper
 
