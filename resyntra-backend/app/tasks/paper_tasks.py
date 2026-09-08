@@ -1,7 +1,7 @@
-from app.tasks.celery_app import celery
+from app.tasks.celery_app import celery_app
 
 
-@celery.task
+@celery_app.task
 def process_paper(paper_id: str):
     print(f"Processing paper: {paper_id}")
 

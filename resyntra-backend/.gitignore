@@ -1,40 +1,76 @@
-# --- Environment / Virtualenvs ---
-.venv/
-venv/
-ENV/
-env/
-active_env/
-
-# --- Python Cache & Compiled Files ---
+# -----------------------------
+# Python
+# -----------------------------
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
 
-# --- Environment Variables & Secrets ---
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Environment Variables
 .env
 .env.*
 !.env.example
-secrets.json
 
-# --- IDEs & Editors ---
+# Python cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE
 .vscode/
 .idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.swp
 
-# --- OS Specific ---
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+# OS
 .DS_Store
+Thumbs.db
 
-# --- Database ---
-*.sqlite3
+# Logs
+logs/
+*.log
+
+# SQLite
 *.db
+*.sqlite3
+
+# Uploads
+app/uploads/
+uploads/
+
+# Alembic cache
+alembic/__pycache__/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Secrets
+secrets/
+*.pem
+*.key
+*.crt
+*.p12
+
+# Docker
+docker-compose.override.yml
+
+# Redis
+dump.rdb
+
+# Celery
+celerybeat-schedule
+
+# Coverage
+.coverage*
+coverage.xml
+
+# Misc
+.cache/
