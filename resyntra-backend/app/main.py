@@ -32,6 +32,7 @@ from app.modules.chat_history.router import (
 from app.modules.notifications.router import (
     router as notifications_router,
 )
+from app.modules.admin.router import router as admin_router
 
 
 
@@ -85,6 +86,7 @@ app.include_router(university_router)
 app.include_router(professor_router)
 app.include_router(chat_history_router)
 app.include_router(notifications_router)
+app.include_router(admin_router)
 
 @app.get("/")
 async def root():
