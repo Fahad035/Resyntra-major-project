@@ -4,6 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.database.session import get_db
+from fastapi.staticfiles import StaticFiles
 
 from app.modules.auth.router import router as auth_router
 from app.modules.papers.router import router as paper_router
@@ -33,6 +34,9 @@ from app.modules.notifications.router import (
     router as notifications_router,
 )
 from app.modules.admin.router import router as admin_router
+from app.modules.ppt_generator.router import (
+    router as ppt_router
+)
 
 
 
@@ -87,6 +91,13 @@ app.include_router(professor_router)
 app.include_router(chat_history_router)
 app.include_router(notifications_router)
 app.include_router(admin_router)
+app.include_router(ppt_router)
+
+app.mount(
+    "/generated",
+    StaticFiles(directory="generated"),
+    name="generated",
+)
 
 @app.get("/")
 async def root():
