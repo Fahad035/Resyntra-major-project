@@ -17,6 +17,9 @@ from app.modules.summarizer.router import router as summarizer_router
 from app.modules.literature_review.router import (
     router as literature_review_router,
 )
+from app.modules.research_gap.router import (
+    router as research_gap_router,
+)
 
 
 
@@ -62,6 +65,7 @@ app.include_router(citation_router)
 app.include_router(search_router)
 app.include_router(summarizer_router)
 app.include_router(literature_review_router)
+app.include_router(research_gap_router)
 
 @app.get("/")
 async def root():
