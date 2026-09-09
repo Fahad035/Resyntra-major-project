@@ -8,6 +8,7 @@ from app.models.user import User
 from app.modules.papers.repository import PaperRepository
 from app.utils.pdf import extract_pdf
 from app.tasks.paper_tasks import process_paper
+from app.ai.qdrant import delete_paper_chunks
 #  Define maximum constraints (50 Megabytes)
 MAX_SIZE = 50 * 1024 * 1024 
 
@@ -115,6 +116,7 @@ class PaperService:
         if local_path.exists():
             local_path.unlink()
 
+        delete_paper_chunks(str(paper.id))
         await self.repo.delete(paper)
 
         return {"message": "Paper deleted successfully"}

@@ -6,6 +6,7 @@ from qdrant_client.http.models import (
 )
 from uuid import uuid4
 from app.core.config import settings
+from qdrant_client.models import Filter, FieldCondition, MatchValue
 
 
 client = QdrantClient(
@@ -81,3 +82,18 @@ def search(
         }
         for point in response.points
     ]
+
+def delete_paper_chunks(
+    paper_id: str,
+):
+    client.delete(
+        collection_name=COLLECTION_NAME,
+        points_selector=Filter(
+            must=[
+                FieldCondition(
+                    key="paper_id",
+                    match=MatchValue(value=paper_id),
+                )
+            ]
+        ),
+    )

@@ -10,11 +10,11 @@ class RAGPipeline:
         self.embedding = EmbeddingService()
         self.provider = AIProviderFactory.get_provider()
 
-    def ask(self, question: str):
+    def ask(self, question: str,paper_id: str | None = None,):
 
         query_embedding = self.embedding.embed(question)
 
-        results = search(query_embedding)
+        results = search(query_embedding,paper_id=paper_id,)
 
         if not results:
             return "I couldn't find any relevant information in the indexed research papers."

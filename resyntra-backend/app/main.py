@@ -5,6 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.database.session import get_db
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from app.core.middleware import log_requests
+from contextlib import asynccontextmanager
+from app.ai.qdrant import create_collection
+from pathlib import Path
+
 
 from app.modules.auth.router import router as auth_router
 from app.modules.papers.router import router as paper_router
@@ -37,13 +43,43 @@ from app.modules.admin.router import router as admin_router
 from app.modules.ppt_generator.router import (
     router as ppt_router
 )
+from app.core.exceptions import register_exception_handlers
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
 
+    create_collection()
 
+    print("Resyntra API Started")
 
-app = FastAPI(title=settings.APP_NAME,swagger_ui_parameters={"persistAuthorization": True})
+    yield
 
-#  Ensure your app/main.py file overrides the schema exactly like this:
+    print("Resyntra API Stopped")
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    version="1.0.0",
+    description="AI-powered Research Assistant Backend",
+    swagger_ui_parameters={
+        "persistAuthorization": True,
+    },
+)
+
+register_exception_handlers(app)
+
+app.middleware("http")(log_requests)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
@@ -72,7 +108,6 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
-
 app.include_router(auth_router)
 app.include_router(paper_router)
 app.include_router(chat_router)
@@ -93,10 +128,9 @@ app.include_router(notifications_router)
 app.include_router(admin_router)
 app.include_router(ppt_router)
 
-app.mount(
-    "/generated",
-    StaticFiles(directory="generated"),
-    name="generated",
+
+Path("generated").mkdir(
+    exist_ok=True,
 )
 
 @app.get("/")
@@ -105,6 +139,28 @@ async def root():
 
 
 @app.get("/health/db")
-async def database_health(db: AsyncSession = Depends(get_db)):
-    await db.execute(text("SELECT 1"))
-    return {"database": "connected"}
+async def database_health(
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+
+        await db.execute(text("SELECT 1"))
+
+        return {
+            "database": "connected",
+        }
+
+    except Exception:
+
+        return {
+            "database": "disconnected",
+        }
+
+@app.get("/health")
+async def health():
+
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "ai_provider": settings.AI_PROVIDER,
+    }
