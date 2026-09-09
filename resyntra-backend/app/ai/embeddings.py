@@ -3,14 +3,14 @@ from google import genai
 from google.genai import types
 from app.core.config import settings
 
-client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
 class EmbeddingService:
 
     def embed(self, text: str) -> list[float]:
         response = client.models.embed_content(
-            model="gemini-embedding-001",
+            model=settings.EMBEDDING_MODEL,
             contents=text,
             config=types.EmbedContentConfig(output_dimensionality=768),
         )
@@ -30,7 +30,7 @@ class EmbeddingService:
                 time.sleep(2.0)
             
             response = client.models.embed_content(
-                model="gemini-embedding-001",
+                model=settings.EMBEDDING_MODEL,
                 contents=sub_batch,
                 config=types.EmbedContentConfig(output_dimensionality=768),
             )

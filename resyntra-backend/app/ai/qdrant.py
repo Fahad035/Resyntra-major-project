@@ -15,7 +15,7 @@ client = QdrantClient(
 )
 
 
-COLLECTION_NAME = "papers"
+COLLECTION_NAME = settings.QDRANT_COLLECTION
 
 
 def create_collection():
@@ -30,7 +30,7 @@ def create_collection():
     client.create_collection(
         collection_name=COLLECTION_NAME,
         vectors_config=VectorParams(
-            size=768,
+            size=settings.EMBEDDING_DIMENSION,
             distance=Distance.COSINE,
         ),
     )
@@ -62,16 +62,22 @@ def insert_chunks(
         collection_name=COLLECTION_NAME,
         points=points,
     )
+
 def search(
     embedding: list[float],
     limit: int = 5,
 ):
-    # Updated to query_points to support the modern qdrant-client SDK structure
+
     response = client.query_points(
         collection_name=COLLECTION_NAME,
         query=embedding,
         limit=limit,
     )
-    
-    # Extracts the underlying points so your existing list comprehension in rag.py works perfectly
-    return response.points
+
+    return [
+        {
+            "score": point.score,
+            "payload": point.payload,
+        }
+        for point in response.points
+    ]

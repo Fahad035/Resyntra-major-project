@@ -1,46 +1,69 @@
 from app.tasks.celery_app import celery_app
-from app.utils.pdf import extract_pdf
-from app.utils.chunking import split_text
+
 from app.ai.embeddings import EmbeddingService
 from app.ai.qdrant import (
     create_collection,
     insert_chunks,
 )
+from app.database.sync_session import SessionLocal
+from app.models.paper import Paper
+from app.utils.chunking import split_text
+from app.utils.pdf import extract_pdf
+
 
 @celery_app.task
-def process_paper(paper_id: str, file_path: str):
-    # 1. Extract raw text from the PDF
-    pdf = extract_pdf(file_path)
+def process_paper(
+    paper_id: str,
+    file_path: str,
+):
 
-    # 2. Chunk text
-    chunks = split_text(pdf["text"])
-
-    print(f"Paper: {paper_id}")
-    print(f"Pages: {pdf['pages']}")
-    print(f"Chunks: {len(chunks)}")
+    db = SessionLocal()
 
     try:
-        # 3. Ensure the target Qdrant collection exists
+        paper = db.get(Paper, paper_id)
+
+        if paper is None:
+            return
+
+        paper.processing_status = "processing"
+        db.commit()
+
+        pdf = extract_pdf(file_path)
+
+        chunks = split_text(pdf["text"])
+
         create_collection()
 
-        # 4. Initialize embedding service and generate vectors in bulk
         embedding_service = EmbeddingService()
-        embeddings = embedding_service.embed_batch(chunks)
 
-        # 5. Save chunks and vectors to Qdrant vector database
+        embeddings = embedding_service.embed_batch(
+            chunks
+        )
+
         insert_chunks(
             paper_id=paper_id,
             chunks=chunks,
             embeddings=embeddings,
         )
 
-        print(f"Embeddings stored successfully for Paper {paper_id}.")
-        
-        # 6. TODO: Update paper status in your main SQL database (e.g., Status: "COMPLETED")
-        # Example: update_paper_status(paper_id, status="COMPLETED")
+        paper.abstract = pdf.get("abstract")
+        paper.processing_status = "completed"
+
+        db.commit()
+
+        print(
+            f"Paper {paper_id} processed successfully."
+        )
 
     except Exception as e:
-        print(f"Failed to process paper {paper_id}: {str(e)}")
-        # 7. TODO: Update paper status to failed in your main SQL database (e.g., Status: "FAILED")
-        # Example: update_paper_status(paper_id, status="FAILED")
+
+        paper = db.get(Paper, paper_id)
+
+        if paper:
+            paper.processing_status = "failed"
+            db.commit()
+
         raise e
+
+    finally:
+        db.close()

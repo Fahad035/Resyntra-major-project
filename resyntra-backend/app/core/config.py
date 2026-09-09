@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
+    QDRANT_COLLECTION: str = "papers"
 
     EMBEDDING_MODEL: str = "text-embedding-004"
 
@@ -25,6 +26,8 @@ class Settings(BaseSettings):
 
     AI_PROVIDER: str = "gemini"
 
+    EMBEDDING_DIMENSION: int = 768
+    EMBEDDING_MODEL: str = "gemini-embedding-001"
     OPENAI_API_KEY: str
     GEMINI_MODEL: str = "gemini-3.6-flash"
     GOOGLE_API_KEY: str = ""
