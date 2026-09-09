@@ -16,12 +16,11 @@ router = APIRouter(
     "",
     response_model=ChatResponse,
 )
-async def chat(
-    data: ChatRequest,
-):
+async def chat(data: ChatRequest):
 
     service = ChatService()
 
     return await service.ask(
+        data.paper_id,
         data.question,
     )
