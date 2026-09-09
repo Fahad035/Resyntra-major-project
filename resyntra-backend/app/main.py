@@ -26,6 +26,10 @@ from app.modules.universities.router import (
     router as university_router,
 )
 from app.modules.professors.router import router as professor_router
+from app.modules.chat_history.router import (
+    router as chat_history_router,
+)
+
 
 
 
@@ -76,6 +80,7 @@ app.include_router(dashboard_router)
 app.include_router(analytics_router)
 app.include_router(university_router)
 app.include_router(professor_router)
+app.include_router(chat_history_router)
 
 @app.get("/")
 async def root():

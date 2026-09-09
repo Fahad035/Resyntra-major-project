@@ -9,3 +9,5 @@ from app.models.note import Note
 from app.models.citation import Citation
 from app.models.university import University
 from app.models.professor import Professor
+from app.models.chat_message import ChatMessage
+from app.models.chat_session import ChatSession
