@@ -20,6 +20,7 @@ from app.modules.literature_review.router import (
 from app.modules.research_gap.router import (
     router as research_gap_router,
 )
+from app.modules.dashboard.router import router as dashboard_router
 
 
 
@@ -66,6 +67,7 @@ app.include_router(search_router)
 app.include_router(summarizer_router)
 app.include_router(literature_review_router)
 app.include_router(research_gap_router)
+app.include_router(dashboard_router)
 
 @app.get("/")
 async def root():
