@@ -1,10 +1,10 @@
-from app.ai.llm import GeminiClient
+from app.ai.llm import LLMService
 
 
 class LiteratureReviewGenerator:
 
     def __init__(self):
-        self.client = GeminiClient()
+        self.client = LLMService()
 
     def generate(
         self,

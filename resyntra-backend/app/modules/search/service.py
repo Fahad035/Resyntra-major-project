@@ -1,5 +1,5 @@
-from app.ai.embeddings import GeminiEmbedding
-from app.ai.qdrant import qdrant
+from app.ai.embeddings import EmbeddingService
+from app.ai.qdrant import search
 from app.modules.search.repository import SearchRepository
 
 
@@ -7,7 +7,7 @@ class SearchService:
 
     def __init__(self, repo: SearchRepository):
         self.repo = repo
-        self.embedding = GeminiEmbedding()
+        self.embedding = EmbeddingService()
 
     async def papers(
         self,
@@ -22,7 +22,7 @@ class SearchService:
     ):
         vector = self.embedding.embed(query)
 
-        results = qdrant.search(
+        results = search(
             collection_name="papers",
             query_vector=vector,
             limit=limit,
