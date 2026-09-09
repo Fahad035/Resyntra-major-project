@@ -8,3 +8,4 @@ from app.models.project_member import ProjectMember
 from app.models.note import Note
 from app.models.citation import Citation
 from app.models.university import University
+from app.models.professor import Professor

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db
-from app.common.schemas import MessageResponse
+from app.modules.universities.schemas import MessageResponse
 from app.modules.universities.repository import UniversityRepository
 from app.modules.universities.schemas import (
     UniversityCreate,
