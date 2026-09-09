@@ -1,10 +1,10 @@
-from app.ai.llm import LLMService
+from app.ai.providers import AIProviderFactory
 
 
 class LiteratureReviewGenerator:
 
     def __init__(self):
-        self.client = LLMService()
+        self.provider = AIProviderFactory.get_provider()
 
     def generate(
         self,
@@ -13,42 +13,71 @@ class LiteratureReviewGenerator:
     ):
         content = ""
 
-        for paper in papers:
+        for index, paper in enumerate(papers, start=1):
             content += f"""
+Paper {index}
+
 Title:
 {paper.title}
 
 Abstract:
-{paper.abstract}
+{paper.abstract or "Not available"}
 
 Content:
 {paper.content[:3000]}
 
---------------------------------
+----------------------------------------------------
 """
 
         prompt = f"""
-You are an expert research assistant.
+Generate a comprehensive academic literature review.
 
-Write a comprehensive academic literature review.
-
-Topic:
+Research Topic:
 {topic}
 
-Papers:
+Research Papers:
 {content}
 
-The review should contain:
+Instructions:
 
-1. Introduction
-2. Existing Research
-3. Method Comparison
-4. Strengths
-5. Weaknesses
-6. Research Trends
-7. Conclusion
+- Write in a formal academic style.
+- Organize the review using Markdown headings.
+- Compare the studies instead of summarizing them one by one.
+- Identify similarities and differences.
+- Discuss methodologies.
+- Highlight strengths and limitations.
+- Describe recent research trends.
+- Identify research gaps when appropriate.
+- Finish with a concise conclusion.
 
-Return Markdown only.
+The literature review must contain:
+
+# Introduction
+
+# Existing Research
+
+# Comparative Analysis
+
+# Methodologies
+
+# Strengths and Limitations
+
+# Research Trends
+
+# Future Directions
+
+# Conclusion
+
+Return only Markdown.
 """
 
-        return self.client.generate(prompt)
+        system_prompt = (
+            "You are an expert academic researcher and scientific "
+            "writing assistant specializing in literature reviews."
+        )
+
+        return self.provider.generate(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            temperature=0.3,
+        )

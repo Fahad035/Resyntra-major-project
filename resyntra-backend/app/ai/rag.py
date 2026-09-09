@@ -1,6 +1,6 @@
 from app.ai.embeddings import EmbeddingService
-from app.ai.llm import LLMService
 from app.ai.prompts import SYSTEM_PROMPT
+from app.ai.providers import AIProviderFactory
 from app.ai.qdrant import search
 
 
@@ -8,13 +8,16 @@ class RAGPipeline:
 
     def __init__(self):
         self.embedding = EmbeddingService()
-        self.llm = LLMService()
+        self.provider = AIProviderFactory.get_provider()
 
     def ask(self, question: str):
 
         query_embedding = self.embedding.embed(question)
 
         results = search(query_embedding)
+
+        if not results:
+            return "I couldn't find any relevant information in the indexed research papers."
 
         context = "\n\n".join(
             [
@@ -24,8 +27,6 @@ class RAGPipeline:
         )
 
         prompt = f"""
-{SYSTEM_PROMPT}
-
 Context:
 
 {context}
@@ -33,8 +34,10 @@ Context:
 Question:
 
 {question}
-
-Answer:
 """
 
-        return self.llm.generate(prompt)
+        return self.provider.generate(
+            prompt=prompt,
+            system_prompt=SYSTEM_PROMPT,
+            temperature=0.3,
+        )

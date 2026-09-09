@@ -23,7 +23,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
-    OPENAI_API_KEY: str = ""
+    AI_PROVIDER: str = "gemini"
+
+    OPENAI_API_KEY: str
+    GEMINI_MODEL: str = "gemini-3.6-flash"
     GOOGLE_API_KEY: str = ""
 
     model_config = SettingsConfigDict(

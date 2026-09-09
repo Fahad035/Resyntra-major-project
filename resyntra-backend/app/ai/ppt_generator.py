@@ -1,16 +1,12 @@
 import json
 
-from openai import OpenAI
-
-from app.core.config import settings
+from app.ai.providers import AIProviderFactory
 
 
 class PPTGenerator:
 
     def __init__(self):
-        self.client = OpenAI(
-            api_key=settings.OPENAI_API_KEY
-        )
+        self.provider = AIProviderFactory.get_provider()
 
     def generate_outline(
         self,
@@ -20,15 +16,11 @@ class PPTGenerator:
         slides: int,
     ):
         prompt = f"""
-You are an expert presentation designer.
-
-Your task is to convert the following research paper into a professional PowerPoint presentation.
-
-Generate EXACTLY {slides} slides.
+Generate EXACTLY {slides} professional presentation slides from the following research paper.
 
 Return ONLY valid JSON.
 
-Each slide MUST follow this schema:
+Each slide must follow this schema:
 
 [
   {{
@@ -41,7 +33,7 @@ Each slide MUST follow this schema:
       "Bullet 2",
       "Bullet 3"
     ],
-    "speaker_notes": "Notes for presenter.",
+    "speaker_notes": "Notes for the presenter.",
     "image_prompt": "Describe an illustration for this slide.",
     "chart": null,
     "table": null
@@ -62,88 +54,91 @@ Allowed layouts:
 - conclusion
 - thank_you
 
-If a slide needs a chart:
+Chart format:
 
-"chart": {{
+{{
     "type": "bar",
-    "title": "Accuracy Comparison",
+    "title": "Chart Title",
     "labels": [
-        "Model A",
-        "Model B",
-        "Model C"
+        "Item A",
+        "Item B",
+        "Item C"
     ],
     "values": [
-        91,
-        95,
-        98
+        10,
+        20,
+        30
     ]
 }}
 
-Otherwise:
+Table format:
 
-"chart": null
-
-If a slide needs a table:
-
-"table": {{
+{{
     "headers": [
-        "Method",
-        "Accuracy"
+        "Column 1",
+        "Column 2"
     ],
     "rows": [
-        ["CNN","91%"],
-        ["Transformer","98%"]
+        ["A","B"],
+        ["C","D"]
     ]
 }}
-
-Otherwise:
-
-"table": null
 
 Rules:
 
-1. First slide must be title.
-2. Second slide should be agenda.
-3. Last slide should be thank_you.
-4. Keep each slide concise.
+1. Generate exactly {slides} slides.
+2. First slide must use "title".
+3. Second slide must use "agenda".
+4. Last slide must use "thank_you".
 5. Maximum 5 bullet points.
 6. Maximum 12 words per bullet.
-7. Speaker notes should explain the slide.
-8. Generate meaningful image prompts.
-9. Generate charts only if numerical data exists.
-10. Generate tables only if comparison data exists.
-11. Return ONLY JSON.
-12. Do NOT use markdown.
-13. Do NOT wrap JSON inside ```.
+7. Keep slides concise.
+8. Speaker notes should explain the slide.
+9. Add an image_prompt whenever appropriate.
+10. Add charts only when numerical data exists.
+11. Add tables only when comparison data exists.
+12. Return ONLY valid JSON.
+13. Do not wrap JSON in markdown.
+14. Do not include explanations.
 
 Paper Title:
 {title}
 
 Abstract:
-{abstract}
+{abstract or "Not available"}
 
 Paper Content:
 {content[:15000]}
 """
 
-        response = self.client.chat.completions.create(
-            model="gpt-5",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are an expert academic presentation creator. "
-                        "Always return valid JSON only."
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ],
+        system_prompt = """
+You are an expert academic presentation designer.
+
+Your job is to transform research papers into professional PowerPoint presentations.
+
+Always return ONLY valid JSON.
+
+Never include markdown.
+
+Never include explanations.
+
+Never include ```json.
+"""
+
+        response = self.provider.generate(
+            prompt=prompt,
+            system_prompt=system_prompt,
             temperature=0.3,
         )
 
-        output = response.choices[0].message.content.strip()
+        try:
+            return json.loads(response)
 
-        return json.loads(output)
+        except json.JSONDecodeError:
+            cleaned = (
+                response.replace("```json", "")
+                .replace("```", "")
+                .strip()
+            )
+
+            return json.loads(cleaned)

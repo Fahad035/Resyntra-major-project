@@ -1,10 +1,10 @@
-from app.ai.llm import LLMService
+from app.ai.providers import AIProviderFactory
 
 
 class ResearchGapGenerator:
 
     def __init__(self):
-        self.client = LLMService()
+        self.provider = AIProviderFactory.get_provider()
 
     def generate(
         self,
@@ -13,41 +13,70 @@ class ResearchGapGenerator:
     ):
         content = ""
 
-        for paper in papers:
+        for index, paper in enumerate(papers, start=1):
             content += f"""
+Paper {index}
+
 Title:
 {paper.title}
 
 Abstract:
-{paper.abstract}
+{paper.abstract or "Not available"}
 
 Content:
 {paper.content[:3000]}
 
---------------------------------
+----------------------------------------------------
 """
 
         prompt = f"""
-You are an experienced research advisor.
+Analyze the following research papers and identify research opportunities.
 
-Analyze the following papers on:
-
+Research Topic:
 {topic}
 
-Identify:
-
-1. Research gaps
-2. Common limitations
-3. Conflicting findings
-4. Unanswered questions
-5. Future research directions
-6. Potential novel research ideas
-
-Papers:
-
+Research Papers:
 {content}
 
-Return the result in Markdown.
+Instructions:
+
+- Carefully compare all papers.
+- Do not summarize each paper individually.
+- Identify areas where existing research is lacking.
+- Highlight conflicting findings.
+- Discuss methodological limitations.
+- Identify unanswered research questions.
+- Suggest realistic future research directions.
+- Propose novel research ideas suitable for MSc/PhD research.
+- Write in professional academic language.
+
+The response must contain the following sections:
+
+# Research Gaps
+
+# Common Limitations
+
+# Conflicting Findings
+
+# Unanswered Questions
+
+# Future Research Directions
+
+# Novel Research Ideas
+
+# Final Recommendation
+
+Return only Markdown.
 """
 
-        return self.client.generate(prompt)
+        system_prompt = (
+            "You are an experienced academic researcher and research "
+            "advisor specializing in identifying research gaps, "
+            "future work, and innovative research directions."
+        )
+
+        return self.provider.generate(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            temperature=0.3,
+        )
