@@ -12,6 +12,7 @@ from app.modules.collections.router import router as collection_router
 from app.modules.projects.router import router as project_router
 from app.modules.notes.router import router as note_router
 from app.modules.citations.router import router as citation_router
+from app.modules.search.router import router as search_router
 
 
 
@@ -54,6 +55,7 @@ app.include_router(collection_router)
 app.include_router(project_router)
 app.include_router(note_router)
 app.include_router(citation_router)
+app.include_router(search_router)
 
 @app.get("/")
 async def root():
