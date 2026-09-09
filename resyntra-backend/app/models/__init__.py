@@ -5,3 +5,5 @@ from app.models.collection import Collection
 from app.models.collection_paper import CollectionPaper
 from app.models.project import Project
 from app.models.project_member import ProjectMember
+from app.models.note import Note
+from app.models.citation import Citation
