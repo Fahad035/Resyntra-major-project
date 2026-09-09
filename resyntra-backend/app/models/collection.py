@@ -17,6 +17,13 @@ class Collection(BaseModel):
         index=True,
     )
 
+    project_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
     name: Mapped[str] = mapped_column(
         String(150),
         nullable=False,

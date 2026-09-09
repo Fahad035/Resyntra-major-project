@@ -25,12 +25,13 @@ class CollectionRepository:
         )
         return result.scalar_one_or_none()
 
-    async def get_user_collections(self, owner_id: UUID):
+    async def get_project_collections(self,project_id: UUID,):
         result = await self.db.execute(
             select(Collection)
-            .where(Collection.owner_id == owner_id)
+            .where(Collection.project_id == project_id)
             .order_by(Collection.created_at.desc())
         )
+
         return result.scalars().all()
 
     async def update(self):

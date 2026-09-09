@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_db
 from app.models.user import User
 from app.modules.auth.dependencies import get_current_user
+
+# Projects
 from app.modules.projects.repository import ProjectRepository
 from app.modules.projects.schemas import (
     MessageResponse,
@@ -14,6 +16,15 @@ from app.modules.projects.schemas import (
     ProjectUpdate,
 )
 from app.modules.projects.service import ProjectService
+
+# Collections
+from app.modules.collections.repository import CollectionRepository
+from app.modules.collections.schemas import (
+    CollectionCreate,
+    CollectionResponse,
+)
+from app.modules.collections.service import CollectionService
+
 
 router = APIRouter(
     prefix="/projects",
@@ -27,6 +38,17 @@ def get_project_service(
     repo = ProjectRepository(db)
     return ProjectService(repo)
 
+
+def get_collection_service(
+    db: AsyncSession = Depends(get_db),
+) -> CollectionService:
+    repo = CollectionRepository(db)
+    return CollectionService(repo)
+
+
+# ------------------------------------------------------------------
+# Project CRUD
+# ------------------------------------------------------------------
 
 @router.post(
     "",
@@ -94,6 +116,43 @@ async def delete_project(
     service: ProjectService = Depends(get_project_service),
 ):
     return await service.delete(
+        project_id,
+        current_user,
+    )
+
+
+# ------------------------------------------------------------------
+# Project Collections
+# ------------------------------------------------------------------
+
+@router.post(
+    "/{project_id}/collections",
+    response_model=CollectionResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_collection(
+    project_id: UUID,
+    data: CollectionCreate,
+    current_user: User = Depends(get_current_user),
+    service: CollectionService = Depends(get_collection_service),
+):
+    return await service.create(
+        project_id,
+        current_user,
+        data,
+    )
+
+
+@router.get(
+    "/{project_id}/collections",
+    response_model=list[CollectionResponse],
+)
+async def list_collections(
+    project_id: UUID,
+    current_user: User = Depends(get_current_user),
+    service: CollectionService = Depends(get_collection_service),
+):
+    return await service.list(
         project_id,
         current_user,
     )

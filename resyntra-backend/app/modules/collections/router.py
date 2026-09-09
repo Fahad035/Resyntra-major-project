@@ -29,28 +29,6 @@ def get_collection_service(
     return CollectionService(repo)
 
 
-@router.post(
-    "",
-    response_model=CollectionResponse,
-    status_code=201,
-)
-async def create_collection(
-    data: CollectionCreate,
-    service: CollectionService = Depends(get_collection_service),
-    current_user: User = Depends(get_current_user),
-):
-    return await service.create(current_user, data)
-
-
-@router.get(
-    "",
-    response_model=list[CollectionResponse],
-)
-async def list_collections(
-    service: CollectionService = Depends(get_collection_service),
-    current_user: User = Depends(get_current_user),
-):
-    return await service.list(current_user)
 
 
 @router.get(

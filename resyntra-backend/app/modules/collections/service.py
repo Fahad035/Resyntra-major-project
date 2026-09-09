@@ -12,18 +12,20 @@ class CollectionService:
     def __init__(self, repo: CollectionRepository):
         self.repo = repo
 
-    async def create(self, current_user: User, data):
-
+    async def create(self,project_id: UUID,current_user: User,data,):
         collection = Collection(
             owner_id=current_user.id,
+            project_id=project_id,
             name=data.name,
             description=data.description,
         )
 
         return await self.repo.create(collection)
 
-    async def list(self, current_user: User):
-        return await self.repo.get_user_collections(current_user.id)
+    async def list(self,project_id: UUID,current_user: User,):
+        return await self.repo.get_project_collections(
+            project_id
+        )
 
     async def get(self, collection_id: UUID, current_user: User):
 
