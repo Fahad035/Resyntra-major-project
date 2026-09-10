@@ -1,8 +1,11 @@
+import AuthLayout from "@/components/auth/AuthLayout";
+import LoginForm from "@/components/auth/LoginForm";
+
 const Login = () => {
   return (
-    <div className="min-h-screen bg-surface text-foreground flex justify-center items-center">
-      <h1 className="text-5xl font-bold">Login Page</h1>
-    </div>
+    <AuthLayout>
+      <LoginForm />
+    </AuthLayout>
   );
 };
 

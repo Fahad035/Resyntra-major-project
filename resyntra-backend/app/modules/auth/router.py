@@ -49,13 +49,13 @@ async def login(
 
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
-    refresh_token: str,
+    data: RefreshTokenRequest,
     db: AsyncSession = Depends(get_db),
 ):
     repo = AuthRepository(db)
     service = AuthService(repo)
 
-    return await service.refresh(refresh_token)
+    return await service.refresh(data.refresh_token)
 
 @router.post("/logout", response_model=MessageResponse)
 async def logout(

@@ -1,8 +1,11 @@
+import AuthLayout from "@/components/auth/AuthLayout";
+import RegisterForm from "@/components/auth/RegisterForm";
+
 const Register = () => {
   return (
-    <div className="min-h-screen bg-surface text-foreground flex justify-center items-center">
-      <h1 className="text-5xl font-bold">Register Page</h1>
-    </div>
+    <AuthLayout>
+      <RegisterForm />
+    </AuthLayout>
   );
 };
 
