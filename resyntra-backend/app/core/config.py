@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "Resyntra API"
     APP_ENV: str = "development"
     DEBUG: bool = True
+    
+    AUTH_ENABLED: bool = False
 
     DATABASE_URL: str
     REDIS_URL: str
@@ -30,7 +32,8 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "gemini-embedding-001"
     OPENAI_API_KEY: str
     GEMINI_MODEL: str = "gemini-3.6-flash"
-    GOOGLE_API_KEY: str = ""
+    OPENAI_MODEL: str
+    GEMINI_API_KEY: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -1,29 +1,11 @@
-import { Link } from "react-router-dom";
-
-const AuthHeader = ({
-  title,
-  subtitle,
-  linkText,
-  linkTo,
-}) => {
+const AuthHeader = ({ title, subtitle }) => {
   return (
     <div className="mb-8 text-center">
-      <h2 className="text-3xl font-bold text-slate-900">
+      <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
         {title}
       </h2>
 
-      <p className="mt-2 text-slate-500">
-        {subtitle}
-      </p>
-
-      {linkText && (
-        <Link
-          to={linkTo}
-          className="mt-3 inline-block text-blue-600 font-semibold hover:text-blue-700"
-        >
-          {linkText}
-        </Link>
-      )}
+      {subtitle && <p className="mt-2 text-muted">{subtitle}</p>}
     </div>
   );
 };

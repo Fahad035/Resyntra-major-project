@@ -27,6 +27,12 @@ class AuthRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_first_user(self):
+        result = await self.db.execute(
+            select(User).limit(1)
+        )
+        return result.scalar_one_or_none()
+
     async def create(self, user: User):
         self.db.add(user)
         await self.db.commit()

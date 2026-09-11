@@ -116,7 +116,7 @@ const WorkspaceCTA = () => {
             <div className="mt-16 grid gap-8 border-t border-border pt-10 md:grid-cols-3">
               <div>
                 <h3 className="text-4xl font-bold text-cyan-400">
-                  100K+
+                  5K+
                 </h3>
 
                 <p className="mt-2 text-muted">
@@ -126,7 +126,7 @@ const WorkspaceCTA = () => {
 
               <div>
                 <h3 className="text-4xl font-bold text-cyan-400">
-                  50K+
+                  500+
                 </h3>
 
                 <p className="mt-2 text-muted">
@@ -136,7 +136,7 @@ const WorkspaceCTA = () => {
 
               <div>
                 <h3 className="text-4xl font-bold text-cyan-400">
-                  98%
+                  97%
                 </h3>
 
                 <p className="mt-2 text-muted">

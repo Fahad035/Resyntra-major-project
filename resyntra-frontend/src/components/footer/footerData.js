@@ -44,17 +44,17 @@ const footerColumns = [
 export const socialLinks = [
   {
     icon: FaGithub,
-    href: "#",
+    href: "https://github.com/Fahad035/Resyntra-major-project",
     label: "GitHub",
   },
   {
     icon: FaLinkedin,
-    href: "#",
+    href: "https://www.linkedin.com/in/md-fahad-71505a2b6",
     label: "LinkedIn",
   },
   {
     icon: FaXTwitter,
-    href: "#",
+    href: "https://x.com/MdFahad1362761",
     label: "X",
   },
   {
@@ -79,7 +79,7 @@ export const socialLinks = [
   },
   {
     icon: FaYoutube,
-    href: "#",
+    href: "https://www.youtube.com/@TechMorph-w3h",
     label: "YouTube",
   },
 ];

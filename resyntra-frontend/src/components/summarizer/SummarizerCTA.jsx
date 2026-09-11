@@ -70,23 +70,6 @@ const SummarizerCTA = () => {
                 <ArrowRight className="h-5 w-5" />
               </Link>
 
-              <Link
-                to="/platform/chat"
-                className="
-                  rounded-2xl
-                  border
-                  border-border
-                  px-7
-                  py-4
-                  font-medium
-                  transition
-                  hover:border-cyan-400
-                  hover:text-cyan-400
-                "
-              >
-                Chat With Papers
-              </Link>
-
             </div>
 
             <div className="mt-16 grid gap-8 border-t border-border pt-10 md:grid-cols-3">
@@ -103,7 +86,7 @@ const SummarizerCTA = () => {
 
               <div>
                 <h3 className="text-4xl font-bold text-cyan-400">
-                  98%
+                  97%
                 </h3>
 
                 <p className="mt-2 text-muted">
@@ -113,7 +96,7 @@ const SummarizerCTA = () => {
 
               <div>
                 <h3 className="text-4xl font-bold text-cyan-400">
-                  100K+
+                  5K+
                 </h3>
 
                 <p className="mt-2 text-muted">

@@ -1,5 +1,5 @@
-import google.genai as genai
-
+from google import genai
+from google.genai import types  # Required for clean generation configuration
 from app.ai.providers.base import BaseAIProvider
 from app.core.config import settings
 
@@ -7,13 +7,9 @@ from app.core.config import settings
 class GeminiProvider(BaseAIProvider):
 
     def __init__(self):
-        genai.configure(
-            api_key=settings.GEMINI_API_KEY,
-        )
-
-        self.model = genai.GenerativeModel(
-            settings.GEMINI_MODEL,
-        )
+        # Fix: Initializing using the modern client context structure
+        self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
+        self.model_name = settings.GEMINI_MODEL
 
     def generate(
         self,
@@ -21,15 +17,18 @@ class GeminiProvider(BaseAIProvider):
         system_prompt: str | None = None,
         temperature: float = 0.3,
     ) -> str:
+        
+        # Build configuration using types instead of legacy dictionary mappings
+        config = types.GenerateContentConfig(
+            temperature=temperature,
+            system_instruction=system_prompt if system_prompt else None
+        )
 
-        if system_prompt:
-            prompt = f"{system_prompt}\n\n{prompt}"
-
-        response = self.model.generate_content(
-            prompt,
-            generation_config={
-                "temperature": temperature,
-            },
+        # Fix: Route execution through models endpoint
+        response = self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+            config=config,
         )
 
         return response.text

@@ -1,6 +1,6 @@
 const AuthCard = ({ children }) => {
   return (
-    <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl p-8 border border-slate-200">
+    <div className="mx-auto w-full max-w-md rounded-3xl border border-border bg-surface p-8 shadow-theme sm:p-10">
       {children}
     </div>
   );

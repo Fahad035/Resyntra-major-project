@@ -20,15 +20,15 @@ export const WORKSPACE_HERO = {
 
   stats: [
     {
-      value: "100K+",
+      value: "5K+",
       label: "Research Papers",
     },
     {
-      value: "50K+",
+      value: "500+",
       label: "Researchers",
     },
     {
-      value: "98%",
+      value: "97%",
       label: "Accuracy",
     },
   ],

@@ -64,14 +64,30 @@ def insert_chunks(
         points=points,
     )
 
+# app/ai/qdrant.py
+
 def search(
     embedding: list[float],
     limit: int = 5,
+    paper_id: str | None = None,  # Add this parameter to accept the ID from rag.py
 ):
+    query_filter = None
+    
+    # Apply a strict metadata boundary filter only if a valid paper_id is passed
+    if paper_id and paper_id.strip():
+        query_filter = Filter(
+            must=[
+                FieldCondition(
+                    key="paper_id",
+                    match=MatchValue(value=paper_id)
+                )
+            ]
+        )
 
     response = client.query_points(
         collection_name=COLLECTION_NAME,
         query=embedding,
+        query_filter=query_filter,  # Inject the metadata filter constraint here
         limit=limit,
     )
 
@@ -82,6 +98,7 @@ def search(
         }
         for point in response.points
     ]
+
 
 def delete_paper_chunks(
     paper_id: str,

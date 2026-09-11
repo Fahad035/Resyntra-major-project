@@ -2,7 +2,6 @@ import PageLayout from "@/layouts/PageLayout";
 
 import {
   WorkspaceHero,
-  WorkspacePreview,
   FeatureSection,
   WorkflowTimeline,
   CollaborationSection,
@@ -13,8 +12,6 @@ const Workspace = () => {
   return (
     <PageLayout>
       <WorkspaceHero />
-
-      <WorkspacePreview />
 
       <FeatureSection />
 

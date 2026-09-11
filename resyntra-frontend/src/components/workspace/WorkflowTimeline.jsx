@@ -151,58 +151,6 @@ const WorkflowTimeline = () => {
           </div>
         </div>
 
-        {/* Bottom Summary */}
-
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 40,
-          }}
-          whileInView={{
-            opacity: 1,
-            y: 0,
-          }}
-          viewport={{ once: true }}
-          className="
-            mt-28
-            rounded-3xl
-            border
-            border-border
-            bg-card
-            p-10
-            lg:p-14
-          "
-        >
-          <div className="grid gap-10 lg:grid-cols-3">
-
-            <div>
-              <p className="text-4xl font-bold text-cyan-400">5×</p>
-
-              <p className="mt-3 text-muted">
-                Faster literature review with AI-powered research assistance.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-4xl font-bold text-cyan-400">90%</p>
-
-              <p className="mt-3 text-muted">
-                Less manual effort spent organizing papers and references.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-4xl font-bold text-cyan-400">24/7</p>
-
-              <p className="mt-3 text-muted">
-                Your AI research assistant is always available whenever you need
-                help.
-              </p>
-            </div>
-
-          </div>
-        </motion.div>
-
       </div>
     </section>
   );
