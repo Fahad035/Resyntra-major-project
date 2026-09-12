@@ -11,6 +11,12 @@ import {
   AlertCircle,
   ChevronDown,
   ArrowRight,
+  AlertTriangle,
+  GitCompare,
+  CircleHelp,
+  Compass,
+  FlaskConical,
+  GraduationCap,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -21,26 +27,357 @@ import {
 
 import { generateResearchGap } from "@/api/researchGap";
 
+const reportSections = [
+  {
+    title: "Research Gaps",
+    icon: Lightbulb,
+    color: "text-cyan-400",
+    bg: "bg-cyan-500/10",
+    border: "border-cyan-500/20",
+  },
+  {
+    title: "Common Limitations",
+    icon: AlertTriangle,
+    color: "text-orange-400",
+    bg: "bg-orange-500/10",
+    border: "border-orange-500/20",
+  },
+  {
+    title: "Conflicting Findings",
+    icon: GitCompare,
+    color: "text-violet-400",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/20",
+  },
+  {
+    title: "Unanswered Questions",
+    icon: CircleHelp,
+    color: "text-blue-400",
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/20",
+  },
+  {
+    title: "Future Research Directions",
+    icon: Compass,
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+  },
+  {
+    title: "Novel Research Ideas",
+    icon: FlaskConical,
+    color: "text-fuchsia-400",
+    bg: "bg-fuchsia-500/10",
+    border: "border-fuchsia-500/20",
+  },
+  {
+    title: "Final Recommendation",
+    icon: GraduationCap,
+    color: "text-yellow-400",
+    bg: "bg-yellow-500/10",
+    border: "border-yellow-500/20",
+  },
+];
+
+/*
+ * Converts the Markdown report returned by the backend
+ * into the seven expected research-analysis sections.
+ */
+const parseResearchGapReport = (markdown = "") => {
+  const normalized = markdown.replace(/\r\n/g, "\n").trim();
+
+  if (!normalized) {
+    return [];
+  }
+
+  const sections = [];
+  let currentSection = null;
+
+  const lines = normalized.split("\n");
+
+  for (const line of lines) {
+    const headingMatch = line.match(/^#{1,3}\s+(.+?)\s*$/);
+
+    if (headingMatch) {
+      const heading = headingMatch[1].trim();
+
+      const knownSection = reportSections.find(
+        (section) =>
+          section.title.toLowerCase() === heading.toLowerCase()
+      );
+
+      if (knownSection) {
+        currentSection = {
+          ...knownSection,
+          content: [],
+        };
+
+        sections.push(currentSection);
+        continue;
+      }
+    }
+
+    if (currentSection) {
+      currentSection.content.push(line);
+    }
+  }
+
+  /*
+   * Fallback if the AI response does not use the expected
+   * headings. This prevents the result from disappearing.
+   */
+  if (sections.length === 0) {
+    return [
+      {
+        ...reportSections[0],
+        content: lines,
+      },
+    ];
+  }
+
+  return sections;
+};
+
+/*
+ * Basic Markdown renderer for the academic report.
+ *
+ * Supports:
+ * - paragraphs
+ * - bullet lists
+ * - numbered lists
+ * - bold text
+ * - italic text
+ * - inline code
+ */
+const renderInlineMarkdown = (text) => {
+  const parts = [];
+  let remaining = text;
+  let key = 0;
+
+  const pattern =
+    /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/;
+
+  while (remaining) {
+    const match = remaining.match(pattern);
+
+    if (!match) {
+      parts.push(
+        // eslint-disable-next-line no-useless-assignment
+        <span key={key++}>{remaining}</span>
+      );
+      break;
+    }
+
+    const index = match.index;
+
+    if (index > 0) {
+      parts.push(
+        <span key={key++}>
+          {remaining.slice(0, index)}
+        </span>
+      );
+    }
+
+    const token = match[0];
+
+    if (
+      token.startsWith("**") &&
+      token.endsWith("**")
+    ) {
+      parts.push(
+        <strong
+          key={key++}
+          className="font-semibold text-foreground"
+        >
+          {token.slice(2, -2)}
+        </strong>
+      );
+    } else if (
+      token.startsWith("*") &&
+      token.endsWith("*")
+    ) {
+      parts.push(
+        <em key={key++}>
+          {token.slice(1, -1)}
+        </em>
+      );
+    } else if (
+      token.startsWith("`") &&
+      token.endsWith("`")
+    ) {
+      parts.push(
+        <code
+          key={key++}
+          className="rounded bg-card px-1.5 py-0.5 text-sm text-cyan-400"
+        >
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+
+    remaining = remaining.slice(
+      index + token.length
+    );
+  }
+
+  return parts;
+};
+
+const MarkdownContent = ({ content }) => {
+  const lines = content;
+
+  const elements = [];
+  let paragraph = [];
+  let bulletItems = [];
+  let numberedItems = [];
+
+  const flushParagraph = () => {
+    if (paragraph.length === 0) return;
+
+    const text = paragraph.join(" ").trim();
+
+    if (text) {
+      elements.push(
+        <p
+          key={`paragraph-${elements.length}`}
+          className="leading-8 text-muted"
+        >
+          {renderInlineMarkdown(text)}
+        </p>
+      );
+    }
+
+    paragraph = [];
+  };
+
+  const flushBullets = () => {
+    if (bulletItems.length === 0) return;
+
+    elements.push(
+      <ul
+        key={`bullets-${elements.length}`}
+        className="space-y-3 pl-1"
+      >
+        {bulletItems.map((item, index) => (
+          <li
+            key={`bullet-${index}`}
+            className="flex items-start gap-3 leading-7 text-muted"
+          >
+            <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
+            <span>{renderInlineMarkdown(item)}</span>
+          </li>
+        ))}
+      </ul>
+    );
+
+    bulletItems = [];
+  };
+
+  const flushNumbered = () => {
+    if (numberedItems.length === 0) return;
+
+    elements.push(
+      <ol
+        key={`numbered-${elements.length}`}
+        className="space-y-4"
+      >
+        {numberedItems.map((item, index) => (
+          <li
+            key={`number-${index}`}
+            className="flex items-start gap-4 leading-7 text-muted"
+          >
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-xs font-semibold text-cyan-400">
+              {index + 1}
+            </span>
+
+            <span className="pt-0.5">
+              {renderInlineMarkdown(item)}
+            </span>
+          </li>
+        ))}
+      </ol>
+    );
+
+    numberedItems = [];
+  };
+
+  lines.forEach((rawLine) => {
+    const line = rawLine.trim();
+
+    if (!line) {
+      flushParagraph();
+      flushBullets();
+      flushNumbered();
+      return;
+    }
+
+    const bulletMatch = line.match(
+      /^[-*•]\s+(.+)$/
+    );
+
+    const numberedMatch = line.match(
+      /^\d+[.)]\s+(.+)$/
+    );
+
+    if (bulletMatch) {
+      flushParagraph();
+      flushNumbered();
+
+      bulletItems.push(bulletMatch[1]);
+      return;
+    }
+
+    if (numberedMatch) {
+      flushParagraph();
+      flushBullets();
+
+      numberedItems.push(numberedMatch[1]);
+      return;
+    }
+
+    flushBullets();
+    flushNumbered();
+
+    paragraph.push(line);
+  });
+
+  flushParagraph();
+  flushBullets();
+  flushNumbered();
+
+  return (
+    <div className="space-y-5">
+      {elements}
+    </div>
+  );
+};
+
 const ResearchGapFinder = () => {
   const [projects, setProjects] = useState([]);
   const [collections, setCollections] = useState([]);
 
-  const [selectedProjectId, setSelectedProjectId] = useState("");
+  const [selectedProjectId, setSelectedProjectId] =
+    useState("");
+
   const [selectedCollectionId, setSelectedCollectionId] =
     useState("");
 
   const [topic, setTopic] = useState("");
   const [researchGap, setResearchGap] = useState("");
 
-  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [loadingProjects, setLoadingProjects] =
+    useState(true);
+
   const [loadingCollections, setLoadingCollections] =
     useState(false);
-  const [generating, setGenerating] = useState(false);
+
+  const [generating, setGenerating] =
+    useState(false);
 
   const [error, setError] = useState("");
 
   /*
-   * Load user's projects.
+   * Load projects.
    */
   useEffect(() => {
     let cancelled = false;
@@ -56,17 +393,24 @@ const ResearchGapFinder = () => {
 
         const projectList = Array.isArray(response)
           ? response
-          : response?.items ?? response?.projects ?? [];
+          : response?.items ??
+            response?.projects ??
+            [];
 
         setProjects(projectList);
 
         if (projectList.length > 0) {
-          setSelectedProjectId(String(projectList[0].id));
+          setSelectedProjectId(
+            String(projectList[0].id)
+          );
         }
       } catch (err) {
         if (cancelled) return;
 
-        console.error("Failed to load projects:", err);
+        console.error(
+          "Failed to load projects:",
+          err
+        );
 
         const message =
           err?.response?.data?.detail ??
@@ -88,7 +432,7 @@ const ResearchGapFinder = () => {
   }, []);
 
   /*
-   * Load collections whenever the selected project changes.
+   * Load collections when project changes.
    */
   useEffect(() => {
     let cancelled = false;
@@ -107,15 +451,19 @@ const ResearchGapFinder = () => {
         setCollections([]);
         setSelectedCollectionId("");
 
-        const response = await getProjectCollections(
-          selectedProjectId
-        );
+        const response =
+          await getProjectCollections(
+            selectedProjectId
+          );
 
         if (cancelled) return;
 
-        const collectionList = Array.isArray(response)
-          ? response
-          : response?.items ?? response?.collections ?? [];
+        const collectionList =
+          Array.isArray(response)
+            ? response
+            : response?.items ??
+              response?.collections ??
+              [];
 
         setCollections(collectionList);
       } catch (err) {
@@ -146,7 +494,7 @@ const ResearchGapFinder = () => {
   }, [selectedProjectId]);
 
   /*
-   * Change project.
+   * Project selection.
    */
   const handleProjectChange = (event) => {
     const projectId = event.target.value;
@@ -158,25 +506,32 @@ const ResearchGapFinder = () => {
   };
 
   /*
-   * Change collection.
+   * Collection selection.
    */
   const handleCollectionChange = (event) => {
-    setSelectedCollectionId(event.target.value);
+    setSelectedCollectionId(
+      event.target.value
+    );
+
     setResearchGap("");
     setError("");
   };
 
   /*
-   * Generate research gap using the real backend.
+   * Generate research-gap report.
    */
   const handleGenerate = async () => {
     if (!selectedProjectId) {
-      toast.error("Please select a research project.");
+      toast.error(
+        "Please select a research project."
+      );
       return;
     }
 
     if (!topic.trim()) {
-      toast.error("Please enter a research topic.");
+      toast.error(
+        "Please enter a research topic."
+      );
       return;
     }
 
@@ -185,11 +540,13 @@ const ResearchGapFinder = () => {
       setError("");
       setResearchGap("");
 
-      const response = await generateResearchGap({
-        projectId: selectedProjectId,
-        collectionId: selectedCollectionId || null,
-        topic: topic.trim(),
-      });
+      const response =
+        await generateResearchGap({
+          projectId: selectedProjectId,
+          collectionId:
+            selectedCollectionId || null,
+          topic: topic.trim(),
+        });
 
       const generatedGap =
         response?.research_gap ?? "";
@@ -225,19 +582,31 @@ const ResearchGapFinder = () => {
 
   const selectedProject = projects.find(
     (project) =>
-      String(project.id) === String(selectedProjectId)
+      String(project.id) ===
+      String(selectedProjectId)
   );
+
+  const parsedSections =
+    parseResearchGapReport(researchGap);
 
   return (
     <section className="py-24 lg:py-32">
       <div className="mx-auto w-[92%] max-w-7xl">
-        {/* Section Header */}
+        {/* Header */}
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{
+            opacity: 0,
+            y: 30,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{
+            duration: 0.6,
+          }}
           className="mx-auto max-w-3xl text-center"
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-400">
@@ -254,25 +623,34 @@ const ResearchGapFinder = () => {
           </h2>
 
           <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted">
-            Resyntra analyzes the research papers within your project
-            and identifies potential gaps, limitations, and areas
-            that may deserve further investigation.
+            Resyntra compares research within your
+            project and identifies gaps, limitations,
+            unanswered questions, and potential
+            directions for future research.
           </p>
         </motion.div>
 
-        {/* Main Workspace */}
+        {/* Main Area */}
 
-        <div className="mt-16 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:mt-20">
-          {/* LEFT - Controls */}
+        <div className="mt-16 grid gap-8 lg:mt-20 lg:grid-cols-[0.85fr_1.15fr]">
+          {/* LEFT */}
 
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{
+              opacity: 0,
+              x: -30,
+            }}
+            whileInView={{
+              opacity: 1,
+              x: 0,
+            }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{
+              duration: 0.6,
+            }}
             className="rounded-3xl border border-border bg-card p-6 shadow-xl sm:p-8"
           >
-            {/* Header */}
+            {/* Card Header */}
 
             <div className="flex items-start gap-4">
               <div className="rounded-2xl bg-cyan-500/10 p-4">
@@ -285,8 +663,8 @@ const ResearchGapFinder = () => {
                 </h3>
 
                 <p className="mt-2 text-sm leading-6 text-muted">
-                  Choose your research scope and tell Resyntra
-                  what topic you want to investigate.
+                  Select your research scope and define
+                  the topic you want Resyntra to investigate.
                 </p>
               </div>
             </div>
@@ -307,7 +685,9 @@ const ResearchGapFinder = () => {
                 <select
                   id="research-gap-project"
                   value={selectedProjectId}
-                  onChange={handleProjectChange}
+                  onChange={
+                    handleProjectChange
+                  }
                   disabled={
                     loadingProjects ||
                     generating ||
@@ -383,7 +763,9 @@ const ResearchGapFinder = () => {
                 <select
                   id="research-gap-collection"
                   value={selectedCollectionId}
-                  onChange={handleCollectionChange}
+                  onChange={
+                    handleCollectionChange
+                  }
                   disabled={
                     !selectedProjectId ||
                     loadingCollections ||
@@ -418,14 +800,16 @@ const ResearchGapFinder = () => {
                         All papers in this project
                       </option>
 
-                      {collections.map((collection) => (
-                        <option
-                          key={collection.id}
-                          value={collection.id}
-                        >
-                          {collection.name}
-                        </option>
-                      ))}
+                      {collections.map(
+                        (collection) => (
+                          <option
+                            key={collection.id}
+                            value={collection.id}
+                          >
+                            {collection.name}
+                          </option>
+                        )
+                      )}
                     </>
                   )}
                 </select>
@@ -437,8 +821,8 @@ const ResearchGapFinder = () => {
                 selectedProjectId &&
                 collections.length === 0 && (
                   <p className="mt-2 text-xs text-muted">
-                    No collections found. All papers in the
-                    project will be analyzed.
+                    No collections found. All papers in
+                    the project will be analyzed.
                   </p>
                 )}
             </div>
@@ -497,9 +881,18 @@ const ResearchGapFinder = () => {
             <AnimatePresence>
               {error && (
                 <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
+                  initial={{
+                    opacity: 0,
+                    height: 0,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    height: "auto",
+                  }}
+                  exit={{
+                    opacity: 0,
+                    height: 0,
+                  }}
                   className="mt-5 overflow-hidden"
                 >
                   <div className="flex gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4">
@@ -513,7 +906,7 @@ const ResearchGapFinder = () => {
               )}
             </AnimatePresence>
 
-            {/* Generate Button */}
+            {/* Generate */}
 
             <button
               type="button"
@@ -564,7 +957,7 @@ const ResearchGapFinder = () => {
               )}
             </button>
 
-            {/* Status */}
+            {/* Ready Status */}
 
             <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -572,14 +965,22 @@ const ResearchGapFinder = () => {
             </div>
           </motion.div>
 
-          {/* RIGHT - Result */}
+          {/* RIGHT */}
 
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{
+              opacity: 0,
+              x: 30,
+            }}
+            whileInView={{
+              opacity: 1,
+              x: 0,
+            }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-xl"
+            transition={{
+              duration: 0.6,
+            }}
+            className="overflow-hidden rounded-3xl border border-border bg-card shadow-xl"
           >
             {/* Result Header */}
 
@@ -610,10 +1011,11 @@ const ResearchGapFinder = () => {
               </div>
             </div>
 
-            {/* Result Content */}
+            {/* Result */}
 
             <div className="min-h-107.5 p-6 sm:p-8">
-              {!researchGap && !generating ? (
+              {!researchGap &&
+              !generating ? (
                 <div className="flex min-h-90 flex-col items-center justify-center text-center">
                   <div className="rounded-3xl border border-cyan-500/10 bg-cyan-500/5 p-6">
                     <Lightbulb className="h-10 w-10 text-cyan-400" />
@@ -624,9 +1026,10 @@ const ResearchGapFinder = () => {
                   </h4>
 
                   <p className="mt-3 max-w-md text-sm leading-7 text-muted">
-                    Select a project, optionally choose a collection,
-                    enter a research topic, and let Resyntra analyze
-                    the available papers.
+                    Select a project, optionally choose
+                    a collection, enter a research topic,
+                    and let Resyntra compare the available
+                    papers.
                   </p>
                 </div>
               ) : generating ? (
@@ -640,8 +1043,10 @@ const ResearchGapFinder = () => {
                   </h4>
 
                   <p className="mt-3 max-w-md text-sm leading-7 text-muted">
-                    Resyntra is examining the selected research scope
-                    and generating a research-gap analysis.
+                    Resyntra is comparing the selected papers
+                    to identify research gaps, limitations,
+                    unanswered questions, and potential
+                    future directions.
                   </p>
 
                   <div className="mt-6 flex items-center gap-2 text-xs text-cyan-400">
@@ -651,11 +1056,19 @@ const ResearchGapFinder = () => {
                 </div>
               ) : (
                 <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
+                  initial={{
+                    opacity: 0,
+                    y: 15,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    duration: 0.5,
+                  }}
                 >
-                  {/* Topic Context */}
+                  {/* Topic */}
 
                   <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-5">
                     <div className="flex items-center gap-2">
@@ -671,22 +1084,56 @@ const ResearchGapFinder = () => {
                     </p>
                   </div>
 
-                  {/* Generated Report */}
+                  {/* Report Sections */}
 
-                  <div className="mt-8">
-                    <div className="mb-4 flex items-center gap-2">
-                      <Lightbulb className="h-5 w-5 text-cyan-400" />
+                  <div className="mt-8 space-y-5">
+                    {parsedSections.map(
+                      (section, index) => {
+                        const Icon = section.icon;
 
-                      <h4 className="font-semibold text-foreground">
-                        Identified Research Gap
-                      </h4>
-                    </div>
+                        return (
+                          <motion.div
+                            key={section.title}
+                            initial={{
+                              opacity: 0,
+                              y: 15,
+                            }}
+                            animate={{
+                              opacity: 1,
+                              y: 0,
+                            }}
+                            transition={{
+                              duration: 0.4,
+                              delay:
+                                index * 0.06,
+                            }}
+                            className={`overflow-hidden rounded-2xl border ${section.border} bg-background`}
+                          >
+                            <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+                              <div
+                                className={`rounded-xl ${section.bg} p-2.5`}
+                              >
+                                <Icon
+                                  className={`h-5 w-5 ${section.color}`}
+                                />
+                              </div>
 
-                    <div className="rounded-2xl border border-border bg-background p-6">
-                      <p className="whitespace-pre-line leading-8 text-muted">
-                        {researchGap}
-                      </p>
-                    </div>
+                              <h4 className="font-semibold text-foreground">
+                                {section.title}
+                              </h4>
+                            </div>
+
+                            <div className="p-5 sm:p-6">
+                              <MarkdownContent
+                                content={
+                                  section.content
+                                }
+                              />
+                            </div>
+                          </motion.div>
+                        );
+                      }
+                    )}
                   </div>
 
                   {/* Scope */}

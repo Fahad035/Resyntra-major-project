@@ -51,7 +51,7 @@ const ChatHero = () => {
 
           <div className="mt-20 flex flex-wrap justify-center gap-10">
             <div>
-              <h3 className="text-4xl font-bold text-cyan-400">100K+</h3>
+              <h3 className="text-4xl font-bold text-cyan-400">100+</h3>
               <p className="mt-2 text-muted">Research papers</p>
             </div>
 
