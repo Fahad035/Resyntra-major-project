@@ -5,6 +5,7 @@ const AuthInput = ({
   error,
   register,
   icon: Icon,
+  required = true,
   autoComplete,
 }) => {
   return (
@@ -27,13 +28,16 @@ const AuthInput = ({
           ${Icon ? "pl-11" : ""}
           ${
             error
-              ? "border-red-500 focus:ring-2 focus:ring-red-500/30"
-              : "border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+              ? "border-(--danger) focus:ring-2 focus:ring-(--danger)/25"
+              : "border-border focus:border-(--primary) focus:ring-2 focus:ring-(--primary)/20"
           }`}
+          required={required}
         />
       </div>
 
-      {error && <p className="text-sm text-red-500">{error.message}</p>}
+      {error && (
+        <p className="text-sm text-(--danger)">{error.message}</p>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Mail } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -18,7 +19,6 @@ import AuthFooter from "./AuthFooter";
 
 const LoginForm = () => {
   const navigate = useNavigate();
-
   const { login } = useAuth();
 
   const [loading, setLoading] = useState(false);
@@ -46,12 +46,10 @@ const LoginForm = () => {
       });
 
       toast.success("Welcome back!");
-
       navigate("/dashboard");
     } catch (error) {
       toast.error(
-        error?.response?.data?.detail ||
-          "Invalid email or password."
+        error?.response?.data?.detail || "Invalid email or password."
       );
     } finally {
       setLoading(false);
@@ -61,18 +59,17 @@ const LoginForm = () => {
   return (
     <AuthCard>
       <AuthHeader
-        title="Welcome Back"
+        title="Welcome back"
         subtitle="Sign in to continue using Resyntra"
       />
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="space-y-5"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <AuthInput
           label="Email"
           type="email"
-          placeholder="Enter your email"
+          placeholder="you@example.com"
+          icon={Mail}
+          autoComplete="email"
           register={register("email")}
           error={errors.email}
         />
@@ -80,21 +77,20 @@ const LoginForm = () => {
         <PasswordInput
           label="Password"
           placeholder="Enter your password"
+          autoComplete="current-password"
           register={register("password")}
           error={errors.password}
         />
 
         <RememberMe register={register} />
 
-        <AuthButton loading={loading}>
-          Sign In
-        </AuthButton>
+        <AuthButton loading={loading}>Sign In</AuthButton>
 
         <Divider />
 
         <AuthFooter
           text="Don't have an account?"
-          linkText="Create Account"
+          linkText="Create account"
           to="/register"
         />
       </form>

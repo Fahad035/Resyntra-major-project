@@ -1,33 +1,45 @@
-const getStrength = (password) => {
+const getStrength = (password = "") => {
   let score = 0;
 
   if (password.length >= 8) score++;
   if (password.length >= 12) score++;
-  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
-  if (/\d/.test(password)) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  if (score <= 1) return { label: "Weak", color: "bg-red-500", level: 1 };
-  if (score <= 3) return { label: "Medium", color: "bg-amber-500", level: 2 };
-  return { label: "Strong", color: "bg-green-500", level: 3 };
+  return Math.min(score, 4);
 };
 
+const LABELS = ["Weak", "Fair", "Good", "Strong"];
+const COLORS = [
+  "bg-[var(--danger)]",
+  "bg-[var(--warning)]",
+  "bg-[var(--primary)]",
+  "bg-[var(--success)]",
+];
+
 const PasswordStrength = ({ password }) => {
-  const { label, color, level } = getStrength(password);
+  if (!password) return null;
+
+  const strength = getStrength(password);
+  const level = Math.max(strength - 1, 0);
 
   return (
-    <div className="flex items-center gap-2 pt-1">
-      <div className="flex flex-1 gap-1">
-        {[1, 2, 3].map((bar) => (
+    <div className="space-y-1.5 -mt-1">
+      <div className="flex gap-1.5">
+        {[0, 1, 2, 3].map((i) => (
           <div
-            key={bar}
+            key={i}
             className={`h-1.5 flex-1 rounded-full transition-colors ${
-              bar <= level ? color : "bg-border"
+              i <= level ? COLORS[level] : "bg-(--foreground)/10"
             }`}
           />
         ))}
       </div>
-      <span className="text-xs font-medium text-muted">{label}</span>
+
+      <p className="text-xs text-muted">
+        Password strength: <span className="font-medium">{LABELS[level]}</span>
+      </p>
     </div>
   );
 };

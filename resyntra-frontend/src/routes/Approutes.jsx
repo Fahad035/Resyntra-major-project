@@ -19,9 +19,11 @@ const router = createBrowserRouter([
       ...solutionRoutes,
       // ...resourceRoutes,
       // ...companyRoutes,
-      ...authRoutes,
     ],
   },
+  // Auth pages render their own full-page AuthLayout, so they sit
+  // outside PublicLayout and never get the site Navbar/Footer.
+  ...authRoutes,
 ]);
 
 const AppRoutes = () => {
