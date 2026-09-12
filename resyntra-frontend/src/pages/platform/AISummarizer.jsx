@@ -3,6 +3,7 @@ import PageLayout from "@/layouts/PageLayout";
 import {
   SummarizerHero,
   SummaryDemo,
+  ResearchGapFinder,
   SummaryModes,
   QualitySection,
   SummarizerCTA,
@@ -14,6 +15,8 @@ const AISummarizer = () => {
       <SummarizerHero />
 
       <SummaryDemo />
+
+      <ResearchGapFinder />
 
       <SummaryModes />
 
