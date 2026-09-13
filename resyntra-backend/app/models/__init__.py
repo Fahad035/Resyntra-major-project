@@ -12,3 +12,4 @@ from app.models.professor import Professor
 from app.models.chat_message import ChatMessage
 from app.models.chat_session import ChatSession
 from app.models.notification import Notification
+from app.models.research_paper import ResearchPaper

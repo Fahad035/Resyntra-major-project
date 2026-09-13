@@ -11,6 +11,7 @@ from app.modules.search.schemas import (
 )
 from app.modules.search.service import SearchService
 
+
 router = APIRouter(
     prefix="/search",
     tags=["Search"],
@@ -20,7 +21,9 @@ router = APIRouter(
 def get_search_service(
     db: AsyncSession = Depends(get_db),
 ):
-    return SearchService(SearchRepository(db))
+    return SearchService(
+        SearchRepository(db)
+    )
 
 
 @router.get(

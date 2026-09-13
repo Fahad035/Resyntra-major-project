@@ -2,6 +2,9 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
     Distance,
     PointStruct,
+    FieldCondition,
+    Filter,
+    MatchValue,
     VectorParams,
 )
 from uuid import uuid4
@@ -114,3 +117,81 @@ def delete_paper_chunks(
             ]
         ),
     )
+
+
+# ============================================================
+# RESEARCH DISCOVERY COLLECTION
+# ============================================================
+
+RESEARCH_DISCOVERY_COLLECTION = "research_discovery"
+
+
+def create_research_discovery_collection():
+    """
+    Creates a separate Qdrant collection for external research papers.
+
+    This collection is independent from the existing paper chunk
+    collection used by Chat with Papers.
+    """
+
+    collections = client.get_collections().collections
+
+    names = [collection.name for collection in collections]
+
+    if RESEARCH_DISCOVERY_COLLECTION in names:
+        return
+
+    client.create_collection(
+        collection_name=RESEARCH_DISCOVERY_COLLECTION,
+        vectors_config=VectorParams(
+            size=settings.EMBEDDING_DIMENSION,
+            distance=Distance.COSINE,
+        ),
+    )
+
+
+def insert_research_paper(
+    research_paper_id: str,
+    embedding: list[float],
+    payload: dict,
+):
+    """
+    Stores one external research paper embedding in Qdrant.
+    """
+
+    client.upsert(
+        collection_name=RESEARCH_DISCOVERY_COLLECTION,
+        points=[
+            PointStruct(
+                id=str(uuid4()),
+                vector=embedding,
+                payload={
+                    "research_paper_id": research_paper_id,
+                    **payload,
+                },
+            )
+        ],
+    )
+
+
+def search_research_papers(
+    embedding: list[float],
+    limit: int = 10,
+):
+    """
+    Performs semantic search across external research papers.
+    """
+
+    response = client.query_points(
+        collection_name=RESEARCH_DISCOVERY_COLLECTION,
+        query=embedding,
+        limit=limit,
+    )
+
+    return [
+        {
+            "score": point.score,
+            "payload": point.payload,
+        }
+        for point in response.points
+    ]

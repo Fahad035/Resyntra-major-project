@@ -14,6 +14,11 @@ class SearchRepository:
         query: str,
         limit: int = 20,
     ):
+        query = query.strip()
+
+        if not query:
+            return []
+
         result = await self.db.execute(
             select(Paper)
             .where(

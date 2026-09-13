@@ -7,10 +7,14 @@ class PaperSearchResponse(BaseModel):
     id: UUID
     title: str
     authors: str | None
-    publication_year: int | None
-    journal: str | None
+    abstract: str | None
+    file_name: str
+    pages: int | None
+    processing_status: str
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True
+    )
 
 
 class SemanticSearchRequest(BaseModel):

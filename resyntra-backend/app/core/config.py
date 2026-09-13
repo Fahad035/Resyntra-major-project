@@ -7,18 +7,32 @@ class Settings(BaseSettings):
     APP_NAME: str = "Resyntra API"
     APP_ENV: str = "development"
     DEBUG: bool = True
-    
+
     AUTH_ENABLED: bool = False
 
     DATABASE_URL: str
     REDIS_URL: str
-    QDRANT_URL: str
 
+    QDRANT_URL: str
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
     QDRANT_COLLECTION: str = "papers"
 
-    EMBEDDING_MODEL: str = "text-embedding-004"
+    # Existing Gemini embedding configuration
+    EMBEDDING_MODEL: str = "gemini-embedding-001"
+    EMBEDDING_DIMENSION: int = 768
+
+    # OpenAI configuration
+    OPENAI_API_KEY: str
+    OPENAI_MODEL: str
+
+    # Dedicated model for research discovery embeddings
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    OPENAI_EMBEDDING_DIMENSION: int = 768
+
+    # Gemini configuration
+    GEMINI_MODEL: str = "gemini-3.6-flash"
+    GEMINI_API_KEY: str
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
@@ -27,13 +41,6 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     AI_PROVIDER: str = "gemini"
-
-    EMBEDDING_DIMENSION: int = 768
-    EMBEDDING_MODEL: str = "gemini-embedding-001"
-    OPENAI_API_KEY: str
-    GEMINI_MODEL: str = "gemini-3.6-flash"
-    OPENAI_MODEL: str
-    GEMINI_API_KEY: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
