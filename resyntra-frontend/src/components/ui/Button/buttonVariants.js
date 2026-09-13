@@ -1,4 +1,3 @@
-
 export const buttonVariants = {
   base:
     "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 disabled:opacity-50 disabled:pointer-events-none",
@@ -8,13 +7,13 @@ export const buttonVariants = {
       "bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-500 text-white shadow-lg hover:shadow-cyan-500/30",
 
     secondary:
-      "bg-slate-800 border border-slate-700 text-white hover:bg-slate-700",
+      "bg-surface border border-border text-foreground hover:bg-(--foreground)/10",
 
     outline:
-      "border border-slate-600 text-white hover:bg-slate-800",
+      "border border-border text-foreground hover:bg-(--foreground)/5",
 
     ghost:
-      "text-slate-300 hover:bg-slate-800",
+      "text-muted hover:bg-(--foreground)/5 hover:text-foreground",
 
     danger:
       "bg-red-600 text-white hover:bg-red-700",

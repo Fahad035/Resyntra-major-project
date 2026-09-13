@@ -16,7 +16,7 @@ const footerColumns = [
     title: "Product",
     links: [
       { label: "Features", href: "#" },
-      { label: "Pricing", href: "#" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Roadmap", href: "#" },
       { label: "API", href: "#" },
     ],
@@ -33,7 +33,7 @@ const footerColumns = [
   {
     title: "Company",
     links: [
-      { label: "About", href: "#" },
+      { label: "About", href: "/about" },
       { label: "Contact", href: "#" },
       { label: "Privacy", href: "#" },
       { label: "Terms", href: "#" },

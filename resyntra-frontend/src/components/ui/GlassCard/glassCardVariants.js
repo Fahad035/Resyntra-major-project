@@ -6,7 +6,7 @@ export const glassCardVariants = {
 
   variants: {
     default:
-      "bg-white/5 border-white/10 hover:border-cyan-400/30",
+      "bg-(--foreground)/5 border-border hover:border-cyan-400/30",
 
     dark:
       "bg-slate-900/60 border-slate-700 hover:border-cyan-500/40",
