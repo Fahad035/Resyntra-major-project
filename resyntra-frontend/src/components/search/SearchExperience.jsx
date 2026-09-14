@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -10,6 +10,7 @@ import {
   Loader2,
   ExternalLink,
 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 import { hybridSearch } from "../../api/search";
 
@@ -24,23 +25,24 @@ const DEFAULT_QUERY =
   "Recent survey papers about efficient Large Language Models";
 
 const SearchExperience = () => {
+  const [searchParams] = useSearchParams();
+
   const [query, setQuery] = useState(DEFAULT_QUERY);
-
   const [results, setResults] = useState([]);
-
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
-
   const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async () => {
-    const trimmedQuery = query.trim();
+  const autoSearchQueryRef = useRef("");
+
+  const handleSearch = async (searchQuery = query) => {
+    const trimmedQuery = searchQuery.trim();
 
     if (!trimmedQuery) {
       return;
     }
 
+    setQuery(trimmedQuery);
     setLoading(true);
     setError("");
     setHasSearched(true);
@@ -125,12 +127,53 @@ const SearchExperience = () => {
 
       setError(
         err?.response?.data?.detail ||
-        "Unable to search research papers right now. Please try again."
+          "Unable to search research papers right now. Please try again."
       );
     } finally {
       setLoading(false);
     }
   };
+
+  /*
+   * --------------------------------------------------
+   * Read query from SearchHero URL
+   * --------------------------------------------------
+   *
+   * SearchHero navigates to:
+   *
+   * /platform/semantic-search?q=...
+   *
+   * When that happens, automatically execute the
+   * existing hybrid search.
+   */
+
+  useEffect(() => {
+    const urlQuery = searchParams.get("q");
+
+    if (!urlQuery) {
+      return;
+    }
+
+    const trimmedQuery = urlQuery.trim();
+
+    if (!trimmedQuery) {
+      return;
+    }
+
+    /*
+     * Prevent the same URL query from triggering
+     * repeatedly during normal component updates.
+     */
+    if (autoSearchQueryRef.current === trimmedQuery) {
+      return;
+    }
+
+    autoSearchQueryRef.current = trimmedQuery;
+
+    setQuery(trimmedQuery);
+
+    handleSearch(trimmedQuery);
+  }, [searchParams]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -155,8 +198,7 @@ const SearchExperience = () => {
 
     return `${validAuthors
       .slice(0, 3)
-      .join(", ")} + ${validAuthors.length - 3
-      } more`;
+      .join(", ")} + ${validAuthors.length - 3} more`;
   };
 
   const getMatchScore = (paper) => {
@@ -249,19 +291,15 @@ const SearchExperience = () => {
 
     return (
       names[source] ||
-      source
-        .charAt(0)
-        .toUpperCase() +
-      source.slice(1)
+      source.charAt(0).toUpperCase() +
+        source.slice(1)
     );
   };
 
   const getTags = (paper) => {
     const tags = [];
 
-    const sources = getSources(
-      paper
-    );
+    const sources = getSources(paper);
 
     sources.forEach((source) => {
       const formatted =
@@ -272,9 +310,7 @@ const SearchExperience = () => {
       }
     });
 
-    if (
-      paper?.publication_year
-    ) {
+    if (paper?.publication_year) {
       tags.push(
         String(
           paper.publication_year
@@ -286,39 +322,29 @@ const SearchExperience = () => {
       paper?.journal &&
       tags.length < 3
     ) {
-      tags.push(
-        paper.journal
-      );
+      tags.push(paper.journal);
     }
 
     if (
       paper?.is_open_access &&
       tags.length < 4
     ) {
-      tags.push(
-        "Open Access"
-      );
+      tags.push("Open Access");
     }
 
     return tags.slice(0, 4);
   };
 
   const getReason = (paper) => {
-    const sources = getSources(
-      paper
-    );
+    const sources = getSources(paper);
 
-    if (
-      sources.length > 1
-    ) {
+    if (sources.length > 1) {
       return `This paper was discovered across multiple scholarly sources: ${sources
         .map(formatSource)
         .join(", ")}.`;
     }
 
-    if (
-      sources.length === 1
-    ) {
+    if (sources.length === 1) {
       return `This paper was discovered through ${formatSource(
         sources[0]
       )} based on your research query.`;
@@ -416,8 +442,8 @@ const SearchExperience = () => {
 
               <button
                 type="button"
-                onClick={
-                  handleSearch
+                onClick={() =>
+                  handleSearch()
                 }
                 disabled={loading}
                 className="flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-8 py-4 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
@@ -548,8 +574,8 @@ const SearchExperience = () => {
 
                   <button
                     type="button"
-                    onClick={
-                      handleSearch
+                    onClick={() =>
+                      handleSearch()
                     }
                     className="mt-6 rounded-xl bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
                   >
@@ -676,10 +702,10 @@ const SearchExperience = () => {
 
                               {matchScore !==
                                 null && (
-                                  <div className="shrink-0 rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
-                                    {matchScore}% Match
-                                  </div>
-                                )}
+                                <div className="shrink-0 rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
+                                  {matchScore}% Match
+                                </div>
+                              )}
 
                             </div>
 
@@ -779,20 +805,20 @@ const SearchExperience = () => {
                                 paper.url ||
                                 paper.landing_page_url
                               ) && (
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleReadPaper(
-                                        paper
-                                      )
-                                    }
-                                    className="flex items-center gap-2 text-cyan-400 transition hover:gap-3"
-                                  >
-                                    Read Paper
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleReadPaper(
+                                      paper
+                                    )
+                                  }
+                                  className="flex items-center gap-2 text-cyan-400 transition hover:gap-3"
+                                >
+                                  Read Paper
 
-                                    <ArrowUpRight className="h-4 w-4" />
-                                  </button>
-                                )}
+                                  <ArrowUpRight className="h-4 w-4" />
+                                </button>
+                              )}
 
                             </div>
 
