@@ -43,6 +43,7 @@ logs/
 # Uploads
 app/uploads/
 uploads/
+generated/
 
 # Alembic cache
 alembic/__pycache__/

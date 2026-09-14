@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-3.6-flash"
     GEMINI_API_KEY: str
 
+    # OpenRouter configuration
+    OPENROUTER_API_KEY: str
+
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
 

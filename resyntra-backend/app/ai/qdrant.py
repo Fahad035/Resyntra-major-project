@@ -102,6 +102,73 @@ def search(
         for point in response.points
     ]
 
+def get_paper_chunks(
+    paper_id: str,
+):
+    """
+    Retrieve all indexed chunks for a specific paper
+    in their original chunk order.
+    """
+
+    query_filter = Filter(
+        must=[
+            FieldCondition(
+                key="paper_id",
+                match=MatchValue(
+                    value=paper_id,
+                ),
+            )
+        ]
+    )
+
+    points = []
+    offset = None
+
+    while True:
+        result = client.scroll(
+            collection_name=COLLECTION_NAME,
+            scroll_filter=query_filter,
+            limit=100,
+            offset=offset,
+            with_payload=True,
+            with_vectors=False,
+        )
+
+        batch, offset = result
+
+        points.extend(batch)
+
+        if offset is None:
+            break
+
+    points.sort(
+        key=lambda point: (
+            point.payload or {}
+        ).get(
+            "chunk_index",
+            0,
+        )
+    )
+
+    return [
+        {
+            "chunk_index": (
+                point.payload or {}
+            ).get(
+                "chunk_index"
+            ),
+            "text": (
+                point.payload or {}
+            ).get(
+                "text"
+            ),
+        }
+        for point in points
+        if (
+            point.payload or {}
+        ).get("text")
+    ]
+
 
 def delete_paper_chunks(
     paper_id: str,

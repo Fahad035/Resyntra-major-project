@@ -1,12 +1,13 @@
 import json
 
-from app.ai.providers import AIProviderFactory
+from app.ai.providers.openrouter import OpenRouterProvider
 
 
 class PPTGenerator:
-
     def __init__(self):
-        self.provider = AIProviderFactory.get_provider()
+        # PPT generation uses OpenRouter Free.
+        # Other Resyntra AI features remain unchanged.
+        self.provider = OpenRouterProvider()
 
     def generate_outline(
         self,
@@ -15,8 +16,49 @@ class PPTGenerator:
         content: str,
         slides: int,
     ):
+        slides = max(9, min(slides, 10))
+
+        slide_structure = [
+            "1. Title",
+            "2. Introduction / Background",
+            "3. Problem Statement & Motivation",
+            "4. Objectives",
+            "5. Methodology / Proposed Approach",
+            "6. System Architecture / Workflow",
+            "7. Experiments / Dataset / Implementation",
+            "8. Results & Findings",
+            "9. Limitations & Future Scope",
+            "10. Conclusion & Key Takeaways",
+        ]
+
+        structure_text = "\n".join(
+            slide_structure[:slides]
+        )
+
         prompt = f"""
-Generate EXACTLY {slides} professional presentation slides from the following research paper.
+Generate EXACTLY {slides} professional academic presentation slides
+from the research paper provided below.
+
+The presentation must be grounded ONLY in the supplied paper content.
+
+Do NOT invent:
+- datasets
+- results
+- algorithms
+- numerical values
+- architectures
+- experiments
+- conclusions
+- references
+- claims not supported by the paper
+
+If information is unavailable, write:
+
+"Not explicitly reported in the paper."
+
+REQUIRED ACADEMIC STRUCTURE:
+
+{structure_text}
 
 Return ONLY valid JSON.
 
@@ -34,7 +76,7 @@ Each slide must follow this schema:
       "Bullet 3"
     ],
     "speaker_notes": "Notes for the presenter.",
-    "image_prompt": "Describe an illustration for this slide.",
+    "image_prompt": "",
     "chart": null,
     "table": null
   }}
@@ -43,7 +85,6 @@ Each slide must follow this schema:
 Allowed layouts:
 
 - title
-- agenda
 - content
 - two_column
 - image_left
@@ -52,77 +93,77 @@ Allowed layouts:
 - table
 - chart
 - conclusion
-- thank_you
+
+Rules:
+
+1. Generate exactly {slides} slides.
+2. First slide must use "title".
+3. Last slide must use "conclusion".
+4. Follow the academic structure in the exact order provided.
+5. Maximum 5 bullet points per slide.
+6. Maximum 18 words per bullet.
+7. Keep slides concise and presentation-friendly.
+8. Speaker notes must be based only on the paper.
+9. Use image_prompt only when genuinely useful.
+10. Do not require external images.
+11. Add charts ONLY when numerical data exists in the paper.
+12. Add tables ONLY when comparison/table data exists in the paper.
+13. Never fabricate chart values.
+14. Never fabricate table values.
+15. Preserve important technical terminology.
+16. Do not invent citations.
+17. Return ONLY valid JSON.
+18. Do not wrap JSON in markdown.
+19. Do not include explanations outside the JSON.
 
 Chart format:
 
 {{
     "type": "bar",
     "title": "Chart Title",
-    "labels": [
-        "Item A",
-        "Item B",
-        "Item C"
-    ],
-    "values": [
-        10,
-        20,
-        30
-    ]
+    "labels": ["Item A", "Item B"],
+    "values": [10, 20]
 }}
 
 Table format:
 
 {{
-    "headers": [
-        "Column 1",
-        "Column 2"
-    ],
+    "headers": ["Column 1", "Column 2"],
     "rows": [
-        ["A","B"],
-        ["C","D"]
+        ["A", "B"],
+        ["C", "D"]
     ]
 }}
 
-Rules:
+PAPER TITLE:
 
-1. Generate exactly {slides} slides.
-2. First slide must use "title".
-3. Second slide must use "agenda".
-4. Last slide must use "thank_you".
-5. Maximum 5 bullet points.
-6. Maximum 12 words per bullet.
-7. Keep slides concise.
-8. Speaker notes should explain the slide.
-9. Add an image_prompt whenever appropriate.
-10. Add charts only when numerical data exists.
-11. Add tables only when comparison data exists.
-12. Return ONLY valid JSON.
-13. Do not wrap JSON in markdown.
-14. Do not include explanations.
-
-Paper Title:
 {title}
 
-Abstract:
+ABSTRACT:
+
 {abstract or "Not available"}
 
-Paper Content:
-{content[:15000]}
+PAPER CONTENT:
+
+{content[:30000]}
 """
 
         system_prompt = """
 You are an expert academic presentation designer.
 
-Your job is to transform research papers into professional PowerPoint presentations.
+Transform research papers into professional academic presentations.
+
+The supplied research paper is the ONLY source of factual information.
+
+Never invent information.
 
 Always return ONLY valid JSON.
 
 Never include markdown.
 
-Never include explanations.
-
 Never include ```json.
+
+Never include explanations outside the JSON.
 """
 
         response = self.provider.generate(
@@ -131,14 +172,49 @@ Never include ```json.
             temperature=0.3,
         )
 
-        try:
-            return json.loads(response)
+        return self._parse_response(response)
 
-        except json.JSONDecodeError:
-            cleaned = (
-                response.replace("```json", "")
-                .replace("```", "")
-                .strip()
+    def _parse_response(self, response):
+        """
+        Convert the AI response into Python JSON.
+        """
+
+        if not response:
+            raise ValueError(
+                "AI provider returned an empty response."
             )
 
-            return json.loads(cleaned)
+        response = response.strip()
+
+        # Remove accidental markdown fences.
+        if response.startswith("```json"):
+            response = response[7:]
+
+        elif response.startswith("```"):
+            response = response[3:]
+
+        if response.endswith("```"):
+            response = response[:-3]
+
+        response = response.strip()
+
+        try:
+            result = json.loads(response)
+
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                "AI provider returned invalid JSON "
+                "for the presentation outline."
+            ) from exc
+
+        if not isinstance(result, list):
+            raise ValueError(
+                "Presentation outline must be a JSON array."
+            )
+
+        if not result:
+            raise ValueError(
+                "AI returned an empty presentation outline."
+            )
+
+        return result
