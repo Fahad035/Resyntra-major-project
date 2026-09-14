@@ -23,7 +23,7 @@ class CrossrefClient:
             "select": (
                 "DOI,title,author,"
                 "published,container-title,"
-                "URL,type"
+                "URL,type,abstract"
             ),
         }
 
@@ -127,17 +127,35 @@ class CrossrefClient:
                 "DOI"
             )
 
+            abstract = item.get(
+                "abstract"
+            )
+
+            if abstract:
+                abstract = self._clean_abstract(
+                    abstract
+                )
+
             results.append(
                 {
                     "id": doi,
+
                     "title": title,
+
                     "authors": authors,
+
+                    "abstract": abstract,
+
                     "publication_year": (
                         publication_year
                     ),
+
                     "journal": journal,
+
                     "doi": doi,
+
                     "source": "crossref",
+
                     "url": (
                         item.get("URL")
                         or (
@@ -146,6 +164,7 @@ class CrossrefClient:
                             else None
                         )
                     ),
+
                     "type": item.get(
                         "type"
                     ),
@@ -153,3 +172,66 @@ class CrossrefClient:
             )
 
         return results
+
+    def _clean_abstract(
+        self,
+        abstract: str,
+    ):
+        """
+        Crossref abstracts can contain
+        JATS/XML-style markup.
+
+        Convert the abstract into readable
+        plain text for the Resyntra UI.
+        """
+
+        if not abstract:
+            return None
+
+        text = str(
+            abstract
+        )
+
+        # Remove XML/HTML tags.
+        import re
+
+        text = re.sub(
+            r"<[^>]+>",
+            " ",
+            text,
+        )
+
+        # Decode common HTML entities.
+        text = (
+            text.replace(
+                "&amp;",
+                "&",
+            )
+            .replace(
+                "&lt;",
+                "<",
+            )
+            .replace(
+                "&gt;",
+                ">",
+            )
+            .replace(
+                "&quot;",
+                '"',
+            )
+            .replace(
+                "&#39;",
+                "'",
+            )
+        )
+
+        # Normalize whitespace.
+        text = re.sub(
+            r"\s+",
+            " ",
+            text,
+        )
+
+        text = text.strip()
+
+        return text or None
