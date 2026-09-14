@@ -57,9 +57,9 @@ export const NAVBAR_ITEMS = [
             icon: Search,
           },
           {
-            title: "Knowledge Graph",
+            title: "PPT Generator",
             description: "Visualize connections",
-            path: "/knowledge-graph",
+            path: "/ppt-generator",
             icon: Network,
           },
           {

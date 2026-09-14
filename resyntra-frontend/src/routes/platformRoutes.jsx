@@ -3,41 +3,44 @@ import Workspace from "@/pages/platform/Workspace";
 import AISummarizer from "@/pages/platform/AISummarizer";
 import ChatWithPapers from "@/pages/platform/ChatWithPapers";
 import SemanticSearch from "@/pages/platform/SemanticSearch";
-import KnowledgeGraph from "@/pages/platform/KnowledgeGraph";
+import PptGenerator from "@/pages/platform/PptGenerator";
 import Analytics from "@/pages/platform/Analytics";
-import { Outlet } from "react-router-dom"; // Import Outlet
+import { Outlet } from "react-router-dom";
 
 const platformRoutes = [
+  /*
+  |--------------------------------------------------------------------------
+  | 1. Nested Scoped Directory Routes (e.g., /platform/...)
+  |--------------------------------------------------------------------------
+  */
   {
-    path: "platform", //  This groups everything under /platform/...
-    element: <Outlet />, // Acts as a passthrough placeholder for your layout container
+    path: "platform", 
+    element: <Outlet />, 
     children: [
-      {
-        path: "workspace", // Resolves to /platform/workspace
-        element: <Workspace />,
-      },
-      {
-        path: "ai-summarizer", // Resolves to /platform/ai-summarizer
-        element: <AISummarizer />,
-      },
-      {
-        path: "chat-with-papers", // Resolves to /platform/chat-with-papers
-        element: <ChatWithPapers />,
-      },
-      {
-        path: "semantic-search", // Resolves to /platform/semantic-search
-        element: <SemanticSearch />,
-      },
-      {
-        path: "knowledge-graph", // Resolves to /platform/knowledge-graph
-        element: <KnowledgeGraph />,
-      },
-      {
-        path: "analytics", // Resolves to /platform/analytics
-        element: <Analytics />,
-      },
+      { path: "workspace", element: <Workspace /> },
+      { path: "ai-summarizer", element: <AISummarizer /> },
+      { path: "chat-with-papers", element: <ChatWithPapers /> },
+      { path: "semantic-search", element: <SemanticSearch /> },
+      { path: "ppt-generator", element: <PptGenerator /> },
+      { path: "analytics", element: <Analytics /> },
     ],
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | 2. Root Shortlink Fallback Mirror Routes (e.g., /...)
+  |--------------------------------------------------------------------------
+  | This mirrors the paths straight onto the root domain namespace so that
+  | if the user trims down the URL bar, React Router will still successfully
+  | capture and render the page instead of throwing a 404 block graphic!
+  |
+  */
+  { path: "workspace", element: <Workspace /> },
+  { path: "ai-summarizer", element: <AISummarizer /> },
+  { path: "chat-with-papers", element: <ChatWithPapers /> },
+  { path: "semantic-search", element: <SemanticSearch /> },
+  { path: "ppt-generator", element: <PptGenerator /> },
+  { path: "analytics", element: <Analytics /> },
 ];
 
 export default platformRoutes;
