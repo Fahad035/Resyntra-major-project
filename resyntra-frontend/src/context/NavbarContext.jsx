@@ -11,8 +11,17 @@ export const useNavbar = () => useContext(NavbarContext);
 
 export const NavbarProvider = ({ children }) => {
   const [activeMenu, setActiveMenu] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navbarRef = useRef(null);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen((previous) => !previous);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <NavbarContext.Provider
@@ -20,6 +29,11 @@ export const NavbarProvider = ({ children }) => {
         activeMenu,
         setActiveMenu,
         navbarRef,
+
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
+        toggleMobileMenu,
+        closeMobileMenu,
       }}
     >
       {children}

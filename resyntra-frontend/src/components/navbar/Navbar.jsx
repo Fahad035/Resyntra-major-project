@@ -7,6 +7,7 @@ import DesktopNav from "./DesktopNav";
 import CTAButtons from "./CTAButtons";
 import MobileMenuButton from "./MobileMenuButton";
 import MegaMenu from "./MegaMenu";
+import MobileNav from "./MobileNav";
 import ThemeToggle from "@/components/common/ThemeToggle";
 
 import useScrollPosition from "@/hooks/useScrollPosition";
@@ -21,9 +22,10 @@ const NavbarContent = () => {
   const {
     navbarRef,
     setActiveMenu,
+    closeMobileMenu,
   } = useNavbar();
 
-  // Close menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -31,6 +33,7 @@ const NavbarContent = () => {
         !navbarRef.current.contains(event.target)
       ) {
         setActiveMenu(null);
+        closeMobileMenu();
       }
     };
 
@@ -44,13 +47,18 @@ const NavbarContent = () => {
         "mousedown",
         handleClickOutside
       );
-  }, [navbarRef, setActiveMenu]);
+  }, [
+    navbarRef,
+    setActiveMenu,
+    closeMobileMenu,
+  ]);
 
-  // Close menu on Escape
+  // Close menus on Escape
   useEffect(() => {
     const handleEscape = (event) => {
       if (event.key === "Escape") {
         setActiveMenu(null);
+        closeMobileMenu();
       }
     };
 
@@ -61,7 +69,7 @@ const NavbarContent = () => {
         "keydown",
         handleEscape
       );
-  }, [setActiveMenu]);
+  }, [setActiveMenu, closeMobileMenu]);
 
   return (
     <motion.header
@@ -76,23 +84,32 @@ const NavbarContent = () => {
           className={clsx(
             "relative flex items-center justify-between rounded-2xl border transition-all duration-300",
             isScrolled
-              ? "h-16 border border-border bg-(--surface)/70 shadow-xl backdrop-blur-xl"
+              ? "h-16 border-(--border) bg-(--surface)/70 shadow-xl backdrop-blur-xl"
               : "h-20 border-transparent bg-transparent"
           )}
         >
+          {/* Logo */}
           <div className="px-6">
             <Logo />
           </div>
 
+          {/* Desktop Navigation */}
           <DesktopNav />
 
+          {/* Right Controls */}
           <div className="flex items-center gap-3 px-6">
             <ThemeToggle />
+
             <CTAButtons />
+
             <MobileMenuButton />
           </div>
 
+          {/* Desktop Mega Menu */}
           <MegaMenu />
+
+          {/* Mobile Navigation */}
+          <MobileNav />
         </div>
       </div>
     </motion.header>
