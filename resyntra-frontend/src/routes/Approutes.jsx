@@ -5,8 +5,7 @@ import PublicLayout from "@/layouts/PublicLayout";
 import publicRoutes from "./publicRoutes";
 import platformRoutes from "./platformRoutes";
 import solutionRoutes from "./solutionRoutes";
-// import resourceRoutes from "./resourceRoutes";
-// import companyRoutes from "./companyRoutes";
+import resourceRoutes from "./resourceRoutes";
 import authRoutes from "./authRoutes";
 
 const router = createBrowserRouter([
@@ -17,8 +16,7 @@ const router = createBrowserRouter([
       ...publicRoutes,
       ...platformRoutes,
       ...solutionRoutes,
-      // ...resourceRoutes,
-      // ...companyRoutes,
+      ...resourceRoutes,
     ],
   },
   // Auth pages render their own full-page AuthLayout, so they sit

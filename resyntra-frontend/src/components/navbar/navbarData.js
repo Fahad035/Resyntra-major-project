@@ -116,9 +116,10 @@ export const NAVBAR_ITEMS = [
   {
     label: "Resources",
     type: "mega",
+    href: "/resources",
     explore: {
       title: "Explore Resources",
-      href: "/resources/documentation",
+      href: "/resources",
     },
     sections: [
       {

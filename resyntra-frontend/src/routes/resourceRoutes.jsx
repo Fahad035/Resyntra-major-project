@@ -1,3 +1,5 @@
+import Resources from "@/pages/resources/Resources";
+
 import Documentation from "@/pages/resources/Documentation";
 import Tutorials from "@/pages/resources/Tutorials";
 import Blog from "@/pages/resources/Blog";
@@ -7,27 +9,31 @@ import Support from "@/pages/resources/Support";
 
 const resourceRoutes = [
   {
-    path: "documentation",
+    path: "resources",
+    element: <Resources />,
+  },
+  {
+    path: "resources/documentation",
     element: <Documentation />,
   },
   {
-    path: "tutorials",
+    path: "resources/tutorials",
     element: <Tutorials />,
   },
   {
-    path: "blog",
+    path: "resources/blog",
     element: <Blog />,
   },
   {
-    path: "api-reference",
+    path: "resources/api-reference",
     element: <APIReference />,
   },
   {
-    path: "roadmap",
+    path: "resources/roadmap",
     element: <Roadmap />,
   },
   {
-    path: "support",
+    path: "resources/support",
     element: <Support />,
   },
 ];
