@@ -10,5 +10,3 @@ class AnalyticsResponse(BaseModel):
 
     papers_this_month: int
     notes_this_month: int
-
-    papers_by_year: dict[int, int]

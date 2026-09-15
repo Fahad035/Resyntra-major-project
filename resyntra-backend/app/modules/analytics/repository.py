@@ -29,8 +29,22 @@ class AnalyticsRepository:
             .select_from(Paper)
             .where(
                 Paper.owner_id == owner_id,
-                extract("month", Paper.created_at) == extract("month", func.now()),
-                extract("year", Paper.created_at) == extract("year", func.now()),
+                extract(
+                    "month",
+                    Paper.created_at,
+                )
+                == extract(
+                    "month",
+                    func.now(),
+                ),
+                extract(
+                    "year",
+                    Paper.created_at,
+                )
+                == extract(
+                    "year",
+                    func.now(),
+                ),
             )
         )
         return result.scalar_one()
@@ -41,25 +55,22 @@ class AnalyticsRepository:
             .select_from(Note)
             .where(
                 Note.owner_id == owner_id,
-                extract("month", Note.created_at) == extract("month", func.now()),
-                extract("year", Note.created_at) == extract("year", func.now()),
+                extract(
+                    "month",
+                    Note.created_at,
+                )
+                == extract(
+                    "month",
+                    func.now(),
+                ),
+                extract(
+                    "year",
+                    Note.created_at,
+                )
+                == extract(
+                    "year",
+                    func.now(),
+                ),
             )
         )
         return result.scalar_one()
-
-    async def papers_grouped_by_year(self, owner_id: UUID):
-        result = await self.db.execute(
-            select(
-                Paper.publication_year,
-                func.count(Paper.id),
-            )
-            .where(Paper.owner_id == owner_id)
-            .group_by(Paper.publication_year)
-            .order_by(Paper.publication_year)
-        )
-
-        return {
-            year: count
-            for year, count in result.all()
-            if year is not None
-        }
