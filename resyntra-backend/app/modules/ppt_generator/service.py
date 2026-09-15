@@ -1,12 +1,15 @@
 import os
+import shutil
+import subprocess
 from uuid import uuid4
 
 from pptx import Presentation
 from pptx.chart.data import ChartData
-from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
+from pptx.enum.chart import XL_CHART_TYPE
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
 
 from app.ai.ppt_generator import PPTGenerator
 from app.ai.qdrant import get_paper_chunks
@@ -25,7 +28,9 @@ class PPTService:
         paper = await self.repo.get_by_id(paper_id)
 
         if paper is None:
-            raise ValueError("Research paper not found.")
+            raise ValueError(
+                "Research paper not found."
+            )
 
         # -----------------------------------------
         # 2. Check processing status
@@ -38,7 +43,9 @@ class PPTService:
         # -----------------------------------------
         # 3. Retrieve indexed paper content
         # -----------------------------------------
-        content = self._get_paper_content(paper_id)
+        content = self._get_paper_content(
+            paper_id
+        )
 
         if not content:
             raise ValueError(
@@ -61,19 +68,13 @@ class PPTService:
             )
 
         # -----------------------------------------
-        # 5. Create presentation
+        # 5. Create PowerPoint
         # -----------------------------------------
         prs = Presentation()
 
-        # Widescreen 16:9
+        # 16:9 widescreen
         prs.slide_width = Inches(13.333)
         prs.slide_height = Inches(7.5)
-
-        # Remove default first slide if necessary
-        while len(prs.slides) > 0:
-            r_id = prs.slides._sldIdLst[0].rId
-            prs.part.drop_rel(r_id)
-            del prs.slides._sldIdLst[0]
 
         # -----------------------------------------
         # 6. Add slides
@@ -85,34 +86,151 @@ class PPTService:
             )
 
         # -----------------------------------------
-        # 7. Save PPTX
+        # 7. Create generated directory
         # -----------------------------------------
-        os.makedirs("generated", exist_ok=True)
-
-        filename = f"{uuid4()}.pptx"
-
-        path = os.path.join(
+        os.makedirs(
             "generated",
-            filename,
+            exist_ok=True,
         )
 
-        prs.save(path)
+        presentation_id = str(uuid4())
+
+        pptx_filename = (
+            f"{presentation_id}.pptx"
+        )
+
+        pptx_path = os.path.join(
+            "generated",
+            pptx_filename,
+        )
 
         # -----------------------------------------
-        # 8. Return download URL
+        # 8. Save PPTX
+        # -----------------------------------------
+        prs.save(pptx_path)
+
+        # -----------------------------------------
+        # 9. Convert PPTX → PDF
+        # -----------------------------------------
+        pdf_filename = (
+            f"{presentation_id}.pdf"
+        )
+
+        pdf_path = os.path.join(
+            "generated",
+            pdf_filename,
+        )
+
+        self._convert_to_pdf(
+            pptx_path,
+            "generated",
+        )
+
+        # -----------------------------------------
+        # 10. Verify PDF was created
+        # -----------------------------------------
+        if not os.path.exists(pdf_path):
+            raise RuntimeError(
+                "PowerPoint was generated, but "
+                "PDF conversion failed."
+            )
+
+        # -----------------------------------------
+        # 11. Return both files
         # -----------------------------------------
         return {
-            "download_url": f"/generated/{filename}"
+            "pptx_url": (
+                f"/generated/{pptx_filename}"
+            ),
+            "pdf_url": (
+                f"/generated/{pdf_filename}"
+            ),
         }
+
+    # =========================================================
+    # PDF CONVERSION
+    # =========================================================
+
+    def _convert_to_pdf(
+        self,
+        pptx_path,
+        output_directory,
+    ):
+        """
+        Convert PowerPoint to PDF using LibreOffice.
+        """
+
+        soffice = shutil.which(
+            "soffice"
+        )
+
+        if soffice is None:
+
+            possible_paths = [
+                r"C:\Program Files\LibreOffice\program\soffice.exe",
+                r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+            ]
+
+            for path in possible_paths:
+                if os.path.exists(path):
+                    soffice = path
+                    break
+
+        if soffice is None:
+            raise RuntimeError(
+                "LibreOffice was not found. "
+                "Please make sure LibreOffice is installed."
+            )
+
+        command = [
+            soffice,
+            "--headless",
+            "--convert-to",
+            "pdf",
+            "--outdir",
+            os.path.abspath(
+                output_directory
+            ),
+            os.path.abspath(
+                pptx_path
+            ),
+        ]
+
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+
+        except subprocess.TimeoutExpired as exc:
+            raise RuntimeError(
+                "LibreOffice PDF conversion timed out."
+            ) from exc
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                "LibreOffice failed to convert "
+                f"PPTX to PDF.\n{result.stderr}"
+            )
+
+        print(
+            "LibreOffice PDF conversion:",
+            result.stdout.strip(),
+        )
 
     # =========================================================
     # PAPER CONTENT
     # =========================================================
 
-    def _get_paper_content(self, paper_id):
+    def _get_paper_content(
+        self,
+        paper_id,
+    ):
         """
-        Retrieve all indexed chunks belonging to the paper
-        and rebuild the paper content in original order.
+        Retrieve all indexed chunks belonging
+        to the paper in their original order.
         """
 
         chunks = get_paper_chunks(
@@ -132,7 +250,11 @@ class PPTService:
     # SLIDE ROUTER
     # =========================================================
 
-    def _add_slide(self, prs, slide_data):
+    def _add_slide(
+        self,
+        prs,
+        slide_data,
+    ):
         layout = slide_data.get(
             "layout",
             "content",
@@ -178,179 +300,13 @@ class PPTService:
             )
 
     # =========================================================
-    # COMMON HELPERS
+    # COLORS
     # =========================================================
 
-    def _add_background(self, slide):
-        """
-        Add a clean white background.
-        """
-
-        background = slide.background
-        fill = background.fill
-        fill.solid()
-        fill.fore_color.rgb = self._color("FFFFFF")
-
-    def _add_top_accent(self, slide):
-        """
-        Add Resyntra-style accent line.
-        """
-
-        shape = slide.shapes.add_shape(
-            MSO_SHAPE.RECTANGLE,
-            0,
-            0,
-            Inches(13.333),
-            Inches(0.08),
-        )
-
-        shape.fill.solid()
-        shape.fill.fore_color.rgb = self._rgb(
-            "4F46E5"
-        )
-
-        shape.line.fill.background()
-
-    def _add_footer(self, slide, slide_number):
-        """
-        Add subtle presentation footer.
-        """
-
-        line = slide.shapes.add_shape(
-            MSO_SHAPE.RECTANGLE,
-            Inches(0.65),
-            Inches(7.05),
-            Inches(12.0),
-            Inches(0.01),
-        )
-
-        line.fill.solid()
-        line.fill.fore_color.rgb = self._rgb(
-            "E5E7EB"
-        )
-        line.line.fill.background()
-
-        textbox = slide.shapes.add_textbox(
-            Inches(0.65),
-            Inches(7.08),
-            Inches(5),
-            Inches(0.25),
-        )
-
-        paragraph = textbox.text_frame.paragraphs[0]
-
-        paragraph.text = "Resyntra • AI Research Assistant"
-
-        paragraph.font.size = Pt(8)
-        paragraph.font.color.rgb = self._rgb(
-            "6B7280"
-        )
-
-        number_box = slide.shapes.add_textbox(
-            Inches(11.8),
-            Inches(7.08),
-            Inches(0.8),
-            Inches(0.25),
-        )
-
-        number_paragraph = (
-            number_box.text_frame.paragraphs[0]
-        )
-
-        number_paragraph.text = str(
-            slide_number
-        )
-
-        number_paragraph.alignment = PP_ALIGN.RIGHT
-
-        number_paragraph.font.size = Pt(8)
-        number_paragraph.font.color.rgb = self._rgb(
-            "6B7280"
-        )
-
-    def _add_title(self, slide, title):
-        """
-        Add consistent slide title.
-        """
-
-        textbox = slide.shapes.add_textbox(
-            Inches(0.7),
-            Inches(0.45),
-            Inches(11.9),
-            Inches(0.7),
-        )
-
-        frame = textbox.text_frame
-        frame.clear()
-
-        paragraph = frame.paragraphs[0]
-
-        paragraph.text = str(title)
-
-        paragraph.font.size = Pt(27)
-        paragraph.font.bold = True
-        paragraph.font.color.rgb = self._rgb(
-            "111827"
-        )
-
-    def _add_bullets(
+    def _color(
         self,
-        slide,
-        bullets,
-        left=0.9,
-        top=1.6,
-        width=11.5,
-        height=4.9,
+        hex_value,
     ):
-        """
-        Add clean academic bullet points.
-        """
-
-        textbox = slide.shapes.add_textbox(
-            Inches(left),
-            Inches(top),
-            Inches(width),
-            Inches(height),
-        )
-
-        frame = textbox.text_frame
-
-        frame.clear()
-        frame.word_wrap = True
-        frame.margin_left = Inches(0.08)
-        frame.margin_right = Inches(0.08)
-
-        for index, bullet in enumerate(
-            bullets[:5]
-        ):
-
-            if index == 0:
-                paragraph = frame.paragraphs[0]
-            else:
-                paragraph = frame.add_paragraph()
-
-            paragraph.text = str(bullet)
-
-            paragraph.level = 0
-
-            paragraph.font.size = Pt(20)
-            paragraph.font.color.rgb = self._rgb(
-                "374151"
-            )
-
-            paragraph.space_after = Pt(14)
-
-            paragraph.text = f"•  {bullet}"
-
-        return textbox
-
-    def _rgb(self, hex_value):
-        """
-        Convert HEX color to RGBColor.
-        """
-
-        from pptx.dml.color import RGBColor
-
         hex_value = hex_value.replace(
             "#",
             "",
@@ -361,6 +317,237 @@ class PPTService:
             int(hex_value[2:4], 16),
             int(hex_value[4:6], 16),
         )
+
+    # =========================================================
+    # BACKGROUND
+    # =========================================================
+
+    def _add_background(
+        self,
+        slide,
+    ):
+        fill = slide.background.fill
+
+        fill.solid()
+
+        fill.fore_color.rgb = self._color(
+            "FFFFFF"
+        )
+
+    # =========================================================
+    # TOP ACCENT
+    # =========================================================
+
+    def _add_top_accent(
+        self,
+        slide,
+    ):
+        shape = slide.shapes.add_shape(
+            MSO_SHAPE.RECTANGLE,
+            0,
+            0,
+            Inches(13.333),
+            Inches(0.08),
+        )
+
+        shape.fill.solid()
+
+        shape.fill.fore_color.rgb = self._color(
+            "4F46E5"
+        )
+
+        shape.line.fill.background()
+
+    # =========================================================
+    # FOOTER
+    # =========================================================
+
+    def _add_footer(
+        self,
+        slide,
+        slide_number,
+    ):
+        line = slide.shapes.add_shape(
+            MSO_SHAPE.RECTANGLE,
+            Inches(0.65),
+            Inches(6.98),
+            Inches(12.0),
+            Inches(0.01),
+        )
+
+        line.fill.solid()
+
+        line.fill.fore_color.rgb = self._color(
+            "E5E7EB"
+        )
+
+        line.line.fill.background()
+
+        footer = slide.shapes.add_textbox(
+            Inches(0.65),
+            Inches(7.08),
+            Inches(5.5),
+            Inches(0.2),
+        )
+
+        paragraph = (
+            footer.text_frame.paragraphs[0]
+        )
+
+        paragraph.text = (
+            "Resyntra • AI Research Assistant"
+        )
+
+        paragraph.font.size = Pt(8)
+
+        paragraph.font.color.rgb = self._color(
+            "6B7280"
+        )
+
+        number = slide.shapes.add_textbox(
+            Inches(11.8),
+            Inches(7.08),
+            Inches(0.8),
+            Inches(0.2),
+        )
+
+        paragraph = (
+            number.text_frame.paragraphs[0]
+        )
+
+        paragraph.text = str(
+            slide_number
+        )
+
+        paragraph.alignment = PP_ALIGN.RIGHT
+
+        paragraph.font.size = Pt(8)
+
+        paragraph.font.color.rgb = self._color(
+            "6B7280"
+        )
+
+    # =========================================================
+    # TITLE
+    # =========================================================
+
+    def _add_title(
+        self,
+        slide,
+        title,
+    ):
+        textbox = slide.shapes.add_textbox(
+            Inches(0.7),
+            Inches(0.42),
+            Inches(11.9),
+            Inches(0.75),
+        )
+
+        frame = textbox.text_frame
+
+        frame.clear()
+
+        frame.word_wrap = True
+
+        paragraph = frame.paragraphs[0]
+
+        paragraph.text = str(title)
+
+        paragraph.font.size = Pt(27)
+
+        paragraph.font.bold = True
+
+        paragraph.font.color.rgb = self._color(
+            "111827"
+        )
+
+    # =========================================================
+    # BULLETS
+    # =========================================================
+
+    def _add_bullets(
+        self,
+        slide,
+        bullets,
+        left=0.9,
+        top=1.6,
+        width=11.5,
+        height=4.9,
+    ):
+        textbox = slide.shapes.add_textbox(
+            Inches(left),
+            Inches(top),
+            Inches(width),
+            Inches(height),
+        )
+
+        frame = textbox.text_frame
+
+        frame.clear()
+
+        frame.word_wrap = True
+
+        frame.margin_left = Inches(0.08)
+
+        frame.margin_right = Inches(0.08)
+
+        frame.margin_top = Inches(0.05)
+
+        for index, bullet in enumerate(
+            bullets[:5]
+        ):
+            if index == 0:
+                paragraph = frame.paragraphs[0]
+            else:
+                paragraph = frame.add_paragraph()
+
+            paragraph.text = (
+                f"•  {str(bullet)}"
+            )
+
+            paragraph.font.size = Pt(19)
+
+            paragraph.font.color.rgb = self._color(
+                "374151"
+            )
+
+            paragraph.space_after = Pt(15)
+
+            paragraph.line_spacing = 1.15
+
+        return textbox
+
+    # =========================================================
+    # CARD
+    # =========================================================
+
+    def _add_card(
+        self,
+        slide,
+        left,
+        top,
+        width,
+        height,
+    ):
+        card = slide.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE,
+            Inches(left),
+            Inches(top),
+            Inches(width),
+            Inches(height),
+        )
+
+        card.fill.solid()
+
+        card.fill.fore_color.rgb = self._color(
+            "F9FAFB"
+        )
+
+        card.line.color.rgb = self._color(
+            "E5E7EB"
+        )
+
+        return card
 
     # =========================================================
     # TITLE SLIDE
@@ -377,56 +564,61 @@ class PPTService:
 
         self._add_background(slide)
 
-        # Accent block
-        block = slide.shapes.add_shape(
+        accent = slide.shapes.add_shape(
             MSO_SHAPE.RECTANGLE,
             0,
             0,
-            Inches(0.18),
+            Inches(0.16),
             Inches(7.5),
         )
 
-        block.fill.solid()
+        accent.fill.solid()
 
-        block.fill.fore_color.rgb = self._rgb(
+        accent.fill.fore_color.rgb = self._color(
             "4F46E5"
         )
 
-        block.line.fill.background()
+        accent.line.fill.background()
 
-        # Resyntra label
-        label = slide.shapes.add_textbox(
+        brand = slide.shapes.add_textbox(
             Inches(0.9),
-            Inches(0.85),
-            Inches(4),
+            Inches(0.75),
+            Inches(6),
             Inches(0.4),
         )
 
         paragraph = (
-            label.text_frame.paragraphs[0]
+            brand.text_frame.paragraphs[0]
         )
 
         paragraph.text = (
-            "RESYNTRA • AI RESEARCH ASSISTANT"
+            "RESYNTRA  •  AI RESEARCH ASSISTANT"
         )
 
-        paragraph.font.size = Pt(12)
+        paragraph.font.size = Pt(11)
+
         paragraph.font.bold = True
-        paragraph.font.color.rgb = self._rgb(
+
+        paragraph.font.color.rgb = self._color(
             "4F46E5"
         )
 
-        # Main title
         title = slide.shapes.add_textbox(
             Inches(0.9),
             Inches(1.65),
             Inches(11.2),
-            Inches(2.3),
+            Inches(2.0),
         )
 
         frame = title.text_frame
+
+        frame.clear()
+
         frame.word_wrap = True
-        frame.vertical_anchor = MSO_ANCHOR.MIDDLE
+
+        frame.vertical_anchor = (
+            MSO_ANCHOR.MIDDLE
+        )
 
         paragraph = frame.paragraphs[0]
 
@@ -436,12 +628,13 @@ class PPTService:
         )
 
         paragraph.font.size = Pt(34)
+
         paragraph.font.bold = True
-        paragraph.font.color.rgb = self._rgb(
+
+        paragraph.font.color.rgb = self._color(
             "111827"
         )
 
-        # Subtitle
         subtitle = slide_data.get(
             "subtitle",
             "",
@@ -450,9 +643,9 @@ class PPTService:
         if subtitle:
             box = slide.shapes.add_textbox(
                 Inches(0.92),
-                Inches(4.25),
+                Inches(4.0),
                 Inches(10.8),
-                Inches(1.0),
+                Inches(0.9),
             )
 
             paragraph = (
@@ -461,15 +654,15 @@ class PPTService:
 
             paragraph.text = subtitle
 
-            paragraph.font.size = Pt(18)
-            paragraph.font.color.rgb = self._rgb(
+            paragraph.font.size = Pt(17)
+
+            paragraph.font.color.rgb = self._color(
                 "6B7280"
             )
 
-        # Bottom label
         bottom = slide.shapes.add_textbox(
             Inches(0.92),
-            Inches(6.35),
+            Inches(6.25),
             Inches(8),
             Inches(0.4),
         )
@@ -482,8 +675,9 @@ class PPTService:
             "Academic Research Presentation"
         )
 
-        paragraph.font.size = Pt(11)
-        paragraph.font.color.rgb = self._rgb(
+        paragraph.font.size = Pt(10)
+
+        paragraph.font.color.rgb = self._color(
             "9CA3AF"
         )
 
@@ -501,6 +695,7 @@ class PPTService:
         )
 
         self._add_background(slide)
+
         self._add_top_accent(slide)
 
         self._add_title(
@@ -538,6 +733,7 @@ class PPTService:
         )
 
         self._add_background(slide)
+
         self._add_top_accent(slide)
 
         self._add_title(
@@ -555,19 +751,19 @@ class PPTService:
 
         midpoint = max(
             1,
-            len(bullets) // 2,
+            (len(bullets) + 1) // 2,
         )
 
         left_bullets = bullets[:midpoint]
+
         right_bullets = bullets[midpoint:]
 
-        # Left card
         self._add_card(
             slide,
             0.7,
             1.55,
             5.8,
-            4.9,
+            4.95,
         )
 
         self._add_bullets(
@@ -576,16 +772,15 @@ class PPTService:
             left=1.0,
             top=1.9,
             width=5.2,
-            height=4.1,
+            height=4.15,
         )
 
-        # Right card
         self._add_card(
             slide,
             6.85,
             1.55,
             5.8,
-            4.9,
+            4.95,
         )
 
         self._add_bullets(
@@ -594,7 +789,7 @@ class PPTService:
             left=7.15,
             top=1.9,
             width=5.2,
-            height=4.1,
+            height=4.15,
         )
 
         self._add_footer(
@@ -602,34 +797,8 @@ class PPTService:
             len(prs.slides),
         )
 
-    def _add_card(
-        self,
-        slide,
-        left,
-        top,
-        width,
-        height,
-    ):
-        card = slide.shapes.add_shape(
-            MSO_SHAPE.ROUNDED_RECTANGLE,
-            Inches(left),
-            Inches(top),
-            Inches(width),
-            Inches(height),
-        )
-
-        card.fill.solid()
-
-        card.fill.fore_color.rgb = self._rgb(
-            "F9FAFB"
-        )
-
-        card.line.color.rgb = self._rgb(
-            "E5E7EB"
-        )
-
     # =========================================================
-    # TABLE / COMPARISON
+    # TABLE
     # =========================================================
 
     def _add_table_slide(
@@ -642,6 +811,7 @@ class PPTService:
         )
 
         self._add_background(slide)
+
         self._add_top_accent(slide)
 
         self._add_title(
@@ -683,26 +853,33 @@ class PPTService:
         )
 
         if not headers:
+            self._add_footer(
+                slide,
+                len(prs.slides),
+            )
+
             return
 
-        table = slide.shapes.add_table(
+        table_shape = slide.shapes.add_table(
             len(rows) + 1,
             len(headers),
             Inches(0.8),
             Inches(1.65),
             Inches(11.75),
             Inches(4.8),
-        ).table
+        )
 
-        # Column widths
-        total_width = 11.75 / len(headers)
+        table = table_shape.table
+
+        column_width = (
+            11.75 / len(headers)
+        )
 
         for column in table.columns:
             column.width = Inches(
-                total_width
+                column_width
             )
 
-        # Header
         for column_index, header in enumerate(
             headers
         ):
@@ -715,7 +892,7 @@ class PPTService:
 
             cell.fill.solid()
 
-            cell.fill.fore_color.rgb = self._rgb(
+            cell.fill.fore_color.rgb = self._color(
                 "4F46E5"
             )
 
@@ -723,12 +900,13 @@ class PPTService:
                 cell.text_frame.paragraphs
             ):
                 paragraph.font.size = Pt(12)
+
                 paragraph.font.bold = True
-                paragraph.font.color.rgb = self._rgb(
+
+                paragraph.font.color.rgb = self._color(
                     "FFFFFF"
                 )
 
-        # Body
         for row_index, row in enumerate(
             rows,
             start=1,
@@ -751,7 +929,7 @@ class PPTService:
 
                 cell.fill.solid()
 
-                cell.fill.fore_color.rgb = self._rgb(
+                cell.fill.fore_color.rgb = self._color(
                     "F9FAFB"
                 )
 
@@ -759,7 +937,8 @@ class PPTService:
                     cell.text_frame.paragraphs
                 ):
                     paragraph.font.size = Pt(11)
-                    paragraph.font.color.rgb = self._rgb(
+
+                    paragraph.font.color.rgb = self._color(
                         "374151"
                     )
 
@@ -782,6 +961,7 @@ class PPTService:
         )
 
         self._add_background(slide)
+
         self._add_top_accent(slide)
 
         self._add_title(
@@ -877,6 +1057,7 @@ class PPTService:
         ).chart
 
         chart.has_legend = False
+
         chart.has_title = False
 
         if chart_type != "pie":
@@ -902,7 +1083,6 @@ class PPTService:
 
         self._add_background(slide)
 
-        # Large accent block
         block = slide.shapes.add_shape(
             MSO_SHAPE.ROUNDED_RECTANGLE,
             Inches(0.75),
@@ -913,15 +1093,14 @@ class PPTService:
 
         block.fill.solid()
 
-        block.fill.fore_color.rgb = self._rgb(
+        block.fill.fore_color.rgb = self._color(
             "F5F3FF"
         )
 
-        block.line.color.rgb = self._rgb(
+        block.line.color.rgb = self._color(
             "DDD6FE"
         )
 
-        # Title
         title = slide.shapes.add_textbox(
             Inches(1.15),
             Inches(1.3),
@@ -939,12 +1118,13 @@ class PPTService:
         )
 
         paragraph.font.size = Pt(29)
+
         paragraph.font.bold = True
-        paragraph.font.color.rgb = self._rgb(
+
+        paragraph.font.color.rgb = self._color(
             "111827"
         )
 
-        # Bullets
         self._add_bullets(
             slide,
             slide_data.get(

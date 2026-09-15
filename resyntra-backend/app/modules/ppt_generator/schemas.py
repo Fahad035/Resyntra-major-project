@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 
 class PPTRequest(BaseModel):
     paper_id: UUID
-
     slides: int = Field(
         default=10,
         ge=9,
@@ -14,4 +13,5 @@ class PPTRequest(BaseModel):
 
 
 class PPTResponse(BaseModel):
-    download_url: str
+    pptx_url: str
+    pdf_url: str
