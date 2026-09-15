@@ -3,8 +3,9 @@ import PageLayout from "@/layouts/PageLayout";
 import DocsHeader from "@/components/resources/docs/DocsHeader";
 import DocsMobileNav from "@/components/resources/docs/DocsMobileNav";
 import DocsSidebar from "@/components/resources/docs/DocsSidebar";
-import DocsContent from "@/components/resources/docs/DocsContent";
+// import DocsContent from "@/components/resources/docs/DocsContent";
 import DocsTableOfContents from "@/components/resources/docs/DocsTableOfContents";
+import Introduction from "@/components/resources/docs/content/Introduction";
 
 const Documentation = () => {
   return (
@@ -24,7 +25,7 @@ const Documentation = () => {
             </div>
 
             <main className="min-h-0 flex-1 overflow-y-auto px-6 py-8 sm:px-8">
-              <DocsContent />
+              <Introduction />
             </main>
           </div>
 
@@ -40,7 +41,7 @@ const Documentation = () => {
             {/* Main Content */}
             <main className="min-w-0 flex-1 overflow-y-auto">
               <div className="px-8 py-10 lg:px-10">
-                <DocsContent />
+                <Introduction />
               </div>
             </main>
 
