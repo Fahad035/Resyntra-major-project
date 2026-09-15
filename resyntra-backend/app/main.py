@@ -65,6 +65,12 @@ app = FastAPI(
     },
 )
 
+app.mount(
+    "/generated",
+    StaticFiles(directory="generated"),
+    name="generated",
+)
+
 register_exception_handlers(app)
 
 app.middleware("http")(log_requests)
