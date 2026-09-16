@@ -14,7 +14,6 @@ import {
   Sparkles,
   Upload,
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
 
 const sections = [
   {
@@ -22,17 +21,17 @@ const sections = [
     items: [
       {
         title: "Introduction",
-        path: "/resources/documentation",
+        id: "introduction",
         icon: BookOpen,
       },
       {
         title: "Quickstart",
-        path: "/resources/documentation/quickstart",
+        id: "quickstart",
         icon: Sparkles,
       },
       {
         title: "Research Workspace",
-        path: "/resources/documentation/workspace",
+        id: "workspace",
         icon: BrainCircuit,
       },
     ],
@@ -42,22 +41,22 @@ const sections = [
     items: [
       {
         title: "Upload Papers",
-        path: "/resources/documentation/upload-papers",
+        id: "upload-papers",
         icon: Upload,
       },
       {
         title: "Paper Management",
-        path: "/resources/documentation/paper-management",
+        id: "paper-management",
         icon: FileText,
       },
       {
         title: "Collections",
-        path: "/resources/documentation/collections",
+        id: "collections",
         icon: Library,
       },
       {
         title: "Projects",
-        path: "/resources/documentation/projects",
+        id: "projects",
         icon: FolderKanban,
       },
     ],
@@ -67,27 +66,27 @@ const sections = [
     items: [
       {
         title: "AI Summarizer",
-        path: "/resources/documentation/ai-summarizer",
+        id: "ai-summarizer",
         icon: FileText,
       },
       {
         title: "Chat with Papers",
-        path: "/resources/documentation/chat",
+        id: "chat",
         icon: MessageSquare,
       },
       {
         title: "Semantic Search",
-        path: "/resources/documentation/semantic-search",
+        id: "semantic-search",
         icon: Search,
       },
       {
         title: "Literature Review",
-        path: "/resources/documentation/literature-review",
+        id: "literature-review",
         icon: Network,
       },
       {
         title: "Research Gap Detection",
-        path: "/resources/documentation/research-gap",
+        id: "research-gap",
         icon: BrainCircuit,
       },
     ],
@@ -97,22 +96,22 @@ const sections = [
     items: [
       {
         title: "Notes",
-        path: "/resources/documentation/notes",
+        id: "notes",
         icon: FileText,
       },
       {
         title: "Citations",
-        path: "/resources/documentation/citations",
+        id: "citations",
         icon: BookOpen,
       },
       {
         title: "Research Analytics",
-        path: "/resources/documentation/analytics",
+        id: "analytics",
         icon: BarChart3,
       },
       {
         title: "PPT Generator",
-        path: "/resources/documentation/ppt-generator",
+        id: "ppt-generator",
         icon: GraduationCap,
       },
     ],
@@ -122,120 +121,110 @@ const sections = [
     items: [
       {
         title: "API Reference",
-        path: "/resources/api-reference",
+        id: "api-reference",
         icon: Code2,
       },
       {
         title: "Authentication",
-        path: "/resources/documentation/authentication",
+        id: "authentication",
         icon: Settings2,
       },
     ],
   },
 ];
 
-const DocsSidebar = () => {
-  const location = useLocation();
-
+const DocsSidebar = ({
+  activeSection,
+  onSectionChange,
+}) => {
   return (
-    <aside className="hidden w-64 shrink-0 lg:block">
-      <div className="w-full">
-        <div className=" pr-5">
-          {/* Sidebar heading */}
-          <div className="pb-5">
-            <Link
-              to="/resources/documentation"
-              className="group flex items-center gap-2 text-sm font-semibold text-(--foreground)"
-            >
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-(--primary)/10 text-(--primary)">
-                <BookOpen className="h-3.5 w-3.5" />
-              </div>
+    <aside className="w-full">
+      <div className="pr-5">
+        <div className="pb-5">
+          <button
+            type="button"
+            onClick={() => onSectionChange("introduction")}
+            className="group flex items-center gap-2 text-sm font-semibold text-(--foreground)"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-(--primary)/10 text-(--primary)">
+              <BookOpen className="h-3.5 w-3.5" />
+            </div>
 
-              <span>Documentation</span>
-            </Link>
-          </div>
+            <span>Documentation</span>
+          </button>
+        </div>
 
-          {/* Navigation */}
-          <div className="space-y-7">
-            {sections.map((section) => (
-              <div key={section.title}>
-                <p className="mb-2 px-2 text-[10px] font-semibold tracking-[0.16em] text-(--muted-foreground)">
-                  {section.title}
-                </p>
+        <div className="space-y-7">
+          {sections.map((section) => (
+            <div key={section.title}>
+              <p className="mb-2 px-2 text-[10px] font-semibold tracking-[0.16em] text-(--muted-foreground)">
+                {section.title}
+              </p>
 
-                <nav className="space-y-0.5">
-                  {section.items.map((item) => {
-                    const Icon = item.icon;
+              <nav className="space-y-0.5">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    activeSection === item.id;
 
-                    const isActive =
-                      location.pathname === item.path;
-
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() =>
+                        onSectionChange(item.id)
+                      }
+                      className={`
+                        group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm transition-all duration-150
+                        ${
+                          isActive
+                            ? "bg-(--foreground)/5 font-medium text-(--foreground)"
+                            : "text-(--muted-foreground) hover:bg-(--foreground)/5 hover:text-(--foreground)"
+                        }
+                      `}
+                    >
+                      <Icon
                         className={`
-                          group
-                          flex
-                          items-center
-                          gap-2.5
-                          rounded-lg
-                          px-2.5
-                          py-1.5
-                          text-sm
-                          transition-all
-                          duration-150
+                          h-3.5 w-3.5 shrink-0 transition-colors
                           ${
                             isActive
-                              ? "bg-(--foreground)/5 font-medium text-(--foreground)"
-                              : "text-(--muted-foreground) hover:bg-(--foreground)/5 hover:text-(--foreground)"
+                              ? "text-(--primary)"
+                              : "text-(--muted-foreground) group-hover:text-(--foreground)"
                           }
                         `}
-                      >
-                        <Icon
-                          className={`
-                            h-3.5
-                            w-3.5
-                            shrink-0
-                            transition-colors
-                            ${
-                              isActive
-                                ? "text-(--primary)"
-                                : "text-(--muted-foreground) group-hover:text-(--foreground)"
-                            }
-                          `}
-                        />
+                      />
 
-                        <span>{item.title}</span>
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
-            ))}
-          </div>
+                      <span>{item.title}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
+        </div>
 
-          {/* Tutorials */}
-          <div className="mt-8 border-t border-(--border) pt-5">
-            <Link
-              to="/resources/tutorials"
-              className="group flex items-center gap-3 rounded-xl border border-(--border) bg-(--surface) p-3 transition-all duration-200 hover:border-(--primary)/30"
-            >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--primary)/10 text-(--primary)">
-                <GraduationCap className="h-4 w-4" />
-              </div>
+        <div className="mt-8 border-t border-(--border) pt-5">
+          <button
+            type="button"
+            onClick={() =>
+              onSectionChange("quickstart")
+            }
+            className="group flex w-full items-center gap-3 rounded-xl border border-(--border) bg-(--surface) p-3 text-left transition-all duration-200 hover:border-(--primary)/30"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--primary)/10 text-(--primary)">
+              <GraduationCap className="h-4 w-4" />
+            </div>
 
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-(--foreground)">
-                  Tutorials
-                </p>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-(--foreground)">
+                Tutorials
+              </p>
 
-                <p className="mt-0.5 truncate text-[11px] text-(--muted-foreground)">
-                  Learn Resyntra step by step
-                </p>
-              </div>
-            </Link>
-          </div>
+              <p className="mt-0.5 truncate text-[11px] text-(--muted-foreground)">
+                Learn Resyntra step by step
+              </p>
+            </div>
+          </button>
         </div>
       </div>
     </aside>

@@ -1,11 +1,26 @@
+import { useState } from "react";
+import PageLayout from "@/layouts/PageLayout";
 
+import TutorialsHero from "@/components/resources/tutorials/TutorialsHero";
+import TutorialCategories from "@/components/resources/tutorials/TutorialCategories";
+import TutorialGrid from "@/components/resources/tutorials/TutorialGrid";
 
 const Tutorials = () => {
+  const [activeCategory, setActiveCategory] = useState("all");
+
   return (
-    <div className="p-8 text-foreground bg-background min-h-screen">
-      <h1 className="text-3xl font-bold mb-4 text-cyan-400">Tutorials</h1>
-      <p className="text-muted">Welcome to the Resyntra platform video and text guides placeholder.</p>
-    </div>
+    <PageLayout>
+      <TutorialsHero />
+
+      <TutorialCategories
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+      />
+
+      <TutorialGrid
+        activeCategory={activeCategory}
+      />
+    </PageLayout>
   );
 };
 

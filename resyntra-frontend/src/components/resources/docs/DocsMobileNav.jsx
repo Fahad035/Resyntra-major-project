@@ -1,6 +1,21 @@
-import { Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import {
+  ChevronDown,
+  BookOpen,
+  Sparkles,
+  BrainCircuit,
+  Upload,
+  FileText,
+  Library,
+  FolderKanban,
+  MessageSquare,
+  Search,
+  Network,
+  BarChart3,
+  GraduationCap,
+  Code2,
+  Settings2,
+} from "lucide-react";
 
 const sections = [
   {
@@ -8,15 +23,18 @@ const sections = [
     items: [
       {
         title: "Introduction",
-        path: "/resources/documentation",
+        id: "introduction",
+        icon: BookOpen,
       },
       {
         title: "Quickstart",
-        path: "/resources/documentation/quickstart",
+        id: "quickstart",
+        icon: Sparkles,
       },
       {
         title: "Research Workspace",
-        path: "/resources/documentation/workspace",
+        id: "workspace",
+        icon: BrainCircuit,
       },
     ],
   },
@@ -25,19 +43,23 @@ const sections = [
     items: [
       {
         title: "Upload Papers",
-        path: "/resources/documentation/upload-papers",
+        id: "upload-papers",
+        icon: Upload,
       },
       {
         title: "Paper Management",
-        path: "/resources/documentation/paper-management",
+        id: "paper-management",
+        icon: FileText,
       },
       {
         title: "Collections",
-        path: "/resources/documentation/collections",
+        id: "collections",
+        icon: Library,
       },
       {
         title: "Projects",
-        path: "/resources/documentation/projects",
+        id: "projects",
+        icon: FolderKanban,
       },
     ],
   },
@@ -46,23 +68,28 @@ const sections = [
     items: [
       {
         title: "AI Summarizer",
-        path: "/resources/documentation/ai-summarizer",
+        id: "ai-summarizer",
+        icon: FileText,
       },
       {
         title: "Chat with Papers",
-        path: "/resources/documentation/chat",
+        id: "chat",
+        icon: MessageSquare,
       },
       {
         title: "Semantic Search",
-        path: "/resources/documentation/semantic-search",
+        id: "semantic-search",
+        icon: Search,
       },
       {
         title: "Literature Review",
-        path: "/resources/documentation/literature-review",
+        id: "literature-review",
+        icon: Network,
       },
       {
         title: "Research Gap Detection",
-        path: "/resources/documentation/research-gap",
+        id: "research-gap",
+        icon: BrainCircuit,
       },
     ],
   },
@@ -71,19 +98,23 @@ const sections = [
     items: [
       {
         title: "Notes",
-        path: "/resources/documentation/notes",
+        id: "notes",
+        icon: FileText,
       },
       {
         title: "Citations",
-        path: "/resources/documentation/citations",
+        id: "citations",
+        icon: BookOpen,
       },
       {
         title: "Research Analytics",
-        path: "/resources/documentation/analytics",
+        id: "analytics",
+        icon: BarChart3,
       },
       {
         title: "PPT Generator",
-        path: "/resources/documentation/ppt-generator",
+        id: "ppt-generator",
+        icon: GraduationCap,
       },
     ],
   },
@@ -92,31 +123,47 @@ const sections = [
     items: [
       {
         title: "API Reference",
-        path: "/resources/api-reference",
+        id: "api-reference",
+        icon: Code2,
       },
       {
         title: "Authentication",
-        path: "/resources/documentation/authentication",
+        id: "authentication",
+        icon: Settings2,
       },
     ],
   },
 ];
 
-const DocsMobileNav = () => {
+const DocsMobileNav = ({
+  activeSection,
+  onSectionChange,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [openSection, setOpenSection] = useState("GETTING STARTED");
+  const [openSections, setOpenSections] = useState([
+    "GETTING STARTED",
+  ]);
 
-  const location = useLocation();
-
-  const toggleSection = (section) => {
-    setOpenSection((previous) =>
-      previous === section ? null : section
+  const toggleSection = (sectionTitle) => {
+    setOpenSections((previous) =>
+      previous.includes(sectionTitle)
+        ? previous.filter((item) => item !== sectionTitle)
+        : [...previous, sectionTitle]
     );
   };
 
+  const handleSectionChange = (sectionId) => {
+    onSectionChange(sectionId);
+    setIsOpen(false);
+  };
+
+  const activeItem = sections
+    .flatMap((section) => section.items)
+    .find((item) => item.id === activeSection);
+
   return (
-    <div className="lg:hidden">
-      {/* Mobile trigger */}
+    <div className="relative">
+      {/* Mobile selector */}
       <button
         type="button"
         onClick={() => setIsOpen((previous) => !previous)}
@@ -131,33 +178,36 @@ const DocsMobileNav = () => {
           bg-(--surface)
           px-4
           py-3
-          text-sm
-          font-medium
-          text-(--foreground)
-          transition-colors
-          hover:bg-(--surface-secondary)
+          text-left
+          transition-all
+          duration-200
+          hover:border-(--primary)/30
         "
         aria-expanded={isOpen}
-        aria-label={
-          isOpen
-            ? "Close documentation navigation"
-            : "Open documentation navigation"
-        }
       >
-        <span className="flex items-center gap-2.5">
-          {isOpen ? (
-            <X className="h-4 w-4 text-(--primary)" />
-          ) : (
-            <Menu className="h-4 w-4 text-(--primary)" />
+        <div className="flex min-w-0 items-center gap-3">
+          {activeItem && (
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--primary)/10 text-(--primary)">
+              <activeItem.icon className="h-4 w-4" />
+            </div>
           )}
 
-          Documentation
-        </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-(--foreground)">
+              {activeItem?.title || "Documentation"}
+            </p>
+
+            <p className="mt-0.5 text-[11px] text-(--muted-foreground)">
+              Browse documentation
+            </p>
+          </div>
+        </div>
 
         <ChevronDown
           className={`
             h-4
             w-4
+            shrink-0
             text-(--muted-foreground)
             transition-transform
             duration-200
@@ -166,73 +216,66 @@ const DocsMobileNav = () => {
         />
       </button>
 
-      {/* Navigation */}
+      {/* Navigation panel */}
       {isOpen && (
-        <div className="mt-2 overflow-hidden rounded-xl border border-(--border) bg-(--surface)">
-          <div className="max-h-[65vh] overflow-y-auto p-3">
+        <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-[70vh] overflow-y-auto rounded-xl border border-(--border) bg-(--surface) p-3 shadow-2xl">
+          <div className="space-y-3">
             {sections.map((section) => {
-              const isSectionOpen =
-                openSection === section.title;
+              const isSectionOpen = openSections.includes(
+                section.title
+              );
 
               return (
-                <div
-                  key={section.title}
-                  className="border-b border-(--border) last:border-b-0"
-                >
+                <div key={section.title}>
                   <button
                     type="button"
                     onClick={() =>
                       toggleSection(section.title)
                     }
-                    className="
-                      flex
-                      w-full
-                      items-center
-                      justify-between
-                      px-2
-                      py-3
-                      text-left
-                      text-[10px]
-                      font-semibold
-                      tracking-[0.16em]
-                      text-(--muted-foreground)
-                    "
+                    className="flex w-full items-center justify-between px-2 py-2 text-left"
                   >
-                    {section.title}
+                    <span className="text-[10px] font-semibold tracking-[0.16em] text-(--muted-foreground)">
+                      {section.title}
+                    </span>
 
                     <ChevronDown
                       className={`
                         h-3.5
                         w-3.5
+                        text-(--muted-foreground)
                         transition-transform
                         duration-200
-                        ${
-                          isSectionOpen
-                            ? "rotate-180"
-                            : ""
-                        }
+                        ${isSectionOpen ? "rotate-180" : ""}
                       `}
                     />
                   </button>
 
                   {isSectionOpen && (
-                    <nav className="space-y-0.5 pb-2">
+                    <div className="space-y-0.5">
                       {section.items.map((item) => {
+                        const Icon = item.icon;
                         const isActive =
-                          location.pathname === item.path;
+                          activeSection === item.id;
 
                         return (
-                          <Link
-                            key={item.path}
-                            to={item.path}
-                            onClick={() => setIsOpen(false)}
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() =>
+                              handleSectionChange(item.id)
+                            }
                             className={`
-                              block
+                              flex
+                              w-full
+                              items-center
+                              gap-3
                               rounded-lg
                               px-3
                               py-2
+                              text-left
                               text-sm
-                              transition-colors
+                              transition-all
+                              duration-150
                               ${
                                 isActive
                                   ? "bg-(--foreground)/5 font-medium text-(--foreground)"
@@ -240,11 +283,24 @@ const DocsMobileNav = () => {
                               }
                             `}
                           >
-                            {item.title}
-                          </Link>
+                            <Icon
+                              className={`
+                                h-4
+                                w-4
+                                shrink-0
+                                ${
+                                  isActive
+                                    ? "text-(--primary)"
+                                    : "text-(--muted-foreground)"
+                                }
+                              `}
+                            />
+
+                            <span>{item.title}</span>
+                          </button>
                         );
                       })}
-                    </nav>
+                    </div>
                   )}
                 </div>
               );
