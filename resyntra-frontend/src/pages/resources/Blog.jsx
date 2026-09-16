@@ -1,11 +1,36 @@
+import { useState } from "react";
+import PageLayout from "@/layouts/PageLayout";
 
+import {
+  BlogHero,
+  BlogCategories,
+  FeaturedPost,
+  BlogGrid,
+} from "@/components/resources/blog";
 
 const Blog = () => {
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
-    <div className="p-8 text-foreground bg-background min-h-screen">
-      <h1 className="text-3xl font-bold mb-4 text-cyan-400">Blog</h1>
-      <p className="text-muted">Welcome to the Resyntra engineering blog updates placeholder.</p>
-    </div>
+    <PageLayout>
+      <BlogHero
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
+
+      <BlogCategories
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+      />
+
+      <FeaturedPost />
+
+      <BlogGrid
+        activeCategory={activeCategory}
+        searchQuery={searchQuery}
+      />
+    </PageLayout>
   );
 };
 
