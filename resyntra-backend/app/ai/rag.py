@@ -14,16 +14,25 @@ class RAGPipeline:
 
         query_embedding = self.embedding.embed(question)
 
-        # Passes cleanly now without any keyword errors
-        results = search(embedding=query_embedding, limit=5, paper_id=paper_id)
+        results = search(
+            embedding=query_embedding,
+            limit=5,
+            paper_id=paper_id,
+        )
 
         if not results:
-            return "I couldn't find any relevant information in the indexed research papers."
+            return {
+                "answer": (
+                    "I couldn't find any relevant information "
+                    "in the indexed research papers."
+                ),
+                "sources": [],
+            }
 
-        # Fix: Extract from dictionary items format 'r['payload']' instead of 'r.payload'
         context = "\n\n".join(
             [
-                f"[Chunk {r['payload']['chunk_index']}]\n{r['payload']['text']}"
+                f"[Chunk {r['payload']['chunk_index']}]\n"
+                f"{r['payload']['text']}"
                 for r in results
             ]
         )
@@ -38,8 +47,26 @@ Question:
 {question}
 """
 
-        return self.provider.generate(
+        answer = self.provider.generate(
             prompt=prompt,
             system_prompt=SYSTEM_PROMPT,
             temperature=0.3,
         )
+
+        sources = []
+
+        for result in results:
+            payload = result.get("payload") or {}
+
+            sources.append(
+                {
+                    "chunk_index": payload.get("chunk_index"),
+                    "text": payload.get("text"),
+                    "score": result.get("score"),
+                }
+            )
+
+        return {
+            "answer": answer,
+            "sources": sources,
+        }

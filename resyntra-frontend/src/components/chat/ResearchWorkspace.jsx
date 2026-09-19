@@ -13,6 +13,7 @@ import {
   AlertCircle,
   MessageCircle,
   RefreshCw,
+  ChevronDown,
 } from "lucide-react";
 
 import { getPapers } from "../../api/papers";
@@ -64,7 +65,7 @@ const ResearchWorkspace = () => {
 
       setError(
         err?.response?.data?.detail ||
-        "Unable to load your research papers."
+          "Unable to load your research papers."
       );
     } finally {
       setLoadingPapers(false);
@@ -88,8 +89,8 @@ const ResearchWorkspace = () => {
     return papers.filter((paper) =>
       String(
         paper.title ||
-        paper.name ||
-        "Untitled Paper"
+          paper.name ||
+          "Untitled Paper"
       )
         .toLowerCase()
         .includes(query)
@@ -143,11 +144,18 @@ const ResearchWorkspace = () => {
         response?.answer ||
         "I couldn't generate an answer for this question.";
 
+      /*
+       * Store the retrieved sources along with
+       * the assistant message.
+       */
       setMessages((previous) => [
         ...previous,
         {
           role: "assistant",
           text: answer,
+          sources: Array.isArray(response?.sources)
+            ? response.sources
+            : [],
         },
       ]);
     } catch (err) {
@@ -251,6 +259,7 @@ const ResearchWorkspace = () => {
           messages,
           index
         )}\n`;
+
         content += "----------------------------------------\n";
         content += `${message.text}\n\n`;
       }
@@ -259,6 +268,26 @@ const ResearchWorkspace = () => {
         content += "AI ANSWER\n";
         content += "----------------------------------------\n";
         content += `${message.text}\n\n`;
+
+        if (message.sources?.length > 0) {
+          content += "RETRIEVED SOURCES\n";
+          content += "----------------------------------------\n";
+
+          message.sources.forEach((source, sourceIndex) => {
+            content += `Source ${sourceIndex + 1} — Chunk ${
+              source.chunk_index ?? "N/A"
+            }`;
+
+            if (typeof source.score === "number") {
+              content += ` — ${(source.score * 100).toFixed(
+                1
+              )}% match`;
+            }
+
+            content += "\n";
+            content += `${source.text || ""}\n\n`;
+          });
+        }
       }
     });
 
@@ -269,12 +298,9 @@ const ResearchWorkspace = () => {
     /*
      * Convert text into a downloadable Blob.
      */
-    const blob = new Blob(
-      [content],
-      {
-        type: "text/plain;charset=utf-8",
-      }
-    );
+    const blob = new Blob([content], {
+      type: "text/plain;charset=utf-8",
+    });
 
     const url = URL.createObjectURL(blob);
 
@@ -472,6 +498,54 @@ const ResearchWorkspace = () => {
             lineHeight: 6,
             spacingAfter: 10,
           });
+
+          /*
+           * Add retrieved sources to PDF export.
+           */
+          if (message.sources?.length > 0) {
+            addPageIfNeeded(12);
+
+            addWrappedText("RETRIEVED SOURCES", {
+              fontSize: 10,
+              fontStyle: "bold",
+              lineHeight: 5,
+              spacingAfter: 4,
+            });
+
+            message.sources.forEach(
+              (source, sourceIndex) => {
+                const matchText =
+                  typeof source.score === "number"
+                    ? ` — ${(
+                        source.score * 100
+                      ).toFixed(1)}% match`
+                    : "";
+
+                addWrappedText(
+                  `Source ${
+                    sourceIndex + 1
+                  } — Chunk ${
+                    source.chunk_index ?? "N/A"
+                  }${matchText}`,
+                  {
+                    fontSize: 9,
+                    fontStyle: "bold",
+                    lineHeight: 5,
+                    spacingAfter: 2,
+                  }
+                );
+
+                addWrappedText(
+                  source.text || "",
+                  {
+                    fontSize: 9,
+                    lineHeight: 5,
+                    spacingAfter: 6,
+                  }
+                );
+              }
+            );
+          }
         }
       });
 
@@ -523,31 +597,36 @@ const ResearchWorkspace = () => {
   /*
    * Helper for numbering questions.
    */
-  const getQuestionNumber = (messageList, currentIndex) => {
-    return (
-      messageList
-        .slice(0, currentIndex + 1)
-        .filter(
-          (message) => message.role === "user"
-        ).length
-    );
+  const getQuestionNumber = (
+    messageList,
+    currentIndex
+  ) => {
+    return messageList
+      .slice(0, currentIndex + 1)
+      .filter(
+        (message) => message.role === "user"
+      ).length;
   };
 
   return (
     <section className="py-28">
       <div className="mx-auto w-[92%] max-w-7xl">
 
-        <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
+        {/* =====================================================
+            MAIN WORKSPACE GRID
+        ===================================================== */}
+
+        <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
 
           {/* =====================================================
               SIDEBAR
           ===================================================== */}
 
-          <div className="rounded-3xl border border-border bg-linear-to-br from-cyan-500/5 via-background to-violet-500/5 p-6">
+          <div className="min-w-0 rounded-3xl border border-border bg-linear-to-br from-cyan-500/5 via-background to-violet-500/5 p-6">
 
-            <div className="flex items-center justify-between">
+            <div className="flex min-w-0 items-center justify-between">
 
-              <h3 className="text-xl font-semibold text-foreground">
+              <h3 className="min-w-0 text-xl font-semibold text-foreground">
                 Research Library
               </h3>
 
@@ -556,7 +635,7 @@ const ResearchWorkspace = () => {
                 onClick={loadPapers}
                 disabled={loadingPapers}
                 title="Refresh papers"
-                className="rounded-xl border border-border p-2 text-muted transition hover:border-cyan-500 hover:text-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+                className="shrink-0 rounded-xl border border-border p-2 text-muted transition hover:border-cyan-500 hover:text-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loadingPapers ? (
                   <Loader2
@@ -570,7 +649,7 @@ const ResearchWorkspace = () => {
 
             </div>
 
-            <div className="mt-6 flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3">
+            <div className="mt-6 flex min-w-0 items-center gap-3 rounded-xl border border-border bg-background px-4 py-3">
 
               <Search
                 size={17}
@@ -583,15 +662,15 @@ const ResearchWorkspace = () => {
                   setSearchQuery(event.target.value)
                 }
                 placeholder="Search papers..."
-                className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted"
+                className="min-w-0 w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted"
               />
 
             </div>
 
-            <div className="mt-8 space-y-4">
+            <div className="mt-8 min-w-0 space-y-4">
 
               {loadingPapers ? (
-                <div className="rounded-2xl border border-border bg-background/50 p-6 text-center">
+                <div className="min-w-0 rounded-2xl border border-border bg-background/50 p-6 text-center">
 
                   <Loader2
                     className="mx-auto h-6 w-6 animate-spin text-cyan-400"
@@ -603,7 +682,7 @@ const ResearchWorkspace = () => {
 
                 </div>
               ) : filteredPapers.length === 0 ? (
-                <div className="rounded-2xl border border-border bg-background/50 p-6 text-center">
+                <div className="min-w-0 rounded-2xl border border-border bg-background/50 p-6 text-center">
 
                   <FileText
                     className="mx-auto h-7 w-7 text-muted"
@@ -639,19 +718,21 @@ const ResearchWorkspace = () => {
                       onClick={() =>
                         handleSelectPaper(paper)
                       }
-                      className={`w-full rounded-2xl border p-4 text-left transition ${isActive
-                        ? "border-cyan-500 bg-cyan-500/10"
-                        : "border-border hover:border-cyan-500/40"
-                        }`}
+                      className={`min-w-0 w-full rounded-2xl border p-4 text-left transition ${
+                        isActive
+                          ? "border-cyan-500 bg-cyan-500/10"
+                          : "border-border hover:border-cyan-500/40"
+                      }`}
                     >
 
-                      <div className="flex gap-3">
+                      <div className="flex min-w-0 gap-3">
 
                         <div
-                          className={`rounded-xl p-3 ${isActive
-                            ? "bg-cyan-500/15"
-                            : "bg-cyan-500/10"
-                            }`}
+                          className={`shrink-0 rounded-xl p-3 ${
+                            isActive
+                              ? "bg-cyan-500/15"
+                              : "bg-cyan-500/10"
+                          }`}
                         >
                           <FileText
                             className="h-5 w-5 text-cyan-400"
@@ -660,7 +741,7 @@ const ResearchWorkspace = () => {
 
                         <div className="min-w-0 flex-1">
 
-                          <h4 className="font-medium leading-6 text-foreground">
+                          <h4 className="wrap-break-word font-medium leading-6 text-foreground">
                             {title}
                           </h4>
 
@@ -679,31 +760,32 @@ const ResearchWorkspace = () => {
 
             </div>
 
-            <div className="mt-10 rounded-2xl border border-border bg-background/50 p-5">
+            <div className="mt-10 min-w-0 rounded-2xl border border-border bg-background/50 p-5">
 
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2">
 
                 <Clock3
                   size={18}
-                  className="text-cyan-400"
+                  className="shrink-0 text-cyan-400"
                 />
 
-                <span className="font-medium text-foreground">
+                <span className="min-w-0 font-medium text-foreground">
                   AI Status
                 </span>
 
               </div>
 
-              <div className="mt-5 flex items-center gap-3">
+              <div className="mt-5 flex min-w-0 items-center gap-3">
 
                 <span
-                  className={`h-3 w-3 rounded-full ${asking
-                    ? "animate-pulse bg-amber-400"
-                    : "animate-pulse bg-emerald-400"
-                    }`}
+                  className={`h-3 w-3 shrink-0 rounded-full ${
+                    asking
+                      ? "animate-pulse bg-amber-400"
+                      : "animate-pulse bg-emerald-400"
+                  }`}
                 />
 
-                <span className="text-sm text-muted">
+                <span className="min-w-0 text-sm text-muted">
                   {asking
                     ? "Analyzing paper..."
                     : selectedPaper
@@ -721,17 +803,17 @@ const ResearchWorkspace = () => {
               CHAT
           ===================================================== */}
 
-          <div className="rounded-3xl border border-border bg-linear-to-br from-background via-background to-cyan-500/5">
+          <div className="min-w-0 overflow-hidden rounded-3xl border border-border bg-linear-to-br from-background via-background to-cyan-500/5">
 
             {/* Header */}
 
-            <div className="flex flex-col gap-5 border-b border-border px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-col gap-5 border-b border-border px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
 
               <div className="min-w-0">
 
-                <div className="flex items-center gap-3">
+                <div className="flex min-w-0 items-center gap-3">
 
-                  <div className="rounded-xl bg-cyan-500/10 p-3">
+                  <div className="shrink-0 rounded-xl bg-cyan-500/10 p-3">
 
                     <Sparkles
                       size={20}
@@ -748,10 +830,11 @@ const ResearchWorkspace = () => {
 
                     <p className="mt-1 truncate text-muted">
                       {selectedPaper
-                        ? `Currently analyzing: ${selectedPaper.title ||
-                        selectedPaper.name ||
-                        "Untitled Paper"
-                        }`
+                        ? `Currently analyzing: ${
+                            selectedPaper.title ||
+                            selectedPaper.name ||
+                            "Untitled Paper"
+                          }`
                         : "Select a paper to start asking questions."}
                     </p>
 
@@ -812,13 +895,14 @@ const ResearchWorkspace = () => {
             {/* Error */}
 
             {(error || !selectedPaper) && (
-              <div className="px-8 pt-6">
+              <div className="min-w-0 px-8 pt-6">
 
                 <div
-                  className={`flex items-start gap-3 rounded-2xl border p-4 ${error
-                    ? "border-red-500/20 bg-red-500/5"
-                    : "border-cyan-500/20 bg-cyan-500/5"
-                    }`}
+                  className={`flex min-w-0 items-start gap-3 rounded-2xl border p-4 ${
+                    error
+                      ? "border-red-500/20 bg-red-500/5"
+                      : "border-cyan-500/20 bg-cyan-500/5"
+                  }`}
                 >
 
                   {error ? (
@@ -831,7 +915,7 @@ const ResearchWorkspace = () => {
                     />
                   )}
 
-                  <div>
+                  <div className="min-w-0">
 
                     <p className="font-medium text-foreground">
                       {error
@@ -853,9 +937,10 @@ const ResearchWorkspace = () => {
 
             {/* Messages */}
 
-            <div className="min-h-105 space-y-8 px-8 py-8">
+            <div className="min-w-0 min-h-105 space-y-8 px-8 py-8">
 
-              {messages.length === 0 && selectedPaper ? (
+              {messages.length === 0 &&
+              selectedPaper ? (
                 <motion.div
                   initial={{
                     opacity: 0,
@@ -865,7 +950,7 @@ const ResearchWorkspace = () => {
                     opacity: 1,
                     y: 0,
                   }}
-                  className="flex min-h-90 flex-col items-center justify-center text-center"
+                  className="flex min-h-90 min-w-0 flex-col items-center justify-center text-center"
                 >
 
                   <div className="rounded-2xl bg-cyan-500/10 p-5">
@@ -903,13 +988,14 @@ const ResearchWorkspace = () => {
                     transition={{
                       duration: 0.35,
                     }}
+                    className="min-w-0"
                   >
 
                     {message.role === "user" ? (
 
-                      <div className="ml-auto max-w-xl rounded-3xl bg-cyan-500 px-6 py-5 text-slate-950">
+                      <div className="ml-auto max-w-xl wrap-break-word rounded-3xl bg-cyan-500 px-6 py-5 text-slate-950">
 
-                        <p className="leading-7">
+                        <p className="wrap-break-word leading-7">
                           {message.text}
                         </p>
 
@@ -917,11 +1003,11 @@ const ResearchWorkspace = () => {
 
                     ) : (
 
-                      <div className="max-w-3xl rounded-3xl border border-border bg-background/60 p-6">
+                      <div className="min-w-0 max-w-3xl rounded-3xl border border-border bg-background/60 p-6">
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
 
-                          <div className="rounded-full bg-cyan-500/10 p-2">
+                          <div className="shrink-0 rounded-full bg-cyan-500/10 p-2">
 
                             <Sparkles
                               size={18}
@@ -936,18 +1022,101 @@ const ResearchWorkspace = () => {
 
                         </div>
 
-                        <p className="mt-5 whitespace-pre-wrap leading-8 text-muted">
+                        <p className="mt-5 wrap-break-word whitespace-pre-wrap leading-8 text-muted">
                           {message.text}
                         </p>
 
-                        <div className="mt-6 flex flex-wrap gap-3">
+                        {/* =================================================
+                            RETRIEVED SOURCES
+                            ================================================= */}
 
-                          <span className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-400">
-                            <CheckCircle2 className="h-4 w-4" />
-                            Retrieved from selected paper
-                          </span>
+                        {message.sources?.length > 0 && (
+                          <div className="mt-6 min-w-0">
 
-                        </div>
+                            <div className="flex min-w-0 items-center gap-2">
+
+                              <CheckCircle2
+                                className="h-4 w-4 shrink-0 text-cyan-400"
+                              />
+
+                              <p className="text-sm font-semibold text-foreground">
+                                Retrieved Sources
+                              </p>
+
+                              <span className="shrink-0 rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-xs font-medium text-cyan-400">
+                                {message.sources.length}
+                              </span>
+
+                            </div>
+
+                            <div className="mt-4 min-w-0 space-y-3">
+
+                              {message.sources.map(
+                                (
+                                  source,
+                                  sourceIndex
+                                ) => (
+                                  <details
+                                    key={`${source.chunk_index}-${sourceIndex}`}
+                                    className="group min-w-0 overflow-hidden rounded-xl border border-border bg-background/50 transition hover:border-cyan-500/30"
+                                  >
+
+                                    <summary className="flex min-w-0 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5">
+
+                                      <div className="flex min-w-0 items-center gap-3">
+
+                                        <span className="shrink-0 rounded-lg bg-cyan-500/10 px-2.5 py-1 text-xs font-medium text-cyan-400">
+                                          Chunk{" "}
+                                          {source.chunk_index ??
+                                            "N/A"}
+                                        </span>
+
+                                        <span className="truncate text-xs text-muted">
+                                          Retrieved from selected paper
+                                        </span>
+
+                                      </div>
+
+                                      <div className="flex shrink-0 items-center gap-3">
+
+                                        {typeof source.score ===
+                                          "number" && (
+                                          <span className="text-xs font-medium text-muted">
+                                            {(
+                                              source.score * 100
+                                            ).toFixed(
+                                              1
+                                            )}
+                                            % match
+                                          </span>
+                                        )}
+
+                                        <ChevronDown
+                                          size={16}
+                                          className="text-muted transition-transform duration-200 group-open:rotate-180"
+                                        />
+
+                                      </div>
+
+                                    </summary>
+
+                                    <div className="min-w-0 border-t border-border px-4 py-4">
+
+                                      <p className="wrap-break-word whitespace-pre-wrap text-sm leading-6 text-muted">
+                                        {source.text ||
+                                          "No source text available."}
+                                      </p>
+
+                                    </div>
+
+                                  </details>
+                                )
+                              )}
+
+                            </div>
+
+                          </div>
+                        )}
 
                       </div>
 
@@ -970,12 +1139,12 @@ const ResearchWorkspace = () => {
                     opacity: 1,
                     y: 0,
                   }}
-                  className="max-w-3xl rounded-3xl border border-border bg-background/60 p-6"
+                  className="min-w-0 max-w-3xl rounded-3xl border border-border bg-background/60 p-6"
                 >
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
 
-                    <div className="rounded-full bg-cyan-500/10 p-2">
+                    <div className="shrink-0 rounded-full bg-cyan-500/10 p-2">
 
                       <Sparkles
                         size={18}
@@ -990,10 +1159,10 @@ const ResearchWorkspace = () => {
 
                   </div>
 
-                  <div className="mt-5 flex items-center gap-3">
+                  <div className="mt-5 flex min-w-0 items-center gap-3">
 
                     <Loader2
-                      className="h-5 w-5 animate-spin text-cyan-400"
+                      className="h-5 w-5 shrink-0 animate-spin text-cyan-400"
                     />
 
                     <p className="text-sm text-muted">
@@ -1009,20 +1178,22 @@ const ResearchWorkspace = () => {
 
             {/* Suggestions + Input */}
 
-            <div className="border-t border-border px-8 py-6">
+            <div className="min-w-0 border-t border-border px-8 py-6">
 
               <p className="mb-4 font-medium text-foreground">
                 Suggested Questions
               </p>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex min-w-0 flex-wrap gap-3">
 
                 {suggestions.map((item) => (
 
                   <button
                     key={item}
                     type="button"
-                    disabled={!selectedPaper || asking}
+                    disabled={
+                      !selectedPaper || asking
+                    }
                     onClick={() =>
                       handleSuggestion(item)
                     }
@@ -1038,10 +1209,11 @@ const ResearchWorkspace = () => {
               {/* Input */}
 
               <div
-                className={`mt-8 flex items-center gap-4 rounded-2xl border bg-background p-3 transition ${selectedPaper
-                  ? "border-border focus-within:border-cyan-500/50"
-                  : "border-border opacity-60"
-                  }`}
+                className={`mt-8 flex min-w-0 items-center gap-4 rounded-2xl border bg-background p-3 transition ${
+                  selectedPaper
+                    ? "border-border focus-within:border-cyan-500/50"
+                    : "border-border opacity-60"
+                }`}
               >
 
                 <input
@@ -1050,13 +1222,15 @@ const ResearchWorkspace = () => {
                     setQuestion(event.target.value)
                   }
                   onKeyDown={handleKeyDown}
-                  disabled={!selectedPaper || asking}
+                  disabled={
+                    !selectedPaper || asking
+                  }
                   placeholder={
                     selectedPaper
                       ? "Ask anything about your uploaded paper..."
                       : "Select a paper first..."
                   }
-                  className="flex-1 bg-transparent px-2 text-foreground outline-none placeholder:text-muted disabled:cursor-not-allowed"
+                  className="min-w-0 flex-1 bg-transparent px-2 text-foreground outline-none placeholder:text-muted disabled:cursor-not-allowed"
                 />
 
                 <button
@@ -1069,7 +1243,7 @@ const ResearchWorkspace = () => {
                     !question.trim() ||
                     asking
                   }
-                  className="rounded-xl bg-cyan-500 p-3 text-slate-950 transition hover:scale-105 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                  className="shrink-0 rounded-xl bg-cyan-500 p-3 text-slate-950 transition hover:scale-105 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                   title="Send question"
                 >
                   {asking ? (

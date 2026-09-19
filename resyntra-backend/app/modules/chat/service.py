@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from app.ai.rag import RAGPipeline
 
 
@@ -12,12 +13,12 @@ class ChatService:
         paper_id: UUID,
         question: str,
     ):
-        # FIX: Pass arguments explicitly by name to prevent positional flipping
-        answer = self.rag.ask(
+        result = self.rag.ask(
             question=question,
             paper_id=str(paper_id),
         )
 
         return {
-            "answer": answer,
+            "answer": result["answer"],
+            "sources": result["sources"],
         }
