@@ -1,4 +1,4 @@
-import api from "./axios";
+import api from "./client";
 
 export const askQuestion = async (paperId, question) => {
   const response = await api.post("/chat", {
