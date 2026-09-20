@@ -8,7 +8,10 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
 
-    AUTH_ENABLED: bool = False
+    # Authentication
+    # Secure by default. Development mode can explicitly set
+    # AUTH_ENABLED=false in the local .env file.
+    AUTH_ENABLED: bool = True
 
     DATABASE_URL: str
     REDIS_URL: str
@@ -18,7 +21,7 @@ class Settings(BaseSettings):
     QDRANT_PORT: int = 6333
     QDRANT_COLLECTION: str = "papers"
 
-    # Existing Gemini embedding configuration
+    # Gemini embedding configuration
     EMBEDDING_MODEL: str = "gemini-embedding-001"
     EMBEDDING_DIMENSION: int = 768
 
@@ -37,12 +40,14 @@ class Settings(BaseSettings):
     # OpenRouter configuration
     OPENROUTER_API_KEY: str
 
+    # JWT configuration
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
+    # AI provider
     AI_PROVIDER: str = "gemini"
 
     model_config = SettingsConfigDict(

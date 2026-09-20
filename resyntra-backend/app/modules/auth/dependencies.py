@@ -10,6 +10,7 @@ from app.models.user import User
 from app.modules.auth.repository import AuthRepository
 from app.modules.auth.security import decode_token
 
+
 security = HTTPBearer(auto_error=False)
 
 
@@ -24,7 +25,7 @@ async def get_current_user(
 
     Production Mode:
         AUTH_ENABLED = True
-            -> validates JWT normally.
+            -> requires and validates an access JWT.
     """
 
     repo = AuthRepository(db)
@@ -38,7 +39,7 @@ async def get_current_user(
 
         if user is None:
             raise HTTPException(
-                status_code=500,
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="No users exist in database.",
             )
 
@@ -54,17 +55,34 @@ async def get_current_user(
             detail="Authentication required",
         )
 
-    payload = decode_token(credentials.credentials)
+    payload = decode_token(
+        credentials.credentials,
+        expected_type="access",
+    )
 
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
+            detail="Invalid access token",
         )
 
-    user = await repo.get_by_id(
-        UUID(payload["sub"])
-    )
+    user_id = payload.get("sub")
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload",
+        )
+
+    try:
+        user_uuid = UUID(user_id)
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user ID in token",
+        )
+
+    user = await repo.get_by_id(user_uuid)
 
     if user is None:
         raise HTTPException(

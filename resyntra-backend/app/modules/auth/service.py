@@ -91,18 +91,15 @@ class AuthService:
 
     async def refresh(self, refresh_token: str):
 
-        payload = decode_token(refresh_token)
+        payload = decode_token(
+            refresh_token,
+            expected_type="refresh",
+        )
 
         if payload is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid refresh token",
-            )
-
-        if payload.get("type") != "refresh":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token type",
             )
 
         saved_token = await self.repo.get_refresh_token(refresh_token)
@@ -115,23 +112,64 @@ class AuthService:
 
         if saved_token.expires_at < datetime.now(UTC):
             await self.repo.delete_refresh_token(refresh_token)
+
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Refresh token expired",
             )
 
+        user_id = payload.get("sub")
+
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token payload",
+            )
+
+        user = await self.repo.get_by_id(user_id)
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+            )
+
+        # Revoke the old refresh token.
+        await self.repo.revoke_refresh_token(refresh_token)
+
+        # Create a new access token.
         access_token = create_access_token(
             {
-                "sub": payload["sub"],
+                "sub": str(user.id),
+                "email": user.email,
+                "role": user.role,
             }
+        )
+
+        # Create a new refresh token.
+        new_refresh_token = create_refresh_token(
+            {
+                "sub": str(user.id),
+            }
+        )
+
+        # Store the new refresh token.
+        await self.repo.create_refresh_token(
+            RefreshToken(
+                user_id=user.id,
+                token=new_refresh_token,
+                expires_at=datetime.now(UTC) + timedelta(days=30),
+            )
         )
 
         return {
             "access_token": access_token,
+            "refresh_token": new_refresh_token,
             "token_type": "bearer",
         }
 
     async def logout(self, refresh_token: str):
+
         saved_token = await self.repo.get_refresh_token(refresh_token)
 
         if saved_token is None:

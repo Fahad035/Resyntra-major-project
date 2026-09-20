@@ -4,9 +4,7 @@ from jose import JWTError, jwt
 from pwdlib import PasswordHash
 
 from app.core.config import settings
-from datetime import timedelta
-from jose import JWTError
-from uuid import UUID
+
 
 password_hash = PasswordHash.recommended()
 
@@ -40,29 +38,18 @@ def create_access_token(data: dict) -> str:
     )
 
 
-def decode_token(token: str) -> dict:
-    try:
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[settings.ALGORITHM],
-        )
-
-        if payload.get("type") != "access":
-            raise JWTError()
-
-        return payload
-
-    except JWTError:
-        return None
-
-
 def create_refresh_token(data: dict) -> str:
     payload = data.copy()
 
-    payload["type"] = "refresh"
-    payload["exp"] = datetime.now(UTC) + timedelta(
+    expire = datetime.now(UTC) + timedelta(
         days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+    )
+
+    payload.update(
+        {
+            "exp": expire,
+            "type": "refresh",
+        }
     )
 
     return jwt.encode(
@@ -70,3 +57,20 @@ def create_refresh_token(data: dict) -> str:
         settings.SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
+
+
+def decode_token(token: str, expected_type: str = "access") -> dict | None:
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
+
+        if payload.get("type") != expected_type:
+            return None
+
+        return payload
+
+    except JWTError:
+        return None
