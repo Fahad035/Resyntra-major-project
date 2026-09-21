@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Bot, Check, Copy, TriangleAlert, User } from "lucide-react";
+import { Bot, Check, Copy, Loader2, TriangleAlert, User, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 
 import FormattedAnswer from "./FormattedAnswer";
 
-const ChatMessage = ({ message }) => {
+const ChatMessage = ({ message, isPlaying, isLoadingAudio, onListen }) => {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === "user";
   const isError = message.role === "error";
+  const isAssistant = !isUser && !isError;
 
   const handleCopy = async () => {
     try {
@@ -27,7 +28,7 @@ const ChatMessage = ({ message }) => {
           "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border",
           isUser && "border-cyan-500/20 bg-cyan-500/10",
           isError && "border-(--danger)/20 bg-(--danger)/10",
-          !isUser && !isError && "border-cyan-500/20 bg-linear-to-br from-cyan-500/10 to-indigo-500/10"
+          isAssistant && "border-cyan-500/20 bg-linear-to-br from-cyan-500/10 to-indigo-500/10"
         )}
       >
         {isUser ? (
@@ -46,8 +47,7 @@ const ChatMessage = ({ message }) => {
             isUser && "bg-cyan-400 text-slate-950",
             isError &&
               "border border-(--danger)/20 bg-(--danger)/5 text-(--danger)",
-            !isUser &&
-              !isError &&
+            isAssistant &&
               "border border-border bg-(--foreground)/2 text-foreground"
           )}
         >
@@ -58,22 +58,48 @@ const ChatMessage = ({ message }) => {
           )}
         </div>
 
-        {!isUser && !isError && (
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="flex items-center gap-1 self-start px-1 text-xs text-muted opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
-          >
-            {copied ? (
-              <>
-                <Check className="h-3 w-3" /> Copied
-              </>
-            ) : (
-              <>
-                <Copy className="h-3 w-3" /> Copy
-              </>
-            )}
-          </button>
+        {isAssistant && (
+          <div className="flex items-center gap-3 self-start px-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="flex items-center gap-1 text-xs text-muted hover:text-foreground"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-3 w-3" /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" /> Copy
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onListen?.(message)}
+              disabled={isLoadingAudio}
+              className={clsx(
+                "flex items-center gap-1 text-xs hover:text-foreground disabled:cursor-wait",
+                isPlaying ? "text-cyan-400" : "text-muted"
+              )}
+            >
+              {isLoadingAudio ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" /> Loading
+                </>
+              ) : isPlaying ? (
+                <>
+                  <VolumeX className="h-3 w-3" /> Stop
+                </>
+              ) : (
+                <>
+                  <Volume2 className="h-3 w-3" /> Listen
+                </>
+              )}
+            </button>
+          </div>
         )}
       </div>
     </div>

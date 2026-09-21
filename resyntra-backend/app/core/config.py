@@ -40,6 +40,21 @@ class Settings(BaseSettings):
     # OpenRouter configuration
     OPENROUTER_API_KEY: str
 
+    # DeepSeek configuration (OpenAI-compatible API)
+    DEEPSEEK_API_KEY: str
+    DEEPSEEK_MODEL: str = "deepseek-flash"
+
+    # Deepgram (speech-to-text, used for chat voice input)
+    DEEPGRAM_API_KEY: str
+
+    # Murf AI (text-to-speech, used to read chat answers aloud)
+    # Murf AI (text-to-speech, used to read chat answers aloud)
+    MURF_API_KEY: str
+    MURF_VOICE_ID: str = "Abhinav"
+    MURF_STYLE: str = "Conversational"
+    MURF_MODEL: str = "falcon-2"
+
+
     # JWT configuration
     SECRET_KEY: str
     ALGORITHM: str = "HS256"

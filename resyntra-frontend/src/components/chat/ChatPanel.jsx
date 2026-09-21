@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { FileText, Loader2, Mic, MicOff, MessageSquareText, RotateCcw, Send } from "lucide-react";
-import toast from "react-hot-toast";
+import { FileText, Loader2, Mic, MessageSquareText, RotateCcw, Send, Square } from "lucide-react";
 
 import useChat from "@/hooks/useChat";
-import useSpeechToText from "@/hooks/useSpeechToText";
+import useVoiceRecorder from "@/hooks/useVoiceRecorder";
+import useTextToSpeech from "@/hooks/useTextToSpeech";
 
 import ChatMessage from "./ChatMessage";
 import PaperStatusBadge from "./PaperStatusBadge";
@@ -33,15 +33,24 @@ const ChatPanel = ({ paper }) => {
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const { isSupported: micSupported, isListening, start, stop } =
-    useSpeechToText((transcript) => {
-      setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
-    });
+  const {
+    isSupported: micSupported,
+    isRecording,
+    isTranscribing,
+    start: startRecording,
+    stop: stopRecording,
+  } = useVoiceRecorder((transcript) => {
+    setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+  });
+
+  const { playingId, loadingId, toggle: toggleSpeech, stop: stopSpeech } =
+    useTextToSpeech();
 
   useEffect(() => {
     reset();
     setInput("");
-  }, [paper?.id, reset]);
+    stopSpeech();
+  }, [paper?.id, reset, stopSpeech]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -82,18 +91,17 @@ const ChatPanel = ({ paper }) => {
   };
 
   const toggleMic = () => {
-    if (!micSupported) {
-      toast.error("Voice input isn't supported in this browser — try Chrome or Edge.");
-      return;
-    }
-    isListening ? stop() : start();
+    isRecording ? stopRecording() : startRecording();
   };
 
   const handleNewChat = () => {
     reset();
     setInput("");
-    if (isListening) stop();
+    stopSpeech();
+    if (isRecording) stopRecording();
   };
+
+  const micDisabled = !isReady || sending || isTranscribing || !micSupported;
 
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col">
@@ -136,7 +144,13 @@ const ChatPanel = ({ paper }) => {
           </div>
         ) : (
           messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+            <ChatMessage
+              key={message.id}
+              message={message}
+              isPlaying={playingId === message.id}
+              isLoadingAudio={loadingId === message.id}
+              onListen={toggleSpeech}
+            />
           ))
         )}
 
@@ -151,16 +165,23 @@ const ChatPanel = ({ paper }) => {
         <button
           type="button"
           onClick={toggleMic}
-          disabled={!isReady || sending}
+          disabled={micDisabled}
+          title={
+            micSupported
+              ? "Voice input"
+              : "Voice input needs microphone access in this browser"
+          }
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-            isListening
+            isRecording
               ? "border-(--danger)/30 bg-(--danger)/10 text-(--danger)"
               : "border-border bg-(--foreground)/2 text-muted hover:text-foreground"
           }`}
-          aria-label={isListening ? "Stop voice input" : "Start voice input"}
+          aria-label={isRecording ? "Stop recording" : "Start voice input"}
         >
-          {isListening ? (
-            <MicOff className="h-4 w-4 animate-pulse" />
+          {isTranscribing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : isRecording ? (
+            <Square className="h-3.5 w-3.5 fill-current" />
           ) : (
             <Mic className="h-4 w-4" />
           )}
@@ -175,8 +196,10 @@ const ChatPanel = ({ paper }) => {
           disabled={!isReady || sending}
           placeholder={
             isReady
-              ? isListening
+              ? isRecording
                 ? "Listening..."
+                : isTranscribing
+                ? "Transcribing..."
                 : "Ask a question about this paper..."
               : "Waiting for this paper to finish processing..."
           }

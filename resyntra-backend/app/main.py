@@ -43,6 +43,7 @@ from app.modules.admin.router import router as admin_router
 from app.modules.ppt_generator.router import (
     router as ppt_router
 )
+from app.modules.voice.router import router as voice_router
 from app.core.exceptions import register_exception_handlers
 
 @asynccontextmanager
@@ -133,6 +134,7 @@ app.include_router(chat_history_router)
 app.include_router(notifications_router)
 app.include_router(admin_router)
 app.include_router(ppt_router)
+app.include_router(voice_router)
 
 
 Path("generated").mkdir(
