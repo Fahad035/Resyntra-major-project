@@ -15,6 +15,10 @@
     background-color: var(--surface-secondary);
   }
 
+  .bg-card {
+    background-color: var(--card);
+  }
+
   .text-foreground {
     color: var(--foreground);
   }

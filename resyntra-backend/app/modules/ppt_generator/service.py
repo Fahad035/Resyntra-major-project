@@ -3,6 +3,7 @@ import shutil
 import subprocess
 from uuid import uuid4
 
+from fastapi import HTTPException, status
 from pptx import Presentation
 from pptx.chart.data import ChartData
 from pptx.enum.chart import XL_CHART_TYPE
@@ -21,23 +22,33 @@ class PPTService:
         self.repo = repo
         self.generator = PPTGenerator()
 
-    async def generate(self, paper_id, slides):
+    async def generate(self, paper_id, slides, current_user):
         # -----------------------------------------
         # 1. Get paper
         # -----------------------------------------
         paper = await self.repo.get_by_id(paper_id)
 
         if paper is None:
-            raise ValueError(
-                "Research paper not found."
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Research paper not found.",
+            )
+
+        # Prevent one user from generating a deck out of another
+        # user's private paper.
+        if paper.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied.",
             )
 
         # -----------------------------------------
         # 2. Check processing status
         # -----------------------------------------
         if paper.processing_status != "completed":
-            raise ValueError(
-                "Research paper is not fully processed yet."
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Research paper is not fully processed yet.",
             )
 
         # -----------------------------------------
@@ -48,23 +59,32 @@ class PPTService:
         )
 
         if not content:
-            raise ValueError(
-                "No indexed content found for this research paper."
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="No indexed content found for this research paper.",
             )
 
         # -----------------------------------------
         # 4. Generate AI presentation outline
         # -----------------------------------------
-        outline = self.generator.generate_outline(
-            title=paper.title,
-            abstract=paper.abstract or "",
-            content=content,
-            slides=slides,
-        )
+        try:
+            outline = self.generator.generate_outline(
+                title=paper.title,
+                abstract=paper.abstract or "",
+                content=content,
+                slides=slides,
+            )
+        except Exception as e:
+            print(f"[PPTGenerator] Outline generation failed: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="AI failed to generate a presentation outline. Please try again.",
+            ) from e
 
         if not outline:
-            raise ValueError(
-                "AI failed to generate a presentation outline."
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="AI failed to generate a presentation outline.",
             )
 
         # -----------------------------------------
@@ -121,18 +141,27 @@ class PPTService:
             pdf_filename,
         )
 
-        self._convert_to_pdf(
-            pptx_path,
-            "generated",
-        )
+        try:
+            self._convert_to_pdf(
+                pptx_path,
+                "generated",
+            )
+        except RuntimeError as e:
+            print(f"[PPTGenerator] PDF conversion failed: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=str(e),
+            ) from e
 
         # -----------------------------------------
         # 10. Verify PDF was created
         # -----------------------------------------
         if not os.path.exists(pdf_path):
-            raise RuntimeError(
-                "PowerPoint was generated, but "
-                "PDF conversion failed."
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=(
+                    "PowerPoint was generated, but PDF conversion failed."
+                ),
             )
 
         # -----------------------------------------

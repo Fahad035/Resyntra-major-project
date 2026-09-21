@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.user import User
+from app.modules.auth.dependencies import get_current_user
+
 from app.database.session import get_db
 from app.modules.papers.repository import PaperRepository
 from app.modules.ppt_generator.schemas import (
@@ -34,8 +37,10 @@ async def generate(
     service: PPTService = Depends(
         get_service
     ),
+    current_user: User = Depends(get_current_user),
 ):
     return await service.generate(
         data.paper_id,
         data.slides,
+        current_user,
     )

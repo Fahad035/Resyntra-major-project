@@ -1,4 +1,4 @@
-import api from "./axios";
+import api from "./client";
 
 const pptGeneratorApi = {
   generate: async (paperId, slides = 10) => {

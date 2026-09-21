@@ -9,6 +9,7 @@
   --background: #ffffff;
   --surface: #f8fafc;
   --surface-secondary: #f1f5f9;
+  --card: #ffffff;
 
   /* Text */
   --foreground: #0f172a;
@@ -37,6 +38,7 @@
   --background: #020617;
   --surface: #0f172a;
   --surface-secondary: #162033;
+  --card: #131b2e;
 
   /* Text */
   --foreground: #f8fafc;

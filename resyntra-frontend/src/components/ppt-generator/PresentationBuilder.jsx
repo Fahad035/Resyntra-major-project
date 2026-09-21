@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import pptGeneratorApi from "@/api/pptGenerator";
+import GenerationWorkflow from "./GenerationWorkflow";
 
 const slides = [
   {
@@ -156,13 +157,13 @@ const PresentationBuilder = ({ selectedPaper }) => {
       return fileUrl;
     }
 
-    return `http://localhost:8000${fileUrl}`;
+    return `${import.meta.env.VITE_API_URL}${fileUrl}`;
   };
 
   return (
     <section
       id="presentation-builder"
-      className="relative overflow-hidden border-t border-white/10 bg-[#070b12] px-6 py-24 sm:px-8 lg:px-12"
+      className="relative overflow-hidden border-t border-border bg-surface px-6 py-24 sm:px-8 lg:px-12"
     >
       {/* Background */}
       <div className="pointer-events-none absolute inset-0">
@@ -189,7 +190,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55, delay: 0.05 }}
-            className="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl"
+            className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
           >
             Build a complete research presentation
             <span className="block bg-linear-to-r from-cyan-300 via-sky-300 to-blue-400 bg-clip-text text-transparent">
@@ -202,7 +203,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55, delay: 0.1 }}
-            className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg"
+            className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted sm:text-lg"
           >
             Resyntra will transform the selected research paper into a
             structured academic presentation with exactly 9–10 slides.
@@ -217,15 +218,15 @@ const PresentationBuilder = ({ selectedPaper }) => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55 }}
-            className="h-fit rounded-3xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur-xl"
+            className="h-fit rounded-3xl border border-border bg-(--foreground)/[0.035] p-6 backdrop-blur-xl"
           >
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
                   Selected Research Paper
                 </p>
 
-                <h3 className="mt-2 text-lg font-semibold text-white">
+                <h3 className="mt-2 text-lg font-semibold text-foreground">
                   {selectedPaper
                     ? "Paper ready for generation"
                     : "No paper selected"}
@@ -237,24 +238,24 @@ const PresentationBuilder = ({ selectedPaper }) => {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+            <div className="rounded-2xl border border-border bg-black/20 p-5">
               <div className="mb-4 flex items-start gap-4">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10">
                   <FileText className="h-5 w-5 text-cyan-300" />
                 </div>
 
                 <div className="min-w-0">
-                  <h4 className="font-semibold leading-6 text-white">
+                  <h4 className="font-semibold leading-6 text-foreground">
                     {getPaperTitle()}
                   </h4>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-muted">
                     {getPaperAuthors()}
                   </p>
                 </div>
               </div>
 
-              <p className="text-sm leading-6 text-slate-400">
+              <p className="text-sm leading-6 text-muted">
                 {selectedPaper?.abstract ||
                   selectedPaper?.description ||
                   "Research paper ready for AI presentation generation."}
@@ -263,7 +264,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
               {selectedPaper && (
                 <div className="mt-5 flex flex-wrap gap-2">
                   {getPaperPages() && (
-                    <span className="rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-xs text-slate-400">
+                    <span className="rounded-full border border-border bg-(--foreground)/4 px-3 py-1.5 text-xs text-muted">
                       {getPaperPages()}
                     </span>
                   )}
@@ -272,7 +273,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
                     {getPaperStatus()}
                   </span>
 
-                  <span className="rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-xs text-slate-400">
+                  <span className="rounded-full border border-border bg-(--foreground)/4 px-3 py-1.5 text-xs text-muted">
                     AI Ready
                   </span>
                 </div>
@@ -281,18 +282,18 @@ const PresentationBuilder = ({ selectedPaper }) => {
 
             {/* Generation Settings */}
             <div className="mt-6">
-              <p className="mb-3 text-sm font-medium text-white">
+              <p className="mb-3 text-sm font-medium text-foreground">
                 Presentation settings
               </p>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/2.5 px-4 py-3">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-(--foreground)/2.5 px-4 py-3">
                   <div>
-                    <p className="text-sm text-slate-300">
+                    <p className="text-sm text-muted">
                       Slide count
                     </p>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-muted">
                       Academic structure
                     </p>
                   </div>
@@ -302,29 +303,29 @@ const PresentationBuilder = ({ selectedPaper }) => {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/2.5 px-4 py-3">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-(--foreground)/2.5 px-4 py-3">
                   <div>
-                    <p className="text-sm text-slate-300">
+                    <p className="text-sm text-muted">
                       Content source
                     </p>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-muted">
                       Selected research paper
                     </p>
                   </div>
 
-                  <span className="text-sm text-slate-400">
+                  <span className="text-sm text-muted">
                     Paper only
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/2.5 px-4 py-3">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-(--foreground)/2.5 px-4 py-3">
                   <div>
-                    <p className="text-sm text-slate-300">
+                    <p className="text-sm text-muted">
                       Generation mode
                     </p>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-muted">
                       AI structured presentation
                     </p>
                   </div>
@@ -358,10 +359,15 @@ const PresentationBuilder = ({ selectedPaper }) => {
               )}
             </button>
 
-            <p className="mt-3 text-center text-xs leading-5 text-slate-500">
+            <p className="mt-3 text-center text-xs leading-5 text-muted">
               AI generation will use the selected paper's extracted research
               content.
             </p>
+
+            <GenerationWorkflow
+              isActive={isGenerating}
+              isComplete={Boolean(generatedFiles)}
+            />
 
             {/* Error */}
             {generationError && (
@@ -381,20 +387,20 @@ const PresentationBuilder = ({ selectedPaper }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55 }}
-            className="rounded-3xl border border-white/10 bg-white/[0.035] p-6 backdrop-blur-xl"
+            className="rounded-3xl border border-border bg-(--foreground)/[0.035] p-6 backdrop-blur-xl"
           >
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
                   Presentation Structure
                 </p>
 
-                <h3 className="mt-2 text-lg font-semibold text-white">
+                <h3 className="mt-2 text-lg font-semibold text-foreground">
                   10-slide academic outline
                 </h3>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/4 px-3 py-2 text-xs text-slate-400">
+              <div className="rounded-xl border border-border bg-(--foreground)/4 px-3 py-2 text-xs text-muted">
                 10 / 10
               </div>
             </div>
@@ -410,18 +416,18 @@ const PresentationBuilder = ({ selectedPaper }) => {
                     duration: 0.35,
                     delay: index * 0.04,
                   }}
-                  className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-black/10 p-3.5 transition hover:border-cyan-400/20 hover:bg-cyan-400/3"
+                  className="group flex items-center gap-4 rounded-2xl border border-border bg-black/10 p-3.5 transition hover:border-cyan-400/20 hover:bg-cyan-400/3"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-xs font-semibold text-slate-400 transition group-hover:border-cyan-400/20 group-hover:text-cyan-300">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-(--foreground)/4 text-xs font-semibold text-muted transition group-hover:border-cyan-400/20 group-hover:text-cyan-300">
                     {String(slide.number).padStart(2, "0")}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-sm font-medium text-slate-200">
+                    <h4 className="text-sm font-medium text-foreground">
                       {slide.title}
                     </h4>
 
-                    <p className="mt-1 truncate text-xs text-slate-500">
+                    <p className="mt-1 truncate text-xs text-muted">
                       {slide.description}
                     </p>
                   </div>
@@ -441,10 +447,10 @@ const PresentationBuilder = ({ selectedPaper }) => {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55 }}
-            className="mt-10 overflow-hidden rounded-3xl border border-emerald-400/15 bg-white/[0.035] backdrop-blur-xl"
+            className="mt-10 overflow-hidden rounded-3xl border border-emerald-400/15 bg-(--foreground)/[0.035] backdrop-blur-xl"
           >
             {/* Preview Header */}
-            <div className="flex flex-col gap-5 border-b border-white/10 px-6 py-6 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-5 border-b border-border px-6 py-6 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-start gap-4">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10">
                   <Check className="h-5 w-5 text-emerald-300" />
@@ -452,7 +458,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
 
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-lg font-semibold text-white">
+                    <h3 className="text-lg font-semibold text-foreground">
                       Presentation generated
                     </h3>
 
@@ -461,7 +467,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
                     </span>
                   </div>
 
-                  <p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-500">
+                  <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted">
                     Your research paper has been transformed into a
                     presentation. Review the generated PDF below or download
                     the editable PowerPoint.
@@ -490,7 +496,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     download
-                    className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-medium text-slate-300 transition hover:bg-white/10"
+                    className="flex items-center justify-center gap-2 rounded-xl border border-border bg-(--foreground)/5 px-4 py-2.5 text-xs font-medium text-muted transition hover:bg-(--foreground)/10"
                   >
                     <Download className="h-4 w-4" />
                     Download PDF
@@ -501,7 +507,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
                   type="button"
                   onClick={handleGenerate}
                   disabled={isGenerating || !selectedPaper}
-                  className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-medium text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-border bg-(--foreground)/5 px-4 py-2.5 text-xs font-medium text-muted transition hover:bg-(--foreground)/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <RefreshCw
                     className={`h-4 w-4 ${
@@ -514,18 +520,18 @@ const PresentationBuilder = ({ selectedPaper }) => {
             </div>
 
             {/* Preview Toolbar */}
-            <div className="flex flex-col gap-3 border-b border-white/10 bg-black/10 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            <div className="flex flex-col gap-3 border-b border-border bg-black/10 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5">
-                  <FileText className="h-4 w-4 text-slate-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-(--foreground)/5">
+                  <FileText className="h-4 w-4 text-muted" />
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-slate-300">
+                  <p className="text-xs font-medium text-muted">
                     Presentation Preview
                   </p>
 
-                  <p className="text-[11px] text-slate-600">
+                  <p className="text-[11px] text-muted">
                     10 slides · PDF preview
                   </p>
                 </div>
@@ -544,9 +550,9 @@ const PresentationBuilder = ({ selectedPaper }) => {
 
             {/* PDF Preview */}
             <div className="bg-[#05080d] p-4 sm:p-6 lg:p-8">
-              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a0f17] shadow-2xl shadow-black/30">
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-[#0a0f17] shadow-2xl shadow-black/30">
                 {/* Preview label */}
-                <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-lg border border-white/10 bg-black/60 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-wider text-slate-400 backdrop-blur-md">
+                <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-lg border border-border bg-black/60 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted backdrop-blur-md">
                   PDF Preview
                 </div>
 
@@ -555,7 +561,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
                   href={getFileUrl(generatedFiles.pdf_url)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-black/60 text-slate-400 backdrop-blur-md transition hover:border-cyan-400/20 hover:text-cyan-300"
+                  className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-black/60 text-muted backdrop-blur-md transition hover:border-cyan-400/20 hover:text-cyan-300"
                   aria-label="Open presentation preview"
                   title="Open full preview"
                 >
@@ -571,13 +577,13 @@ const PresentationBuilder = ({ selectedPaper }) => {
             </div>
 
             {/* Preview Footer */}
-            <div className="flex flex-col gap-4 border-t border-white/10 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            <div className="flex flex-col gap-4 border-t border-border px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <div>
-                <p className="text-sm font-medium text-white">
+                <p className="text-sm font-medium text-foreground">
                   {getPaperTitle()}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-muted">
                   Generated from your selected research paper · 10 slides
                 </p>
               </div>
@@ -602,7 +608,7 @@ const PresentationBuilder = ({ selectedPaper }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     download
-                    className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs font-medium text-slate-300 transition hover:bg-white/10"
+                    className="flex items-center gap-2 rounded-xl border border-border bg-(--foreground)/5 px-3.5 py-2.5 text-xs font-medium text-muted transition hover:bg-(--foreground)/10"
                   >
                     <FileText className="h-4 w-4" />
                     PDF
@@ -619,14 +625,14 @@ const PresentationBuilder = ({ selectedPaper }) => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.15 }}
-          className="mt-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/2.5 p-5 sm:flex-row sm:items-center sm:justify-between"
+          className="mt-8 flex flex-col gap-4 rounded-2xl border border-border bg-(--foreground)/2.5 p-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <p className="text-sm font-medium text-white">
+            <p className="text-sm font-medium text-foreground">
               Grounded in your research
             </p>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-muted">
               Resyntra will generate presentation content from the selected
               paper instead of inventing unrelated information.
             </p>
