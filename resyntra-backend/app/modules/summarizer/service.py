@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from pathlib import Path
 
 from app.ai.summarizer import PaperSummarizer
+from app.models.user import User
 from app.modules.papers.repository import PaperRepository
 from app.utils.pdf import extract_pdf  # Imported to extract text from the file path
 
@@ -16,6 +17,7 @@ class SummarizerService:
     async def summarize(
         self,
         paper_id: UUID,
+        current_user: User,
     ):
         # 1. Fetch paper metadata row from the repository database
         paper = await self.paper_repo.get_by_id(paper_id)
@@ -24,6 +26,13 @@ class SummarizerService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Paper not found",
+            )
+
+        # Prevent one user from summarizing another user's private paper.
+        if paper.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied",
             )
 
         # 2. Verify physical file presence on server disk storage
