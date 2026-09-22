@@ -1,15 +1,11 @@
 import {
   FaGithub,
   FaLinkedin,
-  FaFacebook,
   FaInstagram,
   FaYoutube,
-  FaDiscord,
 } from "react-icons/fa";
 
 import { FaXTwitter } from "react-icons/fa6";
-
-import { SiBluesky } from "react-icons/si";
 
 const footerColumns = [
   {
@@ -58,24 +54,9 @@ export const socialLinks = [
     label: "X",
   },
   {
-    icon: SiBluesky,
-    href: "#",
-    label: "Bluesky",
-  },
-  {
-    icon: FaDiscord,
-    href: "#",
-    label: "Discord",
-  },
-  {
     icon: FaInstagram,
     href: "#",
     label: "Instagram",
-  },
-  {
-    icon: FaFacebook,
-    href: "#",
-    label: "Facebook",
   },
   {
     icon: FaYoutube,
