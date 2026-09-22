@@ -9,7 +9,7 @@ class ResearchGapGenerator:
     def generate(
         self,
         topic: str,
-        papers: list,
+        papers: list[dict],
     ):
         content = ""
 
@@ -18,13 +18,13 @@ class ResearchGapGenerator:
 Paper {index}
 
 Title:
-{paper.title}
+{paper["title"]}
 
 Abstract:
-{paper.abstract or "Not available"}
+{paper["abstract"] or "Not available"}
 
 Content:
-{paper.content[:3000]}
+{paper["content"][:3000]}
 
 ----------------------------------------------------
 """

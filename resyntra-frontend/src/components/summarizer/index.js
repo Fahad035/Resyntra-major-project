@@ -1,3 +1,4 @@
 export { default as SummaryModes } from "./SummaryModes";
 export { default as QualitySection } from "./QualitySection";
-export { default as SummarySkeleton } from "./SummarySkeleton";
+export { default as SummarySkeleton } from "./tool/SummarySkeleton";
+export { default as SummaryPanel } from "./tool/SummaryPanel";

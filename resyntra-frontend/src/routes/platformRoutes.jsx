@@ -4,6 +4,7 @@ import AISummarizer from "@/pages/platform/AISummarizer";
 import ChatWithPapers from "@/pages/platform/ChatWithPapers";
 import SemanticSearch from "@/pages/platform/SemanticSearch";
 import PptGenerator from "@/pages/platform/PptGenerator";
+import ResearchGapFinder from "@/pages/platform/ResearchGapFinder";
 import Analytics from "@/pages/platform/Analytics";
 import { Outlet } from "react-router-dom";
 
@@ -23,6 +24,7 @@ const platformRoutes = [
       { path: "semantic-search", element: <SemanticSearch /> },
       { path: "ppt-generator", element: <PptGenerator /> },
       { path: "analytics", element: <Analytics /> },
+      { path: "research-gap-finder", element: <ResearchGapFinder /> },
     ],
   },
 
@@ -41,6 +43,7 @@ const platformRoutes = [
   { path: "semantic-search", element: <SemanticSearch /> },
   { path: "ppt-generator", element: <PptGenerator /> },
   { path: "analytics", element: <Analytics /> },
+  { path: "research-gap-finder", element: <ResearchGapFinder /> },
 ];
 
 export default platformRoutes;

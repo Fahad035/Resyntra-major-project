@@ -1,13 +1,8 @@
-import api from "./axios";
+import api from "./client";
 
-export const generateResearchGap = async ({
-  projectId,
-  collectionId = null,
-  topic,
-}) => {
+export const generateResearchGap = async ({ paperIds, topic }) => {
   const response = await api.post("/research-gap", {
-    project_id: projectId,
-    collection_id: collectionId,
+    paper_ids: paperIds,
     topic,
   });
 

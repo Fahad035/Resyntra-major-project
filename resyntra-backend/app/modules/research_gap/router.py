@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db
-from app.modules.collections.repository import CollectionRepository
+from app.models.user import User
+from app.modules.auth.dependencies import get_current_user
 from app.modules.papers.repository import PaperRepository
 from app.modules.research_gap.schemas import (
     ResearchGapRequest,
@@ -23,7 +24,6 @@ def get_service(
 ):
     return ResearchGapService(
         PaperRepository(db),
-        CollectionRepository(db),
     )
 
 
@@ -36,9 +36,10 @@ async def generate_research_gap(
     service: ResearchGapService = Depends(
         get_service
     ),
+    current_user: User = Depends(get_current_user),
 ):
     return await service.generate(
-        data.project_id,
-        data.collection_id,
+        data.paper_ids,
         data.topic,
+        current_user,
     )

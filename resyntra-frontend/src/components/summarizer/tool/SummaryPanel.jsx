@@ -17,7 +17,7 @@ import useTextToSpeech from "@/hooks/useTextToSpeech";
 import FormattedAnswer from "@/components/chat/FormattedAnswer";
 import PaperStatusBadge from "@/components/chat/PaperStatusBadge";
 
-import SummarySkeleton from "../SummarySkeleton";
+import SummarySkeleton from "./SummarySkeleton";
 
 const EmptyState = () => (
   <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">

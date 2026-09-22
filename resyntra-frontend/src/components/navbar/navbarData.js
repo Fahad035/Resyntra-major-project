@@ -13,6 +13,7 @@ import {
   Code2,
   LifeBuoy,
   MapIcon,
+  SearchX,
 } from "lucide-react";
 
 export const NAVBAR_ITEMS = [
@@ -67,6 +68,12 @@ export const NAVBAR_ITEMS = [
             description: "Research insights",
             path: "/analytics",
             icon: BarChart3,
+          },
+          {
+            title: "Research Gap Finder",
+            description: "Compare papers for gaps",
+            path: "/research-gap-finder",
+            icon: SearchX,
           },
         ],
       },

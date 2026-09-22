@@ -1,12 +1,11 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ResearchGapRequest(BaseModel):
-    project_id: UUID
-    collection_id: UUID | None = None
-    topic: str
+    paper_ids: list[UUID] = Field(min_length=2, max_length=8)
+    topic: str = Field(min_length=1)
 
 
 class ResearchGapResponse(BaseModel):
