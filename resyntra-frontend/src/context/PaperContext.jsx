@@ -16,6 +16,11 @@ import {
 
 const PaperContext = createContext(null);
 
+const PROCESSING_STATUSES = new Set([
+  "pending",
+  "processing",
+]);
+
 export const PaperProvider = ({ children }) => {
   const [papers, setPapers] = useState([]);
 
@@ -43,16 +48,69 @@ export const PaperProvider = ({ children }) => {
     loadPapers();
   }, [loadPapers]);
 
+  /*
+   * Poll the backend while papers are still being processed.
+   *
+   * The backend remains the source of truth for the
+   * processing_status value.
+   */
+  useEffect(() => {
+    const hasProcessingPapers = papers.some((paper) =>
+      PROCESSING_STATUSES.has(
+        paper.processing_status ?? "pending"
+      )
+    );
+
+    if (!hasProcessingPapers) {
+      return undefined;
+    }
+
+    const interval = setInterval(() => {
+      loadPapers();
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [papers, loadPapers]);
+
   const upload = async (file) => {
     try {
       setUploading(true);
 
       const paper = await uploadPaper(file);
 
+      /*
+       * Immediately show the uploaded paper returned
+       * by the backend instead of waiting for the next
+       * full request.
+       */
+      if (paper) {
+        setPapers((prev) => {
+          const exists = prev.some(
+            (item) => item.id === paper.id
+          );
+
+          if (exists) {
+            return prev.map((item) =>
+              item.id === paper.id
+                ? paper
+                : item
+            );
+          }
+
+          return [paper, ...prev];
+        });
+      }
+
       toast.success(
         "Paper uploaded successfully."
       );
 
+      /*
+       * Refresh once so the frontend has the latest
+       * backend state.
+       */
       await loadPapers();
 
       return paper;
@@ -72,11 +130,13 @@ export const PaperProvider = ({ children }) => {
     try {
       await deletePaper(paperId);
 
-      toast.success("Paper deleted.");
-
       setPapers((prev) =>
-        prev.filter((paper) => paper.id !== paperId)
+        prev.filter(
+          (paper) => paper.id !== paperId
+        )
       );
+
+      toast.success("Paper deleted.");
     } catch (error) {
       toast.error(
         error?.response?.data?.detail ??
