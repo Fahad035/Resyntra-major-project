@@ -27,6 +27,7 @@ dependencies = [
     "qdrant-client>=1.19.0",
     "redis>=8.1.0",
     "requests>=2.34.2",
+    "scikit-learn>=1.9.1",
     "sqlalchemy>=2.0.52",
     "structlog>=26.1.0",
     "uvicorn>=0.52.4",
