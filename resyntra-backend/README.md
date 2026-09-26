@@ -1,18 +1,25 @@
-# Resyntra Backend
+<div align="center">
 
-FastAPI backend powering Resyntra's AI research platform — auth, paper
-management, RAG-based chat, semantic search, and AI-generated research
-outputs (summaries, gap analysis, literature reviews, presentations).
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,100:1E293B&height=160&section=header&text=Resyntra%20Backend&fontSize=42&fontColor=22D3EE&animation=fadeIn&fontAlignY=42&desc=FastAPI%20%C2%B7%20RAG%20%C2%B7%20Multi-Provider%20AI&descAlignY=65&descSize=14&descColor=94A3B8" width="100%" alt="Resyntra Backend banner" />
 
-See the [root README](../README.md) for the full project overview and
-architecture diagram.
+![FastAPI](https://img.shields.io/badge/FastAPI-async-22D3EE?style=flat-square&logo=fastapi&logoColor=0F172A)
+![Python](https://img.shields.io/badge/Python-3.12-22D3EE?style=flat-square&logo=python&logoColor=0F172A)
+![Qdrant](https://img.shields.io/badge/Qdrant-vector%20db-22D3EE?style=flat-square)
+![Celery](https://img.shields.io/badge/Celery-async%20tasks-22D3EE?style=flat-square)
+
+</div>
+
+FastAPI backend powering Resyntra's AI research platform — auth, paper management, RAG-based chat, semantic search, multi-provider AI (with automatic fallback), voice I/O, and AI-generated research outputs (summaries, gap analysis, literature reviews, presentations).
+
+See the [root README](../README.md) for the full project overview and architecture diagram.
 
 ## Requirements
 
 - Python 3.12 (`>=3.12,<3.13`)
 - [`uv`](https://docs.astral.sh/uv/)
-- Docker + Docker Compose (for Postgres, Redis, Qdrant)
-- At least one AI provider API key (Gemini and/or OpenAI)
+- Docker + Docker Compose (Postgres, Redis, Qdrant)
+- LibreOffice installed locally (headless PPTX → PDF conversion for the PPT Generator)
+- At least one AI provider key (Gemini / OpenAI / OpenRouter / DeepSeek), plus Deepgram + Murf AI for voice
 
 ## Setup
 
@@ -25,9 +32,7 @@ uv sync
 
 # 3. Configure environment
 cp .env.example .env
-# Fill in DATABASE_URL, REDIS_URL, QDRANT_URL, SECRET_KEY, and your
-# AI provider keys. See app/core/config.py for the full list of
-# settings and their defaults.
+# See app/core/config.py for the full, authoritative list of settings.
 
 # 4. Run migrations
 uv run alembic upgrade head
@@ -37,12 +42,10 @@ uv run uvicorn app.main:app --reload
 ```
 
 API docs: `http://localhost:8000/docs`
-Health check: `http://localhost:8000/health`
 
 ## Background worker
 
-Paper ingestion (text extraction → chunking → embedding → Qdrant
-upsert) runs as a Celery task. Start a worker alongside the API:
+Paper ingestion (text extraction → chunking → embedding → Qdrant upsert) runs as a Celery task:
 
 ```bash
 uv run celery -A app.tasks.celery_app worker --loglevel=info
@@ -51,13 +54,8 @@ uv run celery -A app.tasks.celery_app worker --loglevel=info
 ## Database migrations
 
 ```bash
-# Create a new migration after changing a model
 uv run alembic revision --autogenerate -m "describe your change"
-
-# Apply migrations
 uv run alembic upgrade head
-
-# Roll back one migration
 uv run alembic downgrade -1
 ```
 
@@ -65,32 +63,53 @@ uv run alembic downgrade -1
 
 ```
 app/
-├── ai/            # RAG pipeline: embeddings, Qdrant client, providers, prompts
-│   └── providers/ # Gemini / OpenAI / OpenRouter — swappable via AI_PROVIDER
-├── core/          # Settings, logging, middleware, exception handlers
-├── database/      # SQLAlchemy session + Alembic migrations
-├── models/        # SQLAlchemy ORM models
-├── modules/       # One folder per feature: router + service + repository + schemas
-└── tasks/         # Celery tasks
+├── ai/
+│   ├── providers/       # gemini.py, openai.py, openrouter.py, deepseek.py,
+│   │                     # resilient.py (retry + fallback wrapper), factory.py
+│   ├── rag.py            # Chat with Papers retrieval + generation
+│   ├── summarizer.py, research_gap.py, literature_review.py, ppt_generator.py
+│   ├── embeddings.py, qdrant.py
+│   └── prompts.py
+├── core/                  # settings, logging, middleware, exception handlers
+├── database/               # SQLAlchemy session + Alembic migrations
+├── models/                  # SQLAlchemy ORM models
+├── modules/                   # one folder per feature: router → service → repository → schemas
+│   ├── auth, papers, chat, summarizer, research_gap, ppt_generator, voice,
+│   ├── search, projects, collections, notes, citations, chat_history,
+│   └── dashboard, analytics, admin, notifications...
+└── tasks/                       # Celery tasks
 ```
 
-Each module under `app/modules/` follows the same pattern:
-`router.py` (HTTP layer) → `service.py` (business logic) →
-`repository.py` (DB access) → `schemas.py` (Pydantic request/response
-models).
+Every module under `app/modules/` follows the same layered pattern: `router.py` (HTTP) → `service.py` (business logic + auth/ownership checks) → `repository.py` (DB access) → `schemas.py` (Pydantic models).
+
+## The resilient AI layer
+
+`app/ai/providers/factory.py` returns a `ResilientAIProvider` (`resilient.py`) instead of a single raw provider. Every AI feature — Chat, Summarizer, Research Gap, PPT Generator — automatically gets:
+
+- **Retry** on transient errors (503 / "overloaded" / timeouts) — one quick retry on the same provider
+- **Fallback** on quota exhaustion (429 / "RESOURCE_EXHAUSTED") — immediately moves to the next configured provider
+- A single clean `AIProviderError` → `503` response if every provider fails, instead of a raw traceback
+
+Configure the try order with `AI_PROVIDER` in `.env` — it's tried first, then the other three follow in a fixed order.
+
+## Voice
+
+`app/modules/voice/` wraps two external APIs behind auth-protected endpoints:
+
+- `POST /voice/transcribe` — multipart audio upload → Deepgram `/v1/listen`
+- `POST /voice/speak` — text → Murf AI `/v1/speech/generate` → returns a playable audio URL
 
 ## Configuration reference
 
-All settings are defined in `app/core/config.py`. Notable ones:
+See `app/core/config.py` for the full list. Notable flags:
 
-- `AI_PROVIDER` — selects which provider `AIProviderFactory` returns (`gemini` / `openai` / `openrouter`).
-- `AUTH_ENABLED` — **must be `True` outside local development.** When `False`, `get_current_user()` bypasses auth entirely and returns the first user in the database.
-- `ACCESS_TOKEN_EXPIRE_MINUTES` / `REFRESH_TOKEN_EXPIRE_DAYS` — JWT lifetimes.
+- `AI_PROVIDER` — selects the primary provider in the resilient fallback chain
+- `AUTH_ENABLED` — **must be `True` outside local development**
+- `ACCESS_TOKEN_EXPIRE_MINUTES` / `REFRESH_TOKEN_EXPIRE_DAYS` — JWT lifetimes
 
 ## Testing
 
-`pytest`, `pytest-asyncio`, `mypy`, and `ruff` are already listed as
-dev dependencies but no tests exist yet. To add them:
+`pytest`, `pytest-asyncio`, `mypy`, and `ruff` are already dev dependencies, though no tests exist yet:
 
 ```bash
 uv sync --group dev
@@ -101,6 +120,8 @@ uv run mypy .
 
 ## Tech stack
 
-FastAPI · SQLAlchemy 2.0 (async) · Alembic · PostgreSQL · Qdrant ·
-Redis · Celery · Gemini / OpenAI / OpenRouter · PyMuPDF ·
-langchain-text-splitters · python-pptx · python-jose · pwdlib (Argon2)
+FastAPI · SQLAlchemy 2.0 (async) · Alembic · PostgreSQL · Qdrant · Redis · Celery · Gemini / OpenAI / OpenRouter / DeepSeek · Deepgram · Murf AI · PyMuPDF · langchain-text-splitters · python-pptx · LibreOffice · python-jose · pwdlib (Argon2)
+
+<div align="center">
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,100:1E293B&height=100&section=footer" width="100%" />
+</div>
