@@ -19,6 +19,13 @@ class ChatSource(BaseModel):
     score: float | None = None
 
 
+class ChatConfidence(BaseModel):
+
+    score: float
+
+    label: str
+
+
 class ChatResponse(BaseModel):
 
     answer: str
@@ -26,3 +33,5 @@ class ChatResponse(BaseModel):
     sources: list[ChatSource] = Field(
         default_factory=list
     )
+
+    confidence: ChatConfidence

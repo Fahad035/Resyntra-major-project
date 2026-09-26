@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { askQuestion } from "@/api/chat";
 
 let messageId = 0;
+
 const nextId = () => `msg-${Date.now()}-${messageId++}`;
 
 const useChat = (paperId) => {
@@ -25,11 +26,21 @@ const useChat = (paperId) => {
       setSending(true);
 
       try {
-        const { answer } = await askQuestion(paperId, question);
+        const {
+          answer,
+          confidence,
+          sources,
+        } = await askQuestion(paperId, question);
 
         setMessages((prev) => [
           ...prev,
-          { id: nextId(), role: "assistant", content: answer },
+          {
+            id: nextId(),
+            role: "assistant",
+            content: answer,
+            confidence,
+            sources,
+          },
         ]);
       } catch (error) {
         const detail = error?.response?.data?.detail;
@@ -54,7 +65,12 @@ const useChat = (paperId) => {
     [paperId]
   );
 
-  return { messages, sending, send, reset };
+  return {
+    messages,
+    sending,
+    send,
+    reset,
+  };
 };
 
 export default useChat;

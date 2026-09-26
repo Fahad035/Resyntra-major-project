@@ -56,4 +56,5 @@ class ChatService:
         return {
             "answer": result["answer"],
             "sources": result["sources"],
+            "confidence": result["confidence"],
         }

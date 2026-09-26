@@ -3,6 +3,7 @@ import { Bot, Check, Copy, Loader2, TriangleAlert, User, Volume2, VolumeX } from
 import clsx from "clsx";
 
 import FormattedAnswer from "./FormattedAnswer";
+import ConfidenceBadge from "./ConfidenceBadge";
 
 const ChatMessage = ({ message, isPlaying, isLoadingAudio, onListen }) => {
   const [copied, setCopied] = useState(false);
@@ -46,9 +47,9 @@ const ChatMessage = ({ message, isPlaying, isLoadingAudio, onListen }) => {
             "rounded-2xl px-4 py-3 text-sm leading-6",
             isUser && "bg-cyan-400 text-slate-950",
             isError &&
-              "border border-(--danger)/20 bg-(--danger)/5 text-(--danger)",
+            "border border-(--danger)/20 bg-(--danger)/5 text-(--danger)",
             isAssistant &&
-              "border border-border bg-(--foreground)/2 text-foreground"
+            "border border-border bg-(--foreground)/2 text-foreground"
           )}
         >
           {isUser || isError ? (
@@ -59,46 +60,57 @@ const ChatMessage = ({ message, isPlaying, isLoadingAudio, onListen }) => {
         </div>
 
         {isAssistant && (
-          <div className="flex items-center gap-3 self-start px-1 opacity-0 transition-opacity group-hover:opacity-100">
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="flex items-center gap-1 text-xs text-muted hover:text-foreground"
-            >
-              {copied ? (
-                <>
-                  <Check className="h-3 w-3" /> Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3 w-3" /> Copy
-                </>
-              )}
-            </button>
+          <div className="flex items-center gap-3 self-start px-1">
+            {message.confidence && (
+              <ConfidenceBadge confidence={message.confidence} />
+            )}
 
-            <button
-              type="button"
-              onClick={() => onListen?.(message)}
-              disabled={isLoadingAudio}
-              className={clsx(
-                "flex items-center gap-1 text-xs hover:text-foreground disabled:cursor-wait",
-                isPlaying ? "text-cyan-400" : "text-muted"
-              )}
-            >
-              {isLoadingAudio ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin" /> Loading
-                </>
-              ) : isPlaying ? (
-                <>
-                  <VolumeX className="h-3 w-3" /> Stop
-                </>
-              ) : (
-                <>
-                  <Volume2 className="h-3 w-3" /> Listen
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-3 opacity-0 transition-opacity group-hover:opacity-100">
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="flex items-center gap-1 text-xs text-muted hover:text-foreground"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-3 w-3" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3 w-3" />
+                    Copy
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onListen?.(message)}
+                disabled={isLoadingAudio}
+                className={clsx(
+                  "flex items-center gap-1 text-xs hover:text-foreground disabled:cursor-wait",
+                  isPlaying ? "text-cyan-400" : "text-muted"
+                )}
+              >
+                {isLoadingAudio ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Loading
+                  </>
+                ) : isPlaying ? (
+                  <>
+                    <VolumeX className="h-3 w-3" />
+                    Stop
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="h-3 w-3" />
+                    Listen
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         )}
       </div>

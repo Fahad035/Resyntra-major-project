@@ -1,4 +1,5 @@
 from app.ai.embeddings import EmbeddingService
+from app.ai.groundedness import GroundednessEvaluator
 from app.ai.prompts import SYSTEM_PROMPT
 from app.ai.providers import AIProviderFactory
 from app.ai.qdrant import search
@@ -9,6 +10,7 @@ class RAGPipeline:
     def __init__(self):
         self.embedding = EmbeddingService()
         self.provider = AIProviderFactory.get_provider()
+        self.groundedness = GroundednessEvaluator()
 
     def ask(self, question: str, paper_id: str | None = None):
 
@@ -27,6 +29,10 @@ class RAGPipeline:
                     "in the indexed research papers."
                 ),
                 "sources": [],
+                "confidence": {
+                    "score": 0.0,
+                    "label": "Low",
+                },
             }
 
         context = "\n\n".join(
@@ -53,6 +59,16 @@ Question:
             temperature=0.3,
         )
 
+        confidence = self.groundedness.evaluate(
+            answer=answer,
+            source_chunks=[
+                {
+                    "text": result["payload"]["text"]
+                }
+                for result in results
+            ],
+        )
+
         sources = []
 
         for result in results:
@@ -69,4 +85,5 @@ Question:
         return {
             "answer": answer,
             "sources": sources,
+            "confidence": confidence,
         }
