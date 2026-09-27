@@ -1,13 +1,14 @@
 from pathlib import Path
 import json
 import os
+from collections import defaultdict
+
+# ---------------------------------------------------------
+# Hugging Face timeout configuration
+# ---------------------------------------------------------
 
 os.environ["HF_HUB_DOWNLOAD_TIMEOUT"] = "120"
 os.environ["HF_HUB_ETAG_TIMEOUT"] = "120"
-
-from datasets import load_dataset
-
-
 
 from datasets import load_dataset
 
@@ -33,46 +34,42 @@ DOMAINS = {
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 
-OUTPUT_DIR = (
-    ROOT_DIR
-    / "data"
-    / "domain_dataset"
-)
+OUTPUT_DIR = ROOT_DIR / "data" / "domain_dataset"
 
-OUTPUT_FILE = (
-    OUTPUT_DIR
-    / "papers.json"
-)
+OUTPUT_FILE = OUTPUT_DIR / "papers.json"
 
 
 # ---------------------------------------------------------
-# Dataset loader
+# Load existing dataset
 # ---------------------------------------------------------
 
-def load_arxiv_dataset():
+def load_existing_dataset():
+
     print("=" * 70)
-    print("Loading arXiv metadata dataset")
+    print("LOADING EXISTING DOMAIN DATASET")
     print("=" * 70)
 
-    print()
-    print("Dataset:")
-    print("librarian-bots/arxiv-metadata-snapshot")
-    print()
-    print("Streaming enabled.")
-    print("The full dataset will NOT be downloaded.")
-    print()
+    if not OUTPUT_FILE.exists():
 
-    dataset = load_dataset(
-        "librarian-bots/arxiv-metadata-snapshot",
-        split="train",
-        streaming=True,
-    )
+        raise FileNotFoundError(
+            f"Dataset not found:\n{OUTPUT_FILE}"
+        )
 
-    return dataset
+    with OUTPUT_FILE.open(
+        "r",
+        encoding="utf-8",
+    ) as file:
+
+        papers = json.load(file)
+
+    print()
+    print(f"Existing papers: {len(papers)}")
+
+    return papers
 
 
 # ---------------------------------------------------------
-# Category matching
+# Check category
 # ---------------------------------------------------------
 
 def matches_category(
@@ -164,37 +161,197 @@ def convert_paper(
 
 
 # ---------------------------------------------------------
-# Main dataset builder
+# Clean existing dataset
 # ---------------------------------------------------------
 
-def build_dataset():
+def clean_existing_dataset(papers):
 
-    dataset = load_arxiv_dataset()
+    print()
+    print("=" * 70)
+    print("CLEANING EXISTING DATASET")
+    print("=" * 70)
 
-    collected = {
+    # -----------------------------------------------------
+    # Group by domain
+    # -----------------------------------------------------
+
+    grouped = defaultdict(list)
+
+    for paper in papers:
+
+        domain = paper.get("domain")
+
+        if domain in DOMAINS:
+
+            grouped[domain].append(paper)
+
+    # -----------------------------------------------------
+    # Keep unique paper IDs
+    # -----------------------------------------------------
+
+    used_ids = set()
+
+    cleaned = {
         domain: []
         for domain in DOMAINS
     }
 
-    total_required = (
-        len(DOMAINS)
-        * TARGET_PER_DOMAIN
-    )
+    # -----------------------------------------------------
+    # Domain priority
+    #
+    # This prevents the same paper from being counted
+    # in multiple domains.
+    # -----------------------------------------------------
 
-    print(
-        f"Target papers: {total_required}"
-    )
+    for domain in DOMAINS:
+
+        for paper in grouped[domain]:
+
+            paper_id = str(
+                paper.get("id", "")
+            ).strip()
+
+            if not paper_id:
+                continue
+
+            if paper_id in used_ids:
+                continue
+
+            if len(
+                cleaned[domain]
+            ) >= TARGET_PER_DOMAIN:
+                continue
+
+            used_ids.add(paper_id)
+
+            cleaned[domain].append(paper)
+
+    # -----------------------------------------------------
+    # Report
+    # -----------------------------------------------------
 
     print()
+
+    for domain in DOMAINS:
+
+        count = len(
+            cleaned[domain]
+        )
+
+        status = (
+            "[PASS]"
+            if count >= TARGET_PER_DOMAIN
+            else "[NEED MORE]"
+        )
+
+        print(
+            f"{status:<12}"
+            f"{domain:<20}"
+            f"{count}/{TARGET_PER_DOMAIN}"
+        )
+
+    return cleaned, used_ids
+
+
+# ---------------------------------------------------------
+# Load arXiv streaming dataset
+# ---------------------------------------------------------
+
+def load_arxiv_dataset():
+
+    print()
+    print("=" * 70)
+    print("LOADING arXiv METADATA")
+    print("=" * 70)
+
+    print()
+    print("Dataset:")
+    print("librarian-bots/arxiv-metadata-snapshot")
+    print()
+    print("Streaming enabled.")
+    print("Only needed replacement papers will be searched.")
+    print()
+
+    dataset = load_dataset(
+        "librarian-bots/arxiv-metadata-snapshot",
+        split="train",
+        streaming=True,
+    )
+
+    return dataset
+
+
+# ---------------------------------------------------------
+# Fill missing domains
+# ---------------------------------------------------------
+
+def fill_missing_domains(
+    cleaned,
+    used_ids,
+):
+
+    missing = {}
+
+    for domain in DOMAINS:
+
+        current = len(
+            cleaned[domain]
+        )
+
+        if current < TARGET_PER_DOMAIN:
+
+            missing[domain] = (
+                TARGET_PER_DOMAIN - current
+            )
+
+    # -----------------------------------------------------
+    # Nothing missing
+    # -----------------------------------------------------
+
+    if not missing:
+
+        print()
+        print(
+            "No replacement papers required."
+        )
+
+        return
+
+    # -----------------------------------------------------
+    # Show requirements
+    # -----------------------------------------------------
+
+    print()
+    print("=" * 70)
+    print("PAPERS REQUIRED")
+    print("=" * 70)
+
+    for domain, amount in missing.items():
+
+        print(
+            f"{domain:<20}"
+            f"need {amount} more"
+        )
+
+    # -----------------------------------------------------
+    # Load streaming dataset
+    # -----------------------------------------------------
+
+    dataset = load_arxiv_dataset()
+
+    print()
+    print("Searching for replacement papers...")
+    print()
+
+    scanned = 0
 
     # -----------------------------------------------------
     # Stream records
     # -----------------------------------------------------
 
-    for record_number, record in enumerate(
-        dataset,
-        start=1,
-    ):
+    for record in dataset:
+
+        scanned += 1
 
         categories = (
             record.get("categories")
@@ -211,94 +368,168 @@ def build_dataset():
             or ""
         ).strip()
 
+        paper_id = str(
+            record.get("id", "")
+        ).strip()
+
+        # -------------------------------------------------
         # Skip incomplete records
+        # -------------------------------------------------
+
         if not title or not abstract:
             continue
 
+        if not paper_id:
+            continue
+
         # -------------------------------------------------
-        # Check every domain
+        # Skip paper already used
         # -------------------------------------------------
+
+        if paper_id in used_ids:
+            continue
+
+        # -------------------------------------------------
+        # Try missing domains
+        # -------------------------------------------------
+
+        added = False
 
         for domain, category in DOMAINS.items():
 
+            # Domain already complete
             if len(
-                collected[domain]
+                cleaned[domain]
             ) >= TARGET_PER_DOMAIN:
                 continue
 
-            if matches_category(
+            # Not the required category
+            if not matches_category(
                 categories,
                 category,
             ):
+                continue
 
-                paper = convert_paper(
-                    record,
-                    domain,
-                    category,
-                )
+            # -------------------------------------------------
+            # Important:
+            # If paper has multiple target categories,
+            # assign it to only ONE domain.
+            # -------------------------------------------------
 
-                collected[
-                    domain
-                ].append(paper)
+            paper = convert_paper(
+                record,
+                domain,
+                category,
+            )
 
-                print(
-                    f"{domain:<20} "
-                    f"{len(collected[domain]):>2}/"
-                    f"{TARGET_PER_DOMAIN}  "
-                    f"{title[:70]}"
-                )
+            cleaned[domain].append(
+                paper
+            )
+
+            used_ids.add(
+                paper_id
+            )
+
+            added = True
+
+            print(
+                f"{domain:<20}"
+                f"{len(cleaned[domain]):>2}/"
+                f"{TARGET_PER_DOMAIN}  "
+                f"{title[:70]}"
+            )
+
+            break
 
         # -------------------------------------------------
-        # Stop when all domains complete
+        # Check completion
         # -------------------------------------------------
 
         completed = all(
-            len(collected[domain])
+            len(cleaned[domain])
             >= TARGET_PER_DOMAIN
             for domain in DOMAINS
         )
 
         if completed:
+
             print()
             print(
-                "All domain targets reached."
+                "All missing papers found."
             )
+
             break
 
-        # Progress indicator
-        if record_number % 100000 == 0:
+        # -------------------------------------------------
+        # Progress
+        # -------------------------------------------------
+
+        if scanned % 100000 == 0:
 
             print()
             print(
-                f"Scanned "
-                f"{record_number:,} records..."
+                f"Scanned {scanned:,} arXiv records..."
             )
 
             for domain in DOMAINS:
 
                 print(
                     f"  {domain:<20}"
-                    f"{len(collected[domain])}"
-                    f"/{TARGET_PER_DOMAIN}"
+                    f"{len(cleaned[domain])}/"
+                    f"{TARGET_PER_DOMAIN}"
                 )
 
             print()
 
     # -----------------------------------------------------
-    # Combine datasets
+    # Check if successful
     # -----------------------------------------------------
+
+    incomplete = []
+
+    for domain in DOMAINS:
+
+        if len(
+            cleaned[domain]
+        ) < TARGET_PER_DOMAIN:
+
+            incomplete.append(domain)
+
+    if incomplete:
+
+        print()
+        print("=" * 70)
+        print("WARNING: DATASET STILL INCOMPLETE")
+        print("=" * 70)
+
+        for domain in incomplete:
+
+            print(
+                f"{domain:<20}"
+                f"{len(cleaned[domain])}/"
+                f"{TARGET_PER_DOMAIN}"
+            )
+
+        print()
+
+        raise RuntimeError(
+            "Could not find enough replacement papers."
+        )
+
+
+# ---------------------------------------------------------
+# Save final dataset
+# ---------------------------------------------------------
+
+def save_dataset(cleaned):
 
     papers = []
 
     for domain in DOMAINS:
 
         papers.extend(
-            collected[domain]
+            cleaned[domain]
         )
-
-    # -----------------------------------------------------
-    # Save
-    # -----------------------------------------------------
 
     OUTPUT_DIR.mkdir(
         parents=True,
@@ -314,23 +545,51 @@ def build_dataset():
             papers,
             file,
             indent=2,
+            ensure_ascii=False,
             default=str,
         )
 
-    # -----------------------------------------------------
-    # Final report
-    # -----------------------------------------------------
+    return papers
+
+
+# ---------------------------------------------------------
+# Final report
+# ---------------------------------------------------------
+
+def print_final_report(papers):
 
     print()
     print("=" * 70)
     print("DATASET BUILD COMPLETED")
     print("=" * 70)
 
+    counts = defaultdict(int)
+
+    ids = set()
+
+    duplicates = 0
+
+    for paper in papers:
+
+        domain = paper.get("domain")
+
+        counts[domain] += 1
+
+        paper_id = paper.get("id")
+
+        if paper_id in ids:
+
+            duplicates += 1
+
+        else:
+
+            ids.add(paper_id)
+
     for domain in DOMAINS:
 
         print(
             f"{domain:<20}"
-            f"{len(collected[domain])} papers"
+            f"{counts[domain]} papers"
         )
 
     print("-" * 70)
@@ -343,7 +602,17 @@ def build_dataset():
     print()
 
     print(
-        f"Saved to:"
+        f"Unique IDs:          {len(ids)}"
+    )
+
+    print(
+        f"Duplicate IDs:       {duplicates}"
+    )
+
+    print()
+
+    print(
+        "Saved to:"
     )
 
     print(
@@ -351,6 +620,37 @@ def build_dataset():
     )
 
     print("=" * 70)
+
+
+# ---------------------------------------------------------
+# Main
+# ---------------------------------------------------------
+
+def build_dataset():
+
+    # 1. Load current papers.json
+    existing = load_existing_dataset()
+
+    # 2. Clean duplicate IDs and cross-domain duplicates
+    cleaned, used_ids = clean_existing_dataset(
+        existing
+    )
+
+    # 3. Fetch ONLY missing papers
+    fill_missing_domains(
+        cleaned,
+        used_ids,
+    )
+
+    # 4. Save final dataset
+    papers = save_dataset(
+        cleaned
+    )
+
+    # 5. Print final result
+    print_final_report(
+        papers
+    )
 
 
 # ---------------------------------------------------------
