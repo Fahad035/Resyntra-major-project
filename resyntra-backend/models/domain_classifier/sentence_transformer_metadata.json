@@ -1,0 +1,18 @@
+{
+  "model": "Sentence Transformer + Logistic Regression",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "dataset_size": 275,
+  "training_samples": 220,
+  "testing_samples": 55,
+  "embedding_dimension": 384,
+  "accuracy": 0.8727,
+  "macro_f1": 0.87,
+  "weighted_f1": 0.87,
+  "domains": [
+    "NLP",
+    "Computer Vision",
+    "Robotics",
+    "Bio/Medical",
+    "Systems"
+  ]
+}

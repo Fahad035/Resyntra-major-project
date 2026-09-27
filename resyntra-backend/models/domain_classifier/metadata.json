@@ -1,0 +1,14 @@
+{
+  "model": "TF-IDF + Logistic Regression",
+  "accuracy": 0.8,
+  "training_samples": 220,
+  "testing_samples": 55,
+  "classes": [
+    "Bio/Medical",
+    "Computer Vision",
+    "NLP",
+    "Robotics",
+    "Systems"
+  ],
+  "dataset_size": 275
+}

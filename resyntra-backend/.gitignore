@@ -75,3 +75,23 @@ coverage.xml
 
 # Misc
 .cache/
+
+# Ignore all data directories and raw data files
+data/
+*.csv
+*.xlsx
+*.jsonl
+*.parquet
+
+# Ignore large model binaries/weights but allow code/configs
+models/**/*.pkl
+models/**/*.h5
+models/**/*.pt
+models/**/*.pth
+models/**/*.onnx
+models/**/*.bin
+models/**/*.joblib
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
