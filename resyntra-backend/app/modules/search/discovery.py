@@ -5,6 +5,7 @@ from app.modules.search.openalex import OpenAlexClient
 from app.modules.search.arxiv import ArxivClient
 from app.modules.search.pubmed import PubMedClient
 from app.modules.search.crossref import CrossrefClient
+from app.modules.search.domain_repository import DomainRepository
 
 
 class ResearchDiscoveryService:
@@ -14,6 +15,7 @@ class ResearchDiscoveryService:
         "pubmed": 3,
         "arxiv": 2,
         "crossref": 1,
+        "domain_dataset": 2,
     }
 
     def __init__(self):
@@ -21,6 +23,7 @@ class ResearchDiscoveryService:
         self.arxiv = ArxivClient()
         self.pubmed = PubMedClient()
         self.crossref = CrossrefClient()
+        self.domain_repository = DomainRepository()
 
     async def search(
         self,
@@ -73,6 +76,13 @@ class ResearchDiscoveryService:
 
         combined.extend(arxiv_results)
 
+        domain_results = self._search_domain_dataset(
+        query=query,
+        limit=limit,
+    )
+
+        combined.extend(domain_results)
+
         deduplicated = self._deduplicate_results(
             combined
         )
@@ -82,6 +92,89 @@ class ResearchDiscoveryService:
         )
 
         return ranked
+
+    def _search_domain_dataset(
+    self,
+    query: str,
+    limit: int,
+    ):
+        results = self.domain_repository.search(
+         query=query,
+            limit=limit,
+    )
+
+        normalized = []
+
+        for paper in results:
+            normalized.append(
+            {
+                "source": "domain_dataset",
+
+                "sources": [
+                    "domain_dataset"
+                ],
+
+                "external_id": (
+                    str(paper.get("id"))
+                    if paper.get("id")
+                    else None
+                ),
+
+                "title": paper.get(
+                    "title"
+                ),
+
+                "authors": self._clean_authors(
+                    paper.get(
+                        "authors",
+                        [],
+                    )
+                ),
+
+                "abstract": paper.get(
+                    "abstract"
+                ),
+
+                "publication_year": (
+                    self._extract_year(
+                        paper.get(
+                            "publication_date"
+                        )
+                    )
+                ),
+
+                "publication_date": (
+                    paper.get(
+                        "publication_date"
+                    )
+                ),
+
+                "doi": paper.get(
+                    "doi"
+                ),
+
+                "journal": paper.get(
+                    "journal"
+                ),
+
+                "url": paper.get(
+                    "url"
+                ),
+
+                "is_open_access": paper.get(
+                    "is_open_access",
+                    False,
+                ),
+
+                "relevance_score": None,
+
+                "domain": paper.get(
+                    "domain"
+                ),
+            }
+        )
+
+        return normalized
 
     async def _search_arxiv_with_timeout(
         self,
