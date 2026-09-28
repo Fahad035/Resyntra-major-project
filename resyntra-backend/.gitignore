@@ -95,3 +95,5 @@ models/**/*.joblib
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
+
+scripts/test_domain_classifier.py
