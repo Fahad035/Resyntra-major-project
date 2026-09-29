@@ -7,7 +7,8 @@ class PaperResponse(BaseModel):
     id: UUID
     title: str
     authors: str | None
-    abstract: str |None
+    abstract: str | None
+    domain: str | None
     processing_status: str
 
     model_config = ConfigDict(from_attributes=True)

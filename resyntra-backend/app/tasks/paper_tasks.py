@@ -9,6 +9,7 @@ from app.database.sync_session import SessionLocal
 from app.models.paper import Paper
 from app.utils.chunking import split_text
 from app.utils.pdf import extract_pdf
+from app.ai.domain_classifier import domain_classifier
 
 
 @celery_app.task
@@ -28,9 +29,39 @@ def process_paper(
         paper.processing_status = "processing"
         db.commit()
 
+        # -------------------------------------------------
+        # Extract PDF content
+        # -------------------------------------------------
+
         pdf = extract_pdf(file_path)
 
+        # -------------------------------------------------
+        # Predict paper domain
+        # -------------------------------------------------
+
+        title = paper.title or ""
+        abstract = pdf.get("abstract") or ""
+
+        predicted_domain = domain_classifier.predict(
+            title=title,
+            abstract=abstract,
+        )
+
+        paper.domain = predicted_domain
+
+        print(
+            f"Paper domain predicted: {predicted_domain}"
+        )
+
+        # -------------------------------------------------
+        # Split paper into chunks
+        # -------------------------------------------------
+
         chunks = split_text(pdf["text"])
+
+        # -------------------------------------------------
+        # Generate embeddings
+        # -------------------------------------------------
 
         create_collection()
 
@@ -40,13 +71,21 @@ def process_paper(
             chunks
         )
 
+        # -------------------------------------------------
+        # Store chunks in Qdrant
+        # -------------------------------------------------
+
         insert_chunks(
             paper_id=paper_id,
             chunks=chunks,
             embeddings=embeddings,
         )
 
-        paper.abstract = pdf.get("abstract")
+        # -------------------------------------------------
+        # Update paper
+        # -------------------------------------------------
+
+        paper.abstract = abstract
         paper.processing_status = "completed"
 
         db.commit()

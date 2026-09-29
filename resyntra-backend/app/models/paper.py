@@ -30,6 +30,10 @@ class Paper(BaseModel):
         Text,
     )
 
+    domain: Mapped[str | None] = mapped_column(
+        String(100),
+    )
+
     file_name: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
