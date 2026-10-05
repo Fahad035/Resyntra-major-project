@@ -1,9 +1,10 @@
-// Placeholder metrics — replace with real, verifiable numbers before launch.
+// Every figure below is verifiable from the repository itself
+// (backend/app/modules, ai/providers, search/*, eval/rag_results.md).
 const statsData = [
-  { value: "10K+", label: "Researchers onboarded" },
-  { value: "250K+", label: "Papers analyzed" },
-  { value: "120+", label: "Universities & labs" },
-  { value: "4.9/5", label: "Average user rating" },
+  { value: 20, suffix: "", label: "Backend modules", hint: "FastAPI, domain-driven" },
+  { value: 4, suffix: "", label: "AI providers", hint: "Auto retry + fallback" },
+  { value: 4, suffix: "", label: "Academic sources", hint: "arXiv · Crossref · OpenAlex · PubMed" },
+  { value: 88.8, suffix: "%", decimals: 1, label: "RAG answer score", hint: "10-question evaluation set" },
 ];
 
 export default statsData;
