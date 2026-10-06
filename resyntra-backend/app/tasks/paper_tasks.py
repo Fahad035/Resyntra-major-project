@@ -4,6 +4,7 @@ from app.ai.embeddings import EmbeddingService
 from app.ai.qdrant import (
     create_collection,
     insert_chunks,
+    delete_paper_chunks,
 )
 from app.database.sync_session import SessionLocal
 from app.models.paper import Paper
@@ -56,7 +57,8 @@ def process_paper(
         # -------------------------------------------------
         # Split paper into chunks
         # -------------------------------------------------
-
+        delete_paper_chunks(paper_id)
+        
         chunks = split_text(pdf["text"])
 
         # -------------------------------------------------

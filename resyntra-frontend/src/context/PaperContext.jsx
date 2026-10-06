@@ -34,7 +34,7 @@ export const PaperProvider = ({ children }) => {
 
       const data = await getPapers();
 
-      setPapers(data);
+      setPapers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
 

@@ -15,7 +15,7 @@ const usePapers = () => {
   const fetchPapers = useCallback(async () => {
     try {
       const data = await getPapers();
-      setPapers(data);
+      setPapers(Array.isArray(data) ? data : []);
       return data;
     } catch (error) {
       toast.error("Couldn't load your papers.");

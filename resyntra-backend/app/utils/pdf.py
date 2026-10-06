@@ -9,7 +9,8 @@ def extract_pdf(file_path: str):
 
     The extracted text is cleaned to reduce common PDF
     artifacts such as repeated headers, footers, page
-    numbers, and publisher notes.
+    numbers, publisher notes, and non-scientific trailing
+    sections.
     """
 
     doc = fitz.open(file_path)
@@ -25,14 +26,14 @@ def extract_pdf(file_path: str):
             if not page_text:
                 continue
 
-            page_text = _clean_page_text(
-                page_text
-            )
+            page_text = _clean_page_text(page_text)
 
             if page_text:
                 pages.append(page_text)
 
         text = "\n\n".join(pages)
+
+        text = _remove_non_scientific_sections(text)
 
         return {
             "title": _clean_metadata_value(
@@ -96,6 +97,20 @@ def _clean_page_text(text: str):
         ):
             continue
 
+        if re.search(
+            r"Volume 7, Issue 4, July-August-2021",
+            line,
+            flags=re.IGNORECASE,
+        ):
+            continue
+
+        if re.search(
+            r"Praba\. R et al Int\. J\. Sci\. Res\. Comput\. Sci\. Eng\. Inf\. Technol",
+            line,
+            flags=re.IGNORECASE,
+        ):
+            continue
+
         cleaned.append(line)
 
     text = "\n".join(cleaned)
@@ -113,6 +128,54 @@ def _clean_page_text(text: str):
         "\n\n",
         text,
     )
+
+    return text.strip()
+
+
+def _remove_non_scientific_sections(text: str):
+    """
+    Remove common non-scientific sections that usually appear
+    near the end of academic papers.
+
+    This prevents references, acknowledgements, licensing,
+    and similar material from polluting the RAG index.
+    """
+
+    if not text:
+        return ""
+
+    section_patterns = [
+    r"\n(?:[IVXLCDM]+\.\s*)?(?:references|bibliography)\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?acknowledgements?\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?author contributions?\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?additional information\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?data availability\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?code availability\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?competing interests?\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?conflict[s]? of interest[s]?\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?open access\s*\n",
+    r"\n(?:[IVXLCDM]+\.\s*)?ethics (?:statement|approval)\s*\n",
+]
+    earliest_position = None
+
+    for pattern in section_patterns:
+        match = re.search(
+            pattern,
+            text,
+            flags=re.IGNORECASE,
+        )
+
+        if match:
+            position = match.start()
+
+            if (
+                earliest_position is None
+                or position < earliest_position
+            ):
+                earliest_position = position
+
+    if earliest_position is not None:
+        text = text[:earliest_position]
 
     return text.strip()
 
