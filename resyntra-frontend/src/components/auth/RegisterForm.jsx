@@ -49,7 +49,7 @@ const RegisterForm = () => {
         password: values.password,
       });
 
-      toast.success("Account created! Please sign in.");
+      toast.success("Account created! Check your email to verify your account.");
       navigate("/login");
     } catch (error) {
       toast.error(

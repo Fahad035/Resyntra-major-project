@@ -1,46 +1,28 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
+from app.core.rate_limit import limiter
+from app.database.session import get_db
 from app.models.user import User
 from app.modules.auth.dependencies import get_current_user
-
-from app.database.session import get_db
 from app.modules.papers.repository import PaperRepository
-from app.modules.ppt_generator.schemas import (
-    PPTRequest,
-    PPTResponse,
-)
-from app.modules.ppt_generator.service import (
-    PPTService,
-)
+from app.modules.ppt_generator.schemas import PPTRequest, PPTResponse
+from app.modules.ppt_generator.service import PPTService
 
-router = APIRouter(
-    prefix="/ppt-generator",
-    tags=["PPT Generator"],
-)
+router = APIRouter(prefix="/ppt-generator", tags=["PPT Generator"])
 
 
-def get_service(
-    db: AsyncSession = Depends(get_db),
-):
-    return PPTService(
-        PaperRepository(db)
-    )
+def get_service(db: AsyncSession = Depends(get_db)):
+    return PPTService(PaperRepository(db))
 
 
-@router.post(
-    "",
-    response_model=PPTResponse,
-)
+@router.post("", response_model=PPTResponse)
+@limiter.limit(settings.AI_RATE_LIMIT)
 async def generate(
+    request: Request,
     data: PPTRequest,
-    service: PPTService = Depends(
-        get_service
-    ),
+    service: PPTService = Depends(get_service),
     current_user: User = Depends(get_current_user),
 ):
-    return await service.generate(
-        data.paper_id,
-        data.slides,
-        current_user,
-    )
+    return await service.generate(data.paper_id, data.slides, current_user)

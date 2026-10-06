@@ -1,4 +1,3 @@
-// src/routes/platformRoutes.js
 import Workspace from "@/pages/platform/Workspace";
 import AISummarizer from "@/pages/platform/AISummarizer";
 import ChatWithPapers from "@/pages/platform/ChatWithPapers";
@@ -6,47 +5,102 @@ import SemanticSearch from "@/pages/platform/SemanticSearch";
 import PptGenerator from "@/pages/platform/PptGenerator";
 import ResearchGapFinder from "@/pages/platform/ResearchGapFinder";
 import Analytics from "@/pages/platform/Analytics";
+import Dashboard from "@/pages/platform/Dashboard";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Outlet } from "react-router-dom";
 
+const protectedPlatformElement = <ProtectedRoute />;
+
 const platformRoutes = [
-  /*
-  |--------------------------------------------------------------------------
-  | 1. Nested Scoped Directory Routes (e.g., /platform/...)
-  |--------------------------------------------------------------------------
-  */
   {
-    path: "platform", 
-    element: <Outlet />, 
+    path: "platform",
+    element: protectedPlatformElement,
     children: [
-      { path: "workspace", element: <Workspace /> },
-      { path: "ai-summarizer", element: <AISummarizer /> },
-      { path: "chat-with-papers", element: <ChatWithPapers /> },
-      { path: "semantic-search", element: <SemanticSearch /> },
-      { path: "ppt-generator", element: <PptGenerator /> },
-      { path: "analytics", element: <Analytics /> },
-      { path: "research-gap-finder", element: <ResearchGapFinder /> },
+      {
+        element: <Outlet />,
+        children: [
+          { path: "workspace", element: <Workspace /> },
+          { path: "ai-summarizer", element: <AISummarizer /> },
+          { path: "chat-with-papers", element: <ChatWithPapers /> },
+          { path: "semantic-search", element: <SemanticSearch /> },
+          { path: "ppt-generator", element: <PptGenerator /> },
+          { path: "analytics", element: <Analytics /> },
+          { path: "research-gap-finder", element: <ResearchGapFinder /> },
+        ],
+      },
     ],
   },
+  { path: "dashboard", element: <ProtectedRoute><Dashboard /></ProtectedRoute> },
 
-  /*
-  |--------------------------------------------------------------------------
-  | 2. Root Shortlink Fallback Mirror Routes (e.g., /...)
-  |--------------------------------------------------------------------------
-  | This mirrors the paths straight onto the root domain namespace so that
-  | if the user trims down the URL bar, React Router will still successfully
-  | capture and render the page instead of throwing a 404 block graphic!
-  |
-  */
-  { path: "workspace", element: <Workspace /> },
-  { path: "ai-summarizer", element: <AISummarizer /> },
-  { path: "chat-with-papers", element: <ChatWithPapers /> },
-  { path: "semantic-search", element: <SemanticSearch /> },
-  { path: "ppt-generator", element: <PptGenerator /> },
-  { path: "analytics", element: <Analytics /> },
-  { path: "research-gap-finder", element: <ResearchGapFinder /> },
+  { path: "workspace", element: <ProtectedRoute><Workspace /></ProtectedRoute> },
+  { path: "ai-summarizer", element: <ProtectedRoute><AISummarizer /></ProtectedRoute> },
+  { path: "chat-with-papers", element: <ProtectedRoute><ChatWithPapers /></ProtectedRoute> },
+  { path: "semantic-search", element: <ProtectedRoute><SemanticSearch /></ProtectedRoute> },
+  { path: "ppt-generator", element: <ProtectedRoute><PptGenerator /></ProtectedRoute> },
+  { path: "analytics", element: <ProtectedRoute><Analytics /></ProtectedRoute> },
+  { path: "research-gap-finder", element: <ProtectedRoute><ResearchGapFinder /></ProtectedRoute> },
 ];
 
 export default platformRoutes;
+
+
+
+
+
+
+
+
+
+
+// // src/routes/platformRoutes.js
+// import Workspace from "@/pages/platform/Workspace";
+// import AISummarizer from "@/pages/platform/AISummarizer";
+// import ChatWithPapers from "@/pages/platform/ChatWithPapers";
+// import SemanticSearch from "@/pages/platform/SemanticSearch";
+// import PptGenerator from "@/pages/platform/PptGenerator";
+// import ResearchGapFinder from "@/pages/platform/ResearchGapFinder";
+// import Analytics from "@/pages/platform/Analytics";
+// import { Outlet } from "react-router-dom";
+
+// const platformRoutes = [
+//   /*
+//   |--------------------------------------------------------------------------
+//   | 1. Nested Scoped Directory Routes (e.g., /platform/...)
+//   |--------------------------------------------------------------------------
+//   */
+//   {
+//     path: "platform", 
+//     element: <Outlet />, 
+//     children: [
+//       { path: "workspace", element: <Workspace /> },
+//       { path: "ai-summarizer", element: <AISummarizer /> },
+//       { path: "chat-with-papers", element: <ChatWithPapers /> },
+//       { path: "semantic-search", element: <SemanticSearch /> },
+//       { path: "ppt-generator", element: <PptGenerator /> },
+//       { path: "analytics", element: <Analytics /> },
+//       { path: "research-gap-finder", element: <ResearchGapFinder /> },
+//     ],
+//   },
+
+//   /*
+//   |--------------------------------------------------------------------------
+//   | 2. Root Shortlink Fallback Mirror Routes (e.g., /...)
+//   |--------------------------------------------------------------------------
+//   | This mirrors the paths straight onto the root domain namespace so that
+//   | if the user trims down the URL bar, React Router will still successfully
+//   | capture and render the page instead of throwing a 404 block graphic!
+//   |
+//   */
+//   { path: "workspace", element: <Workspace /> },
+//   { path: "ai-summarizer", element: <AISummarizer /> },
+//   { path: "chat-with-papers", element: <ChatWithPapers /> },
+//   { path: "semantic-search", element: <SemanticSearch /> },
+//   { path: "ppt-generator", element: <PptGenerator /> },
+//   { path: "analytics", element: <Analytics /> },
+//   { path: "research-gap-finder", element: <ResearchGapFinder /> },
+// ];
+
+// export default platformRoutes;
 
 
 // // src/routes/platformRoutes.js

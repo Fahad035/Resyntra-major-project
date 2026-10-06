@@ -23,10 +23,48 @@ export const logoutUser = async (data) => {
   return response.data;
 };
 
-// GET /auth/me — used on app load to verify the cached user/token pair is
-// still valid rather than trusting whatever was last written to
-// localStorage (e.g. after a server-side password reset or role change).
 export const getCurrentUser = async () => {
   const response = await client.get("/auth/me");
+  return response.data;
+};
+
+/**
+ * Request a password-reset email.
+ */
+export const forgotPassword = async (email) => {
+  const response = await client.post("/auth/forgot-password", {
+    email,
+  });
+
+  return response.data;
+};
+
+/**
+ * Reset password using the token received by email.
+ */
+export const resetPassword = async (data) => {
+  const response = await client.post("/auth/reset-password", data);
+  return response.data;
+};
+
+/**
+ * Verify the user's email address.
+ */
+export const verifyEmail = async (token) => {
+  const response = await client.post("/auth/verify-email", {
+    token,
+  });
+
+  return response.data;
+};
+
+/**
+ * Resend email verification message.
+ */
+export const resendVerificationEmail = async (email) => {
+  const response = await client.post("/auth/resend-verification", {
+    email,
+  });
+
   return response.data;
 };

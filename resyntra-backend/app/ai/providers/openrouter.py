@@ -59,6 +59,8 @@ class OpenRouterProvider:
 
         data = response.json()
 
+        print(">>> OPENROUTER RAW RESPONSE:")
+
         try:
             return data["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:

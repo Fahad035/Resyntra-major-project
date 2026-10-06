@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
 
+    # Frontend origins are comma-separated in .env.
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    FRONTEND_URL: str = "http://localhost:5173"
+
     # Authentication
     # Secure by default. Development mode can explicitly set
     # AUTH_ENABLED=false in the local .env file.
@@ -64,6 +68,21 @@ class Settings(BaseSettings):
 
     # AI provider
     AI_PROVIDER: str = "gemini"
+
+    # SMTP / email delivery. Mailpit is the default local development server.
+    SMTP_HOST: str = "localhost"
+    SMTP_PORT: int = 1025
+    SMTP_USERNAME: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM_EMAIL: str = "no-reply@resyntra.local"
+    SMTP_FROM_NAME: str = "Resyntra"
+
+    EMAIL_VERIFICATION_EXPIRE_HOURS: int = 24
+    PASSWORD_RESET_EXPIRE_MINUTES: int = 30
+
+    # Rate limits are intentionally configurable so production can tighten them.
+    LOGIN_RATE_LIMIT: str = "5/minute"
+    AI_RATE_LIMIT: str = "20/minute"
 
     model_config = SettingsConfigDict(
         env_file=".env",

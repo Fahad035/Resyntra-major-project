@@ -1,4 +1,4 @@
-import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const RememberMe = ({ register }) => {
   return (
@@ -12,15 +12,12 @@ const RememberMe = ({ register }) => {
         Remember me
       </label>
 
-      <button
-        type="button"
-        onClick={() =>
-          toast("Password reset isn't available yet — contact support for help.")
-        }
+      <Link
+        to="/forgot-password"
         className="text-sm font-medium text-(--primary) hover:text-(--primary-hover)"
       >
         Forgot Password?
-      </button>
+      </Link>
     </div>
   );
 };

@@ -6,3 +6,5 @@ export { default as SectionTitle } from "./SectionTitle";
 export { default as Popover } from "./Popover";
 export { PopoverTrigger } from "./Popover";
 export { PopoverContent } from "./Popover";
+
+export { default as Spinner } from "./Spinner"

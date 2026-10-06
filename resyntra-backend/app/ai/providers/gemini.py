@@ -30,5 +30,7 @@ class GeminiProvider(BaseAIProvider):
             contents=prompt,
             config=config,
         )
+        print(">>> GEMINI RAW RESPONSE:", response)
+        print(">>> GEMINI TEXT:", response.text)
 
         return response.text
