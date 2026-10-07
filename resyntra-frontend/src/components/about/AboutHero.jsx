@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, GraduationCap } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 
-const GITHUB_URL = "https://github.com/"; // TODO: put your repo link
+const GITHUB_URL = "https://github.com/Fahad035/Resyntra-major-project";
 
 const AboutHero = () => {
   return (

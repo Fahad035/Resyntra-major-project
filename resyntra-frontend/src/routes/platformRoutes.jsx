@@ -6,6 +6,9 @@ import PptGenerator from "@/pages/platform/PptGenerator";
 import ResearchGapFinder from "@/pages/platform/ResearchGapFinder";
 import Analytics from "@/pages/platform/Analytics";
 import Dashboard from "@/pages/platform/Dashboard";
+
+import Profile from "@/pages/profile/Profile";
+
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Outlet } from "react-router-dom";
 
@@ -31,6 +34,8 @@ const platformRoutes = [
     ],
   },
   { path: "dashboard", element: <ProtectedRoute><Dashboard /></ProtectedRoute> },
+
+  { path: "profile", element: <ProtectedRoute><Profile /></ProtectedRoute> },
 
   { path: "workspace", element: <ProtectedRoute><Workspace /></ProtectedRoute> },
   { path: "ai-summarizer", element: <ProtectedRoute><AISummarizer /></ProtectedRoute> },
