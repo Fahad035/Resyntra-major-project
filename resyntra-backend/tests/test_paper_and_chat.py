@@ -7,6 +7,7 @@ from fastapi import HTTPException
 
 from app.modules.chat.service import ChatService
 from app.modules.papers.service import PaperService
+from app.models.user import User
 
 
 @pytest.fixture

@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from app.models.user import User
 from app.modules.auth.schemas import ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest
 from app.modules.auth.service import AuthService
+from types import SimpleNamespace
 
 
 @pytest.fixture
@@ -128,6 +129,8 @@ async def test_verify_email_marks_user_verified(repo, user):
     repo.get_auth_token = AsyncMock(return_value=token)
     repo.get_by_id = AsyncMock(return_value=user)
     repo.delete_auth_token = AsyncMock()
+
+    repo.db.commit = AsyncMock()
     service = AuthService(repo, Mock())
 
     result = await service.verify_email("verification-token")
